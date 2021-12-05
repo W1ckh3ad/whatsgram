@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "whatsgram-105c9": {
+      "hosting": {
+        "app": [
+          "whatsgram-105c9"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "whatsgram-105c9"
+  }
+}
