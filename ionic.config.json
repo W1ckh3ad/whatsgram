@@ -1,0 +1,7 @@
+{
+  "name": "whatsgram",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
