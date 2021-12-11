@@ -1,14 +1,89 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>login</ion-title>
+    <ion-title>Login</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-<ion-text>
-  <h1>Login</h1>
-</ion-text>
-<ion-button>Login</ion-button>
-<ion-button type="button" (click)="authService.GoogleAuth()">Login</ion-button>
+  <form>
+    <ion-grid style="--ion-grid-padding: 0.5rem">
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Username</ion-label>
+            <ion-input
+              type="text"
+              name="Username"
+              autocapitalize="none"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
 
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Password</ion-label>
+            <ion-input type="password" name="Password" autocapitalize="none">
+            </ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button type="submit" expand="block">Login</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button type="button" href="signup" expand="block"
+            >Registrieren</ion-button
+          >
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-text><h2>Weitere Loginmöglichkeiten</h2></ion-text>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          type="button"
+          (click)="authService.googleLogin()"
+          color="light"
+          expand="block"
+          ><ion-icon name="logo-google" style="margin-right: 1ch"></ion-icon>
+          Login mit Google</ion-button
+        >
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          type="button"
+          (click)="authService.gitHubLogin()"
+          color="dark"
+          expand="block"
+          ><ion-icon name="logo-github" style="margin-right: 1ch"></ion-icon>
+          Login mit Github</ion-button
+        ></ion-col
+      >
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button
+          type="button"
+          (click)="authService.twitterLogin()"
+          color="secondary"
+          expand="block"
+        >
+          Login mit Twitter</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import {
   Auth,
   authState,
@@ -9,6 +9,8 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  GithubAuthProvider,
+  TwitterAuthProvider,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 
@@ -16,7 +18,11 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(@Optional() private auth: Auth, private router: Router) {}
+
+  getUser() {
+    return this.auth.currentUser;
+  }
 
   login(email: string, password: string) {
     signInWithEmailAndPassword(this.auth, email, password)
@@ -41,14 +47,15 @@ export class AuthService {
   }
 
   googleLogin() {
-    const provider = new GoogleAuthProvider();
-    return this.oAuthLogin(provider)
-      .then((value) => {
-        console.log('Sucess', value), this.router.navigateByUrl('/profile');
-      })
-      .catch((error) => {
-        console.log('Something went wrong: ', error);
-      });
+    this.oAuthLogin(new GoogleAuthProvider());
+  }
+
+  gitHubLogin() {
+    this.oAuthLogin(new GithubAuthProvider());
+  }
+
+  twitterLogin() {
+    this.oAuthLogin(new TwitterAuthProvider());
   }
 
   logout() {
@@ -57,7 +64,12 @@ export class AuthService {
     });
   }
 
-  private oAuthLogin(provider) {
-    return signInWithPopup(this.auth, provider);
+  private async oAuthLogin(provider) {
+    try {
+      const value = await signInWithPopup(this.auth, provider);
+      console.log('Sucess', value), this.router.navigateByUrl('/chats');
+    } catch (error) {
+      console.log('Something went wrong: ', error);
+    }
   }
 }
