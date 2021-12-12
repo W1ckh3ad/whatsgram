@@ -19,8 +19,7 @@ import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
-import { AuthGuardService } from './services/auth-guard/auth-guard.service';
-import { AuthService } from './services/auth/auth.service';
+import { AngularFireAuthGuardModule } from '@angular/fire/compat/auth-guard';
 
 @NgModule({
   declarations: [AppComponent, NavComponent],
@@ -32,18 +31,15 @@ import { AuthService } from './services/auth/auth.service';
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
-    provideDatabase(() => getDatabase()),
+    // provideDatabase(() => getDatabase()),
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
-    // provide modular style for AppCheck, see app.browser/server
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    // provideStorage(() => getStorage()),
+    AngularFireAuthGuardModule,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ScreenTrackingService,
     UserTrackingService,
-    AuthService,
-    AuthGuardService,
   ],
   bootstrap: [AppComponent],
 })

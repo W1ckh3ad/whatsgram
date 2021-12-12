@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuardService } from './services/auth-guard/auth-guard.service';
-
+import {AuthGuardModule} from "@angular/fire/auth-guard"
 const routes: Routes = [
   {
     path: '',
@@ -17,7 +16,6 @@ const routes: Routes = [
     path: 'settings',
     loadChildren: () =>
       import('./settings/settings.module').then((m) => m.SettingsPageModule),
-    canActivate: [AuthGuardService],
   },
   {
     path: 'sign-up',
@@ -28,13 +26,11 @@ const routes: Routes = [
     path: 'chats',
     loadChildren: () =>
       import('./chats/chats.module').then((m) => m.ChatsPageModule),
-    canActivate: [AuthGuardService],
   },
   {
     path: 'contacts',
     loadChildren: () =>
       import('./contacts/contacts.module').then((m) => m.ContactsPageModule),
-    canActivate: [AuthGuardService],
   },
   {
     path: '**',

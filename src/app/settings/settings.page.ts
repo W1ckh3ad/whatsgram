@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../services/auth/auth.service';
+import { Auth, signOut } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-settings',
@@ -7,9 +8,13 @@ import { AuthService } from '../services/auth/auth.service';
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  constructor(auth: AuthService) {
-    console.log(auth.getUser());
-  }
+  constructor(private auth: Auth, private router: Router) {}
 
   ngOnInit() {}
+
+  logout() {
+    signOut(this.auth).then(() => {
+      this.router.navigate(['/login']);
+    });
+  }
 }
