@@ -1,4 +1,4 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
-  <app-nav></app-nav>
+  <ng-container *ngIf="auth.currentUser"><app-nav></app-nav></ng-container>
 </ion-app>

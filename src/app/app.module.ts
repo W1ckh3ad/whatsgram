@@ -19,7 +19,6 @@ import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
-import { AngularFireAuthGuardModule } from '@angular/fire/compat/auth-guard';
 
 @NgModule({
   declarations: [AppComponent, NavComponent],
@@ -34,7 +33,6 @@ import { AngularFireAuthGuardModule } from '@angular/fire/compat/auth-guard';
     // provideDatabase(() => getDatabase()),
     provideFirestore(() => getFirestore()),
     // provideStorage(() => getStorage()),
-    AngularFireAuthGuardModule,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

@@ -7,33 +7,45 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   TwitterAuthProvider,
+  User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { UserService } from '../services/user/user.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(
+    private auth: Auth,
+    private router: Router,
+    private userService: UserService
+  ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.auth.currentUser);
+    if (this.auth.currentUser) {
+      this.save();
+      this.router.navigateByUrl('/chats');
+    }
+  }
 
-  emailSignup(email: string, password: string) {
-    createUserWithEmailAndPassword(this.auth, email, password)
-      .then((value) => {
-        console.log('Sucess', value);
-        this.router.navigateByUrl('/chats');
-      })
-      .catch((error) => {
-        console.log('Something went wrong: ', error);
-      });
+  save() {
+    const { displayName, photoURL, uid } = this.auth.currentUser;
+    this.userService.saveUser({
+      displayName,
+      uid,
+      photoURL,
+      publicKey: 'asda',
+    });
   }
 
   login(email: string, password: string) {
     signInWithEmailAndPassword(this.auth, email, password)
       .then((value) => {
         console.log('Nice, it worked!');
+        this.save();
         this.router.navigateByUrl('/chats');
       })
       .catch((err) => {
@@ -56,6 +68,7 @@ export class LoginPage implements OnInit {
   private async oAuthLogin(provider) {
     try {
       const value = await signInWithPopup(this.auth, provider);
+      this.save();
       console.log('Sucess', value), this.router.navigateByUrl('/chats');
     } catch (error) {
       console.log('Something went wrong: ', error);
