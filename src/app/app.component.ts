@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
 import { Storage } from '@capacitor/storage';
 @Component({
   selector: 'app-root',
@@ -7,7 +6,7 @@ import { Storage } from '@capacitor/storage';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  constructor(private auth: Auth) {}
+  constructor() {}
 
   async ngOnInit() {
     let { value: theme } = await Storage.get({ key: 'theme' });

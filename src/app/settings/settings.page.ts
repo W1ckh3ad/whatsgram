@@ -15,11 +15,7 @@ export class SettingsPage implements OnInit {
   }
 
   async ngOnInit() {
-    if (!this.user) {
-      this.router.navigateByUrl('/login');
-    }
     const r = (await Storage.get({ key: 'theme' }));
-    console.log(r);
     this.isDarkMode = r.value === 'dark';
   }
 

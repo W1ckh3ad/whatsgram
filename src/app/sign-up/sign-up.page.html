@@ -1,9 +1,70 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>signUp</ion-title>
+    <ion-title>Registrieren</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <div style="max-width: 560px; margin: 4rem auto">
+    <ion-text>
+      <h1>Registrieren</h1>
+    </ion-text>
+    <form #signUpForm="ngForm" (ngSubmit)="onSubmit()">
+      <ion-grid style="--ion-grid-padding: 0.5rem">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>E-Mail</ion-label>
+              <ion-input
+                type="email"
+                [(ngModel)]="model.email"
+                name="email"
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Password</ion-label>
+              <ion-input
+                type="password"
+                [(ngModel)]="model.password"
+                name="password"
+              >
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Password Bestätigen</ion-label>
+              <ion-input
+                type="password"
+                [(ngModel)]="model.confirmPassword"
+                name="confirmPassword"
+              >
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ng-container *ngIf="errorMessage !== ''">
+          <ion-row>
+            <ion-col>
+              <span style="color: var(--ion-color-danger)">{{errorMessage}}</span>
+            </ion-col>
+          </ion-row></ng-container
+        >
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" expand="block" (click)="onSubmit"
+              >Registrieren [{{submitted}}]</ion-button
+            >
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+  </div>
 </ion-content>

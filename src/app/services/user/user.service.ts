@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, collection } from '@angular/fire/firestore';
-import { getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import {
+  Firestore,
+  collection,
+  getDoc,
+  setDoc,
+  doc,
+  updateDoc,
+} from '@angular/fire/firestore';
 import { User } from './user.model';
 
 @Injectable({
@@ -9,16 +15,16 @@ import { User } from './user.model';
 export class UserService {
   constructor(private firestore: Firestore) {}
 
-  async saveUser(user: User) {
+  async saveUser({ phoneNumber, ...user }: User) {
     const userRef = doc(this.firestore, `users/${user.uid}`);
-    const data = await getDoc(userRef);
-
+    const docSnap = await getDoc(userRef);
+    console.log(docSnap.data());
     try {
-      if (!data.data) {
-        return await updateDoc(userRef, user as any);
+      if (docSnap.exists()) {
+        return await updateDoc(userRef, { ...user, ...docSnap.data() });
       }
 
-      return await setDoc(userRef, user as any);
+      return await setDoc(userRef, { ...user, phoneNumber });
     } catch (error) {
       console.error(error);
     }

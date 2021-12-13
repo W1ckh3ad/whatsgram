@@ -24,7 +24,6 @@ export class LoginPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log(this.auth.currentUser);
     if (this.auth.currentUser) {
       this.save();
       this.router.navigateByUrl('/chats');
@@ -32,12 +31,15 @@ export class LoginPage implements OnInit {
   }
 
   save() {
-    const { displayName, photoURL, uid } = this.auth.currentUser;
+    const { displayName, photoURL, uid, phoneNumber, email } =
+      this.auth.currentUser;
     this.userService.saveUser({
       displayName,
       uid,
       photoURL,
       publicKey: 'asda',
+      phoneNumber,
+      email,
     });
   }
 

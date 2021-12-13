@@ -3,4 +3,7 @@ export interface User {
   photoURL?: string;
   displayName?: string;
   publicKey?: string;
+  email?: string;
+  phoneNumber?: string;
+  contacts?: string[];
 }

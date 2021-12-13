@@ -20,6 +20,8 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
 
+import { AuthGuardModule } from '@angular/fire/auth-guard';
+
 @NgModule({
   declarations: [AppComponent, NavComponent],
   entryComponents: [],
@@ -32,6 +34,7 @@ import { NavComponent } from './nav/nav.component';
     provideAuth(() => getAuth()),
     // provideDatabase(() => getDatabase()),
     provideFirestore(() => getFirestore()),
+    AuthGuardModule,
     // provideStorage(() => getStorage()),
   ],
   providers: [
