@@ -22,24 +22,6 @@ const routes: Routes = [
     canActivate: [AnonymousGuard],
   },
   {
-    path: 'settings',
-    loadChildren: () =>
-      import('./settings/settings.module').then((m) => m.SettingsPageModule),
-    canActivate: [VerifiedGuard],
-  },
-  {
-    path: 'chats',
-    loadChildren: () =>
-      import('./chats/chats.module').then((m) => m.ChatsPageModule),
-    canActivate: [VerifiedGuard],
-  },
-  {
-    path: 'contacts',
-    loadChildren: () =>
-      import('./contacts/contacts.module').then((m) => m.ContactsPageModule),
-    canActivate: [VerifiedGuard],
-  },
-  {
     path: 'verify-email',
     loadChildren: () =>
       import('./verify-email/verify-email.module').then(
@@ -61,6 +43,25 @@ const routes: Routes = [
       import('./sign-out/sign-out.module').then((m) => m.SignOutPageModule),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'settings',
+    loadChildren: () =>
+      import('./settings/settings.module').then((m) => m.SettingsPageModule),
+    canActivate: [VerifiedGuard],
+  },
+  {
+    path: 'chats',
+    loadChildren: () =>
+      import('./chats/chats.module').then((m) => m.ChatsPageModule),
+    canActivate: [VerifiedGuard],
+  },
+  {
+    path: 'contacts',
+    loadChildren: () =>
+      import('./contacts/contacts.module').then((m) => m.ContactsPageModule),
+    canActivate: [VerifiedGuard],
+  },
+
   {
     path: '**',
     loadChildren: () =>

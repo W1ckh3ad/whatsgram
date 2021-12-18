@@ -73,6 +73,7 @@ export class SignInPage implements OnInit {
         publicKey: 'asda',
         email,
       });
+
       if (emailVerified) {
         return this.router.navigateByUrl('/settings/profile');
       }
