@@ -3,7 +3,6 @@ import {
   Auth,
   signInWithEmailAndPassword,
   signInWithPopup,
-  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   GithubAuthProvider,
   TwitterAuthProvider,
@@ -11,14 +10,15 @@ import {
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user/user.service';
-import { Login } from './login.model';
+import { SignIn } from './sign-in.model';
+
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+  selector: 'app-sign-in',
+  templateUrl: './sign-in.page.html',
+  styleUrls: ['./sign-in.page.scss'],
 })
-export class LoginPage implements OnInit {
-  model = new Login('', '');
+export class SignInPage implements OnInit {
+  model = new SignIn('', '');
   errorMessage = '';
   constructor(
     private auth: Auth,

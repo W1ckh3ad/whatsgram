@@ -1,6 +1,6 @@
 <ion-tabs>
   <ion-tab-bar slot="bottom">
-    <ng-container *ngIf="auth.currentUser">
+    <ng-container *ngIf="isLoggedIn && isVerified">
       <ion-tab-button tab="contacts">
         <ion-icon name="person"></ion-icon>
         <ion-label>Kontakte</ion-label>
@@ -14,7 +14,7 @@
         <ion-label>Einstellungen</ion-label>
       </ion-tab-button>
     </ng-container>
-    <ng-container *ngIf="!auth.currentUser">
+    <ng-container *ngIf="!isLoggedIn">
       <ion-tab-button tab="login">
         <ion-icon name="person"></ion-icon>
         <ion-label>Login</ion-label>
@@ -22,6 +22,12 @@
       <ion-tab-button tab="sign-up">
         <ion-icon name="add"></ion-icon>
         <ion-label>Registrieren</ion-label>
+      </ion-tab-button>
+    </ng-container>
+    <ng-container *ngIf="!isVerified">
+      <ion-tab-button tab="verify-email">
+        <ion-icon name="mail"></ion-icon>
+        <ion-label>verify-email</ion-label>
       </ion-tab-button>
     </ng-container>
   </ion-tab-bar>

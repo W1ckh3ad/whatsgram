@@ -53,14 +53,16 @@
         <ng-container *ngIf="errorMessage !== ''">
           <ion-row>
             <ion-col>
-              <span style="color: var(--ion-color-danger)">{{errorMessage}}</span>
+              <span style="color: var(--ion-color-danger)"
+                >{{errorMessage}}</span
+              >
             </ion-col>
           </ion-row></ng-container
         >
         <ion-row>
           <ion-col>
             <ion-button type="submit" expand="block" (click)="onSubmit"
-              >Registrieren [{{submitted}}]</ion-button
+              >Registrieren</ion-button
             >
           </ion-col>
         </ion-row>

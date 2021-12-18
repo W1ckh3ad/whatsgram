@@ -1,9 +1,78 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>profile</ion-title>
+    <ion-button slot="start">
+      <ion-back-button defaultHref="/settings"></ion-back-button>
+    </ion-button>
+    <ion-title>Einstellungen</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-title> Profil Bearbeiten </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <div style="max-width: 560px; margin: 4rem auto">
+    <ion-text>
+      <h1>Profil Bearbeiten</h1>
+    </ion-text>
+    <form #signUpForm="ngForm" (ngSubmit)="onSubmit()">
+      <ion-grid style="--ion-grid-padding: 0.5rem">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Name</ion-label>
+              <ion-input
+                type="text"
+                [(ngModel)]="model.displayName"
+                name="displayName"
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Telefonnummer</ion-label>
+              <ion-input
+                type="tel"
+                [(ngModel)]="model.phoneNumber"
+                name="phoneNumber"
+              >
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Profilfoto URL</ion-label>
+              <ion-input
+                type="text"
+                [(ngModel)]="model.photoURL"
+                name="photoURL"
+              ></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label floating>Beschreibung</ion-label>
+              <ion-textarea [(ngModel)]="model.description" name="description">
+              </ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button type="submit" expand="block" (click)="onSubmit"
+              >Speichern
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+  </div>
 </ion-content>

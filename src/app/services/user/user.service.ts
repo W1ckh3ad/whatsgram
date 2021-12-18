@@ -1,37 +1,62 @@
 import { Injectable } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import {
   Firestore,
-  collection,
   getDoc,
   setDoc,
   doc,
   updateDoc,
 } from '@angular/fire/firestore';
+import { BehaviorSubject } from 'rxjs';
+import { UserEdit } from 'src/app/settings/profile/user-edit.model';
 import { User } from './user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, public auth: Auth) {
+  }
+  private userRef;
+  private userInstance;
 
-  async saveUser({ phoneNumber, ...user }: User) {
-    const userRef = doc(this.firestore, `users/${user.uid}`);
-    const docSnap = await getDoc(userRef);
-    console.log(docSnap.data());
-    try {
-      if (docSnap.exists()) {
-        return await updateDoc(userRef, { ...user, ...docSnap.data() });
-      }
+  async saveUser(
+    { displayName, description, phoneNumber, photoURL }: UserEdit,
+    userId: string
+  ) {
+    const userRef = this.getRef(userId);
 
-      return await setDoc(userRef, { ...user, phoneNumber });
-    } catch (error) {
-      console.error(error);
-    }
+    const prevData: any = (await getDoc(userRef)).data();
+
+    return await updateDoc(userRef, {
+      ...prevData,
+      displayName,
+      description,
+      phoneNumber,
+      photoURL,
+    });
   }
 
-  async loadUser(userId: string) {
+  async create(user: User) {
+    const doc = this.getRef(user.uid);
+    return await setDoc(doc, { ...user });
+  }
+
+  async exists(userId: string) {
+    return (await getDoc(this.getRef(userId))).exists();
+  }
+
+  async load(userId: string) {
     const userRef = doc(this.firestore, `users/${userId}`);
     return await getDoc(userRef);
   }
+
+  private getRef(userId: string) {
+    if (!this.userRef) {
+      this.userRef = doc(this.firestore, `users/${userId}`);
+    }
+    return this.userRef;
+  }
+
+
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
+import { UserService } from '../services/user/user.service';
 
 @Component({
   selector: 'app-nav',
@@ -7,7 +7,24 @@ import { Auth } from '@angular/fire/auth';
   styleUrls: ['./nav.component.scss'],
 })
 export class NavComponent implements OnInit {
-  constructor(private auth: Auth) {}
+  isLoggedIn = false;
+  isVerified = false;
+  constructor(private user: UserService) {
+    this.isLoggedIn = !!user.auth.currentUser;
+    if (this.isLoggedIn) {
+      this.isVerified = user.auth.currentUser.emailVerified;
+    }
+    console.log(this.isLoggedIn);
+    this.user.auth.onAuthStateChanged((cred) => {
+      debugger;
+      this.isLoggedIn = !!cred;
+      if (this.isLoggedIn) {
+        this.isVerified = cred.emailVerified;
+      } else {
+        this.isVerified = false;
+      }
+    });
+  }
 
   ngOnInit() {}
 }

@@ -10,19 +10,25 @@ import { Storage } from '@capacitor/storage';
 export class SettingsPage implements OnInit {
   user: User;
   isDarkMode: boolean;
+  image;
   constructor(private auth: Auth, private router: Router) {
     this.user = auth.currentUser;
+    this.image =
+      // this.user.photoURL && this.user.photoURL !== '' && false
+      //   ? this.user.photoURL
+      //   :
+      `https://avatars.dicebear.com/api/identicon/${this.user.email}.svg`;
+    console.log(auth.currentUser);
   }
 
   async ngOnInit() {
-    const r = (await Storage.get({ key: 'theme' }));
+    const r = await Storage.get({ key: 'theme' });
     this.isDarkMode = r.value === 'dark';
   }
 
-  logout() {
-    signOut(this.auth).then(() => {
-      this.router.navigate(['/login']);
-    });
+  async logout() {
+    await signOut(this.auth);
+    this.router.navigateByUrl('/login');
   }
 
   async toggleTheme(ev) {
