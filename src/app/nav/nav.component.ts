@@ -16,7 +16,6 @@ export class NavComponent implements OnInit {
     }
     console.log(this.isLoggedIn);
     this.user.auth.onAuthStateChanged((cred) => {
-      debugger;
       this.isLoggedIn = !!cred;
       if (this.isLoggedIn) {
         this.isVerified = cred.emailVerified;

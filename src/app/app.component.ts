@@ -35,8 +35,8 @@ export class AppComponent implements OnInit {
         }
       } else {
         this.authStatusSub.next(null);
-        if (window.location.href !== '/login') {
-          this.router.navigateByUrl('/login');
+        if (window.location.href !== '/sign-in') {
+          this.router.navigateByUrl('/sign-in');
         }
         console.log('User is logged out');
       }

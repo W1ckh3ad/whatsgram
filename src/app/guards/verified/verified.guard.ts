@@ -28,6 +28,6 @@ export class VerifiedGuard implements CanActivate {
       }
       return this.router.navigateByUrl('/verify-email');
     }
-    return this.router.navigateByUrl('/login');
+    return this.router.navigateByUrl('/sign-in');
   }
 }

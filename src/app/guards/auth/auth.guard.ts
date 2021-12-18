@@ -25,6 +25,6 @@ export class AuthGuard implements CanActivate {
     if (this.user.auth.currentUser.emailVerified) {
       return true;
     }
-    return this.router.navigateByUrl('/login');
+    return this.router.navigateByUrl('/sign-in');
   }
 }

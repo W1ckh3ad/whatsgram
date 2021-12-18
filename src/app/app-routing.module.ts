@@ -10,9 +10,9 @@ const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'login',
+    path: 'sign-in',
     loadChildren: () =>
-      import('./login/login.module').then((m) => m.LoginPageModule),
+      import('./sign-in/sign-in.module').then((m) => m.SignInPageModule),
     canActivate: [AnonymousGuard],
   },
   {
@@ -65,11 +65,7 @@ const routes: Routes = [
     path: '**',
     loadChildren: () =>
       import('./not-found/not-found.module').then((m) => m.NotFoundPageModule),
-  },  {
-    path: 'sign-in',
-    loadChildren: () => import('./sign-in/sign-in.module').then( m => m.SignInPageModule)
   },
-
 ];
 @NgModule({
   imports: [
