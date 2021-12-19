@@ -14,8 +14,8 @@
       gap: 1rem;
     "
   >
-    <img
-      src="{{ this.image }}"
+    <ion-img
+      src="{{ getPhotoURL(user.photoURL, user.email) }}"
       alt="user-profile-picture"
       style="
         border-radius: 50%;
@@ -23,12 +23,12 @@
         height: 100px;
         object-fit: scale-down;
       "
-    />
-    <p>{{user.displayName ?? userName}}</p>
+    ></ion-img>
+    <p>{{user.displayName}}</p>
     <p>{{user.email}}</p>
   </div>
   <ion-list>
-    <ion-item lines="full" href="/settings/profile">
+    <ion-item lines="full" href="/settings/profile" (click)="toProfile($event)">
       <ion-label> Profil bearbeiten </ion-label>
       <ion-icon slot="end" name="chevron-forward"></ion-icon>
     </ion-item>

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
+import { Auth, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { AccountService } from 'src/app/services/account/account.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { UserEdit } from './user-edit.model';
+import { UserEdit } from '../../services/account/user-edit.model';
 
 @Component({
   selector: 'app-profile',
@@ -12,21 +14,24 @@ import { UserEdit } from './user-edit.model';
 export class ProfilePage implements OnInit {
   model = new UserEdit('', '', '', '');
   submitted = false;
+  private uid;
 
-  constructor(
-    private router: Router,
-    private user: UserService
-  ) {
-    console.log(user.auth);
-    console.log(user.auth.currentUser);
-  }
+  private authStatusSub = new BehaviorSubject<User>(null);
 
+  constructor(private router: Router, private account: AccountService) {}
+  // phoneNumber regex validation
   async ngOnInit() {
-    const data = await this.user.load(this.user.auth.currentUser.uid);
-    console.log(data);
+    const data = await this.account.load();
+    this.model = new UserEdit(
+      data.displayName,
+      data.phoneNumber,
+      data.photoURL,
+      data.description
+    );
   }
 
-  onSubmit() {
+  async onSubmit() {
     this.submitted = true;
+    await this.account.updateProfile(this.model);
   }
 }

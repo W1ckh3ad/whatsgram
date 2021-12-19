@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { SignUp } from './sign-up.model';
-import { UserService } from '../services/user/user.service';
 import { sendEmailVerification } from 'firebase/auth';
 
 @Component({
@@ -15,11 +14,7 @@ export class SignUpPage implements OnInit {
   submitted = false;
   errorMessage = '';
 
-  constructor(
-    private auth: Auth,
-    private router: Router,
-    private userService: UserService
-  ) {}
+  constructor(private auth: Auth, private router: Router) {}
 
   onSubmit() {
     if (this.model.confirmPassword !== this.model.password) {
@@ -38,18 +33,10 @@ export class SignUpPage implements OnInit {
         email,
         password
       );
-      console.log('Sucess', res);
-      await this.userService.create({
-        email: res.user.email,
-        uid: res.user.uid,
-        photoURL: '',
-        publicKey: '',
-        displayName: '',
-      });
       await sendEmailVerification(res.user);
       this.router.navigateByUrl('/settings/profile');
     } catch (error) {
-      console.log('Something went wrong: ', error);
+      console.error('Something went wrong: ', error);
     }
   }
 }

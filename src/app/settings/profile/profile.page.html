@@ -15,7 +15,7 @@
     <ion-text>
       <h1>Profil Bearbeiten</h1>
     </ion-text>
-    <form #signUpForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #profileForm="ngForm" (ngSubmit)="onSubmit()">
       <ion-grid style="--ion-grid-padding: 0.5rem">
         <ion-row>
           <ion-col>
@@ -67,7 +67,7 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <ion-button type="submit" expand="block" (click)="onSubmit"
+            <ion-button type="submit" expand="block" (click)="onSubmit()"
               >Speichern
             </ion-button>
           </ion-col>

@@ -10,7 +10,12 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   private authStatusSub = new BehaviorSubject<User>(null);
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(
+    private auth: Auth,
+    private router: Router
+  ) {
+    this.authStatusListener();
+  }
 
   async ngOnInit() {
     let { value: theme } = await Storage.get({ key: 'theme' });
@@ -26,19 +31,18 @@ export class AppComponent implements OnInit {
     this.auth.onAuthStateChanged((credential) => {
       if (credential) {
         if (credential.emailVerified) {
-          console.log(credential);
           this.authStatusSub.next(credential);
-          console.log('User is logged in');
+          if (window.location.pathname === '/sign-in') {
+            this.router.navigateByUrl('/chats');
+          }
         } else {
-          console.log("User Mail isn't verified");
-          // this.router.navigateByUrl('/verify-email');
+          this.router.navigateByUrl('/verify-email');
         }
       } else {
         this.authStatusSub.next(null);
-        // if (window.location.href !== '/sign-in') {
-        //   this.router.navigateByUrl('/sign-in');
-        // }
-        console.log('User is logged out');
+        if (window.location.href !== '/sign-in') {
+          this.router.navigateByUrl('/sign-in');
+        }
       }
     });
   }

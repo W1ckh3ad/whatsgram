@@ -20,25 +20,28 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
 import { UserService } from './services/user/user.service';
+import { AccountService } from './services/account/account.service';
 
 @NgModule({
-    declarations: [AppComponent, NavComponent],
-    imports: [
-        BrowserModule,
-        IonicModule.forRoot(),
-        AppRoutingModule,
-        provideFirebaseApp(() => initializeApp(environment.firebase)),
-        provideAnalytics(() => getAnalytics()),
-        provideAuth(() => getAuth()),
-        // provideDatabase(() => getDatabase()),
-        provideFirestore(() => getFirestore()),
-        // provideStorage(() => getStorage()),
-    ],
-    providers: [
-        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-        ScreenTrackingService,
-        UserTrackingService,
-    ],
-    bootstrap: [AppComponent]
+  declarations: [AppComponent, NavComponent],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAnalytics(() => getAnalytics()),
+    provideAuth(() => getAuth()),
+    // provideDatabase(() => getDatabase()),
+    provideFirestore(() => getFirestore()),
+    // provideStorage(() => getStorage()),
+  ],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    ScreenTrackingService,
+    UserTrackingService,
+    // AccountService,
+    // UserService,
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
