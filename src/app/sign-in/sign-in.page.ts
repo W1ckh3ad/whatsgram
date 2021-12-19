@@ -9,7 +9,7 @@ import {
   User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { UserService } from '../services/user/user.service';
+import { AccountService } from '../services/account/account.service';
 import { SignIn } from './sign-in.model';
 
 @Component({
@@ -23,13 +23,10 @@ export class SignInPage implements OnInit {
   constructor(
     private auth: Auth,
     private router: Router,
-    private userService: UserService
+    private account: AccountService
   ) {}
 
-  ngOnInit() {
-    if (this.auth.currentUser) {
-    }
-  }
+  ngOnInit() {}
 
   login() {
     signInWithEmailAndPassword(this.auth, this.model.email, this.model.password)
@@ -58,30 +55,21 @@ export class SignInPage implements OnInit {
       await signInWithPopup(this.auth, provider);
       this.createIfDoesntExistsAndRedirect();
     } catch (error) {
-      console.log('Something went wrong: ', error);
+      console.error('Something went wrong: ', error);
     }
   }
 
   private async createIfDoesntExistsAndRedirect() {
     const { displayName, photoURL, uid, email, emailVerified } =
       this.auth.currentUser;
-    if (!(await this.userService.exists(uid))) {
-      this.userService.create({
-        displayName,
-        uid,
-        photoURL,
-        publicKey: 'asda',
-        email,
-      });
 
+    if (!(await this.account.exists())) {
       if (emailVerified) {
+        this.account.create(this.auth.currentUser);
         return this.router.navigateByUrl('/settings/profile');
       }
       return this.router.navigateByUrl('/verify-email');
     }
-    if (emailVerified) {
-      return this.router.navigateByUrl('/chats');
-    }
-    return this.router.navigateByUrl('/verify-email');
+    return this.router.navigateByUrl('/chats');
   }
 }

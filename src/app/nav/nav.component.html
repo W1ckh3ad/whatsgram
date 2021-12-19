@@ -3,35 +3,35 @@
     <ng-container *ngIf="isLoggedIn && isVerified">
       <ion-tab-button tab="contacts">
         <ion-icon name="person"></ion-icon>
-        <ion-label position="floating">Kontakte</ion-label>
+        <ion-label>Kontakte</ion-label>
       </ion-tab-button>
       <ion-tab-button tab="chats">
         <ion-icon name="chatbubbles"></ion-icon>
-        <ion-label position="floating">Chats</ion-label>
+        <ion-label>Chats</ion-label>
       </ion-tab-button>
       <ion-tab-button tab="settings">
         <ion-icon name="settings"></ion-icon>
-        <ion-label position="floating">Einstellungen</ion-label>
+        <ion-label>Einstellungen</ion-label>
       </ion-tab-button>
     </ng-container>
     <ng-container *ngIf="!isLoggedIn">
       <ion-tab-button tab="sign-in">
         <ion-icon name="person"></ion-icon>
-        <ion-label position="floating">Login</ion-label>
+        <ion-label>Login</ion-label>
       </ion-tab-button>
       <ion-tab-button tab="sign-up">
         <ion-icon name="add"></ion-icon>
-        <ion-label position="floating">Registrieren</ion-label>
+        <ion-label>Registrieren</ion-label>
       </ion-tab-button>
     </ng-container>
     <ng-container *ngIf="!isVerified && isLoggedIn">
       <ion-tab-button tab="verify-email">
         <ion-icon name="mail"></ion-icon>
-        <ion-label position="floating">E-Mail verifizieren</ion-label>
+        <ion-label>E-Mail verifizieren</ion-label>
       </ion-tab-button>
       <ion-tab-button tab="sign-out">
         <ion-icon name="log-out"></ion-icon>
-        <ion-label position="floating">Ausloggen</ion-label>
+        <ion-label>Ausloggen</ion-label>
       </ion-tab-button>
     </ng-container>
   </ion-tab-bar>

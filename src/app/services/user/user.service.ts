@@ -3,47 +3,37 @@ import { Auth } from '@angular/fire/auth';
 import {
   Firestore,
   getDoc,
+  getDocs,
   setDoc,
   doc,
   updateDoc,
+  query,
+  collection,
+  where,
+  orderBy,
+  limit,
 } from '@angular/fire/firestore';
-import { BehaviorSubject } from 'rxjs';
-import { UserEdit } from 'src/app/settings/profile/user-edit.model';
-import { User } from './user.model';
+import { DocumentData } from 'rxfire/firestore/interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
+  ref;
   constructor(private firestore: Firestore, public auth: Auth) {
-  }
-  private userRef;
-  private userInstance;
-
-  async saveUser(
-    { displayName, description, phoneNumber, photoURL }: UserEdit,
-    userId: string
-  ) {
-    const userRef = this.getRef(userId);
-
-    const prevData: any = (await getDoc(userRef)).data();
-
-    return await updateDoc(userRef, {
-      ...prevData,
-      displayName,
-      description,
-      phoneNumber,
-      photoURL,
-    });
+    this.ref = collection(this.firestore, `users`);
   }
 
-  async create(user: User) {
-    const doc = this.getRef(user.uid);
-    return await setDoc(doc, { ...user });
-  }
+  async find(emailUidOrTelephone: string) {
+    const q1 = getDocs(
+      query(
+        this.ref,
+        where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
+        limit(100)
+      )
+    );
 
-  async exists(userId: string) {
-    return (await getDoc(this.getRef(userId))).exists();
+    return q1;
   }
 
   async load(userId: string) {
@@ -52,11 +42,16 @@ export class UserService {
   }
 
   private getRef(userId: string) {
-    if (!this.userRef) {
-      this.userRef = doc(this.firestore, `users/${userId}`);
-    }
-    return this.userRef;
+    return doc(this.firestore, `users/${userId}`);
   }
 
-
+  private getField(input: string) {
+    let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (input.match(regexEmail)) {
+      return 'email';
+    } else if (input.match(/^\d{11,12}/)) {
+      return 'phoneNumber';
+    }
+    return 'uid';
+  }
 }

@@ -20,10 +20,10 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
 import { UserService } from './services/user/user.service';
+import { AccountService } from './services/account/account.service';
 
 @NgModule({
   declarations: [AppComponent, NavComponent],
-  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -39,6 +39,8 @@ import { UserService } from './services/user/user.service';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ScreenTrackingService,
     UserTrackingService,
+    // AccountService,
+    // UserService,
   ],
   bootstrap: [AppComponent],
 })
