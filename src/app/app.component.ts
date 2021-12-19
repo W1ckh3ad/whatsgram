@@ -31,13 +31,13 @@ export class AppComponent implements OnInit {
           console.log('User is logged in');
         } else {
           console.log("User Mail isn't verified");
-          this.router.navigateByUrl('/verify-email');
+          // this.router.navigateByUrl('/verify-email');
         }
       } else {
         this.authStatusSub.next(null);
-        if (window.location.href !== '/sign-in') {
-          this.router.navigateByUrl('/sign-in');
-        }
+        // if (window.location.href !== '/sign-in') {
+        //   this.router.navigateByUrl('/sign-in');
+        // }
         console.log('User is logged out');
       }
     });

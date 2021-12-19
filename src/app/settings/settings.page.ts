@@ -10,14 +10,13 @@ import { Storage } from '@capacitor/storage';
 export class SettingsPage implements OnInit {
   user: User;
   isDarkMode: boolean;
-  image;
+  image: string;
   constructor(private auth: Auth, private router: Router) {
     this.user = auth.currentUser;
     this.image =
-      // this.user.photoURL && this.user.photoURL !== '' && false
-      //   ? this.user.photoURL
-      //   :
-      `https://avatars.dicebear.com/api/identicon/${this.user.email}.svg`;
+      this.user.photoURL && this.user.photoURL !== '' && false
+        ? this.user.photoURL
+        : `https://avatars.dicebear.com/api/identicon/${this.user.email}.svg`;
     console.log(auth.currentUser);
   }
 

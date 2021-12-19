@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
+import { signOut } from 'firebase/auth';
 
 @Component({
   selector: 'app-forgot-password',
@@ -9,7 +10,9 @@ import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 export class ForgotPasswordPage implements OnInit {
   constructor(private auth: Auth) {}
   email: string = '';
-  ngOnInit() {}
+  async ngOnInit() {
+    // await signOut(this.auth);
+  }
 
   forgotPassword() {
     sendPasswordResetEmail(this.auth, this.email);

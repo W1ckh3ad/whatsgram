@@ -19,9 +19,7 @@ import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
-import { VerifiedGuard } from './guards/verified/verified.guard';
 import { UserService } from './services/user/user.service';
-
 
 @NgModule({
   declarations: [AppComponent, NavComponent],
@@ -34,14 +32,13 @@ import { UserService } from './services/user/user.service';
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
     // provideDatabase(() => getDatabase()),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
     // provideStorage(() => getStorage()),
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     ScreenTrackingService,
     UserTrackingService,
-    UserService
   ],
   bootstrap: [AppComponent],
 })

@@ -24,17 +24,17 @@
         object-fit: scale-down;
       "
     />
-    <p>{{user.displayName}}</p>
+    <p>{{user.displayName ?? userName}}</p>
     <p>{{user.email}}</p>
   </div>
   <ion-list>
     <ion-item lines="full" href="/settings/profile">
-      <ion-label position="floating"> Profil bearbeiten </ion-label>
+      <ion-label> Profil bearbeiten </ion-label>
       <ion-icon slot="end" name="chevron-forward"></ion-icon>
     </ion-item>
     <ion-item lines="full">
       <ion-icon slot="start" name="moon"></ion-icon>
-      <ion-label position="floating"> Dunkled Design </ion-label>
+      <ion-label> Dunkled Design </ion-label>
       <ion-toggle
         id="themeToggle"
         slot="end"
