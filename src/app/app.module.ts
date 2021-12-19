@@ -22,24 +22,23 @@ import { NavComponent } from './nav/nav.component';
 import { UserService } from './services/user/user.service';
 
 @NgModule({
-  declarations: [AppComponent, NavComponent],
-  entryComponents: [],
-  imports: [
-    BrowserModule,
-    IonicModule.forRoot(),
-    AppRoutingModule,
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAnalytics(() => getAnalytics()),
-    provideAuth(() => getAuth()),
-    // provideDatabase(() => getDatabase()),
-    provideFirestore(() => getFirestore()),
-    // provideStorage(() => getStorage()),
-  ],
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    ScreenTrackingService,
-    UserTrackingService,
-  ],
-  bootstrap: [AppComponent],
+    declarations: [AppComponent, NavComponent],
+    imports: [
+        BrowserModule,
+        IonicModule.forRoot(),
+        AppRoutingModule,
+        provideFirebaseApp(() => initializeApp(environment.firebase)),
+        provideAnalytics(() => getAnalytics()),
+        provideAuth(() => getAuth()),
+        // provideDatabase(() => getDatabase()),
+        provideFirestore(() => getFirestore()),
+        // provideStorage(() => getStorage()),
+    ],
+    providers: [
+        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+        ScreenTrackingService,
+        UserTrackingService,
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}
