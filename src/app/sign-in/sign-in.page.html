@@ -6,16 +6,17 @@
 
 <ion-content>
   <div style="max-width: 560px; margin: 4rem auto">
-    <form>
+    <form #loginForm="ngForm" (ngSubmit)="login()">
       <ion-grid style="--ion-grid-padding: 0.5rem">
         <ion-row>
           <ion-col>
             <ion-item>
-              <ion-label floating>E-Mail</ion-label>
+              <ion-label position="floating" floating>E-Mail</ion-label>
               <ion-input
                 type="email"
                 name="email"
-                autocapitalize="none"
+                [(ngModel)]="model.email"
+                value="{{model.email}}"
               ></ion-input>
             </ion-item>
           </ion-col>
@@ -24,12 +25,31 @@
         <ion-row>
           <ion-col>
             <ion-item>
-              <ion-label floating>Password</ion-label>
-              <ion-input type="password" name="Password" autocapitalize="none">
+              <ion-label position="floating" floating>Password</ion-label>
+              <ion-input
+                type="password"
+                name="Password"
+                [(ngModel)]="model.password"
+                value="{{model.password}}"
+              >
               </ion-input>
             </ion-item>
           </ion-col>
         </ion-row>
+        <ion-row>
+          <ion-col style="text-align: end">
+            <a href="forgot-password">Passwort vergessen?</a>
+          </ion-col>
+        </ion-row>
+        <ng-container *ngIf="errorMessage !== ''">
+          <ion-row>
+            <ion-col>
+              <span style="color: var(--ion-color-danger)"
+                >{{errorMessage}}</span
+              >
+            </ion-col>
+          </ion-row></ng-container
+        >
         <ion-row>
           <ion-col>
             <ion-button type="submit" expand="block">Login</ion-button>

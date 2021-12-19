@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuardModule } from '@angular/fire/auth-guard';
+import { AuthGuard } from './guards/auth/auth.guard';
+import { VerifiedGuard } from './guards/verified/verified.guard';
 const routes: Routes = [
   {
     path: '',
@@ -8,9 +9,9 @@ const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'login',
+    path: 'sign-in',
     loadChildren: () =>
-      import('./login/login.module').then((m) => m.LoginPageModule),
+      import('./sign-in/sign-in.module').then((m) => m.SignInPageModule),
   },
   {
     path: 'sign-up',
@@ -18,23 +19,45 @@ const routes: Routes = [
       import('./sign-up/sign-up.module').then((m) => m.SignUpPageModule),
   },
   {
+    path: 'verify-email',
+    loadChildren: () =>
+      import('./verify-email/verify-email.module').then(
+        (m) => m.VerifyEmailPageModule
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'forgot-password',
+    loadChildren: () =>
+      import('./forgot-password/forgot-password.module').then(
+        (m) => m.ForgotPasswordPageModule
+      ),
+  },
+  {
+    path: 'sign-out',
+    loadChildren: () =>
+      import('./sign-out/sign-out.module').then((m) => m.SignOutPageModule),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'settings',
     loadChildren: () =>
       import('./settings/settings.module').then((m) => m.SettingsPageModule),
-    canActivate: [AuthGuardModule],
+    canActivate: [AuthGuard, VerifiedGuard],
   },
   {
     path: 'chats',
     loadChildren: () =>
       import('./chats/chats.module').then((m) => m.ChatsPageModule),
-    canActivate: [AuthGuardModule],
+    canActivate: [AuthGuard, VerifiedGuard],
   },
   {
     path: 'contacts',
     loadChildren: () =>
       import('./contacts/contacts.module').then((m) => m.ContactsPageModule),
-    canActivate: [AuthGuardModule],
+    canActivate: [AuthGuard, VerifiedGuard],
   },
+
   {
     path: '**',
     loadChildren: () =>

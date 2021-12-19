@@ -14,7 +14,7 @@
         <ion-row>
           <ion-col>
             <ion-item>
-              <ion-label floating>E-Mail</ion-label>
+              <ion-label position="floating" floating>E-Mail</ion-label>
               <ion-input
                 type="email"
                 [(ngModel)]="model.email"
@@ -27,7 +27,7 @@
         <ion-row>
           <ion-col>
             <ion-item>
-              <ion-label floating>Password</ion-label>
+              <ion-label position="floating" floating>Password</ion-label>
               <ion-input
                 type="password"
                 [(ngModel)]="model.password"
@@ -40,7 +40,9 @@
         <ion-row>
           <ion-col>
             <ion-item>
-              <ion-label floating>Password Bestätigen</ion-label>
+              <ion-label position="floating" floating
+                >Password Bestätigen</ion-label
+              >
               <ion-input
                 type="password"
                 [(ngModel)]="model.confirmPassword"
@@ -53,14 +55,16 @@
         <ng-container *ngIf="errorMessage !== ''">
           <ion-row>
             <ion-col>
-              <span style="color: var(--ion-color-danger)">{{errorMessage}}</span>
+              <span style="color: var(--ion-color-danger)"
+                >{{errorMessage}}</span
+              >
             </ion-col>
           </ion-row></ng-container
         >
         <ion-row>
           <ion-col>
             <ion-button type="submit" expand="block" (click)="onSubmit"
-              >Registrieren [{{submitted}}]</ion-button
+              >Registrieren</ion-button
             >
           </ion-col>
         </ion-row>

@@ -1,0 +1,48 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>Kontakte hinzufügen</ion-title>
+    <ion-buttons slot="end">
+      <ion-button onclick="dismissModal()">Schließen</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form
+    #searchForm="ngForm"
+    (ngSubmit)="onSubmit()"
+    style="
+      display: flex;
+      flex-direction: column;
+      max-width: 460px;
+      margin: 2rem auto;
+      gap: 2rem;
+    "
+  >
+    <ion-item>
+      <ion-label position="floating" floating
+        >E-Mail, Id, Telefonnummer</ion-label
+      >
+      <ion-input type="text" [(ngModel)]="search" name="saerch"></ion-input>
+    </ion-item>
+    <ion-button type="submit" expand="block">Suchen</ion-button>
+  </form>
+  <ion-item-divider color="secondary">
+    <ion-label> Ergebnisse </ion-label>
+  </ion-item-divider>
+  <ion-list>
+    <ng-container *ngFor="let user of users">
+      <ion-item>
+        <ion-avatar slot="start">
+          <ion-img
+            src="{{ getPhotoURL(user.photoURL, user.email) }}"
+            alt="profile-picture"
+          ></ion-img>
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ user.displayName }} [{{ user.email }}}</h2>
+          <p>{{ user.description }}</p>
+        </ion-label>
+      </ion-item>
+    </ng-container>
+  </ion-list>
+</ion-content>
