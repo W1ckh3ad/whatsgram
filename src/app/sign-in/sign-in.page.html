@@ -38,7 +38,9 @@
         </ion-row>
         <ion-row>
           <ion-col style="text-align: end">
-            <a href="forgot-password">Passwort vergessen?</a>
+            <ion-router-link href="forgot-password"
+              >Passwort vergessen?</ion-router-link
+            >
           </ion-col>
         </ion-row>
         <ng-container *ngIf="errorMessage !== ''">
@@ -57,7 +59,7 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <ion-button type="button" href="sign-up" expand="block"
+            <ion-button type="button" (click)="toSignUp()" expand="block"
               >Registrieren</ion-button
             >
           </ion-col>

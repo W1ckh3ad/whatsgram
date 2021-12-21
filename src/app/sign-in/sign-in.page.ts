@@ -72,4 +72,8 @@ export class SignInPage implements OnInit {
     }
     return this.router.navigateByUrl('/chats');
   }
+
+  toSignUp() {
+    this.router.navigateByUrl('/sign-up');
+  }
 }

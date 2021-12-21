@@ -39,8 +39,31 @@
           ></ion-img>
         </ion-avatar>
         <ion-label>
-          <h2>{{ user.displayName }} [{{ user.email }}}</h2>
-          <p>{{ user.description }}</p>
+          <ion-row>
+            <ion-col>
+              <h2>{{ user.displayName }} [{{ user.email }}]</h2>
+              <p>
+                {{ user.description }}
+              </p>
+            </ion-col>
+            <ion-col>
+              <ion-button
+                (disabled)="
+                  this.currentUser.contacts &&
+                    this.currentUser.contacts.includes(user.uid)
+                "
+              >
+                <ion-icon
+                  name="{{
+                    this.currentUser.contacts &&
+                    this.currentUser.contacts.includes(user.uid)
+                      ? 'checkmark'
+                      : 'add'
+                  }}"
+                ></ion-icon>
+              </ion-button>
+            </ion-col>
+          </ion-row>
         </ion-label>
       </ion-item>
     </ng-container>
