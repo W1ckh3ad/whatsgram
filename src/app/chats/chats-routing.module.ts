@@ -6,8 +6,15 @@ import { ChatsPage } from './chats.page';
 const routes: Routes = [
   {
     path: '',
-    component: ChatsPage
-  }
+    component: ChatsPage,
+  },
+  {
+    path: ':id',
+    loadChildren: () =>
+      import('./single-chat/single-chat.module').then(
+        (m) => m.SingleChatPageModule
+      ),
+  },
 ];
 
 @NgModule({
