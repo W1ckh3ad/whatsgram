@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-title>Kontakte hinzufügen</ion-title>
     <ion-buttons slot="end">
-      <ion-button onclick="dismissModal()">Schließen</ion-button>
+      <ion-button (click)="dismissModal()">Schließen</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -31,41 +31,13 @@
   </ion-item-divider>
   <ion-list>
     <ng-container *ngFor="let user of users">
-      <ion-item>
-        <ion-avatar slot="start">
-          <ion-img
-            src="{{ getPhotoURL(user.photoURL, user.email) }}"
-            alt="profile-picture"
-          ></ion-img>
-        </ion-avatar>
-        <ion-label>
-          <ion-row>
-            <ion-col>
-              <h2>{{ user.displayName }} [{{ user.email }}]</h2>
-              <p>
-                {{ user.description }}
-              </p>
-            </ion-col>
-            <ion-col>
-              <ion-button
-                (disabled)="
-                  this.currentUser.contacts &&
-                    this.currentUser.contacts.includes(user.uid)
-                "
-              >
-                <ion-icon
-                  name="{{
-                    this.currentUser.contacts &&
-                    this.currentUser.contacts.includes(user.uid)
-                      ? 'checkmark'
-                      : 'add'
-                  }}"
-                ></ion-icon>
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-label>
-      </ion-item>
+      <app-user
+        [user]="user"
+        [includes]="
+          currentUser.privateData.contacts &&
+          currentUser.privateData.contacts.includes(user.uid)
+        "
+      ></app-user>
     </ng-container>
   </ion-list>
 </ion-content>

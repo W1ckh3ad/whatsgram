@@ -55,11 +55,29 @@ export class AccountService {
       email,
       photoURL,
       uid,
+      privateData: {
+        contacts: [],
+      },
     });
   }
 
   async exists() {
     return (await getDoc(this.docRef.value)).exists();
+  }
+
+  async add(uid: string) {
+    const { privateData, ...rest } = await this.load();
+    const { contacts, ...restPrivate } = privateData ?? { contacts: [] };
+    if (contacts.includes(uid)) {
+      throw new Error('User already in Contacts');
+    }
+    return await this.update({
+      ...rest,
+      privateData: {
+        ...restPrivate,
+        contacts: [...contacts, uid],
+      },
+    });
   }
 
   private authEventlistener() {

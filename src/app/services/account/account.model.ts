@@ -5,6 +5,8 @@ export class Account {
     public phoneNumber?: string,
     public photoURL?: string,
     public description?: string,
-    public contacts?: string[]
+    public privateData?: {
+      contacts?: string[]
+    }
   ) {}
 }

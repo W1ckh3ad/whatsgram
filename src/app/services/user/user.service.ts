@@ -24,21 +24,25 @@ export class UserService {
     this.ref = collection(this.firestore, `users`);
   }
 
-  async find(emailUidOrTelephone: string) {
-    const q1 = getDocs(
+  find(emailUidOrTelephone: string) {
+    return getDocs(
       query(
         this.ref,
         where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
         limit(100)
       )
     );
-
-    return q1;
   }
 
   async load(userId: string) {
-    const userRef = doc(this.firestore, `users/${userId}`);
+    const userRef = this.getRef(userId);
     return await getDoc(userRef);
+  }
+
+  async loadList(userIds: string[]) {
+    return getDocs(
+      query(this.ref, where('uid', 'in', userIds), orderBy('displayName'))
+    );
   }
 
   private getRef(userId: string) {

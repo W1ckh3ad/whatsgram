@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { getPhotoURL } from '../../../utils';
 import { NgForm } from '@angular/forms';
 import { UserService } from 'src/app/services/user/user.service';
 import { AccountService } from 'src/app/services/account/account.service';
@@ -11,7 +10,6 @@ import { AccountService } from 'src/app/services/account/account.service';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  getPhotoURL = getPhotoURL;
   users = [];
   search = '';
   currentUser;
@@ -22,7 +20,11 @@ export class SearchComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.currentUser = await this.account.load();
+    console.log(this);
+  }
+
+  add(uid: string) {
+    this.account.add(uid);
   }
 
   async onSubmit() {
@@ -32,5 +34,9 @@ export class SearchComponent implements OnInit {
       const data = x.data();
       this.users.push(data);
     });
+  }
+
+  async dismissModal() {
+    await this.modalController.dismiss();
   }
 }

@@ -1,0 +1,12 @@
+<ion-item (click)="goto($event)" href="{{ 'chat/' + user.uid }}">
+  <ion-avatar slot="start">
+    <ion-img
+      src="{{ getPhotoURL(user.photoURL, user.email) }}"
+      alt="profile-picture"
+    ></ion-img>
+  </ion-avatar>
+  <ion-label>
+    <h2>{{ user.displayName }} [{{ user.email }}]</h2>
+    <p>{{ user.description }}</p>
+  </ion-label>
+</ion-item>

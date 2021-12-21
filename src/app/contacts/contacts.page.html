@@ -1,10 +1,16 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>contacts</ion-title>
+    <ion-title>Kontakte</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openSearch()"><ion-icon name="add"></ion-icon></ion-button>
+      <ion-button (click)="openSearch()"
+        ><ion-icon name="add"></ion-icon
+      ></ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content> </ion-content>
+<ion-content>
+  <ng-container *ngFor="let contact of contacts">
+    <app-contact [user]="contact"></app-contact>
+  </ng-container>
+</ion-content>
