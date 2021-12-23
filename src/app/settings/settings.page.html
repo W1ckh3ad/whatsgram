@@ -5,49 +5,56 @@
 </ion-header>
 
 <ion-content>
-  <div
-    style="
-      display: flex;
-      align-items: center;
-      margin: 2rem;
-      flex-direction: column;
-      gap: 1rem;
-    "
-  >
-    <ion-img
-      src="{{ getPhotoURL(user.photoURL, user.email) }}"
-      alt="user-profile-picture"
+  <ng-container *ngIf="!user"> loading... </ng-container>
+  <ng-container *ngIf="user">
+    <div
       style="
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        object-fit: scale-down;
+        display: flex;
+        align-items: center;
+        margin: 2rem;
+        flex-direction: column;
+        gap: 1rem;
       "
-    ></ion-img>
-    <p>{{user.displayName}}</p>
-    <p>{{user.email}}</p>
-  </div>
-  <ion-list>
-    <ion-item lines="full" href="/settings/profile" (click)="toProfile($event)">
-      <ion-label> Profil bearbeiten </ion-label>
-      <ion-icon slot="end" name="chevron-forward"></ion-icon>
-    </ion-item>
-    <ion-item lines="full">
-      <ion-icon slot="start" name="moon"></ion-icon>
-      <ion-label> Dunkled Design </ion-label>
-      <ion-toggle
-        id="themeToggle"
-        slot="end"
-        (ionChange)="toggleTheme($event)"
-        checked="{{isDarkMode}}"
-      ></ion-toggle>
-    </ion-item>
-  </ion-list>
-  <ion-button
-    (click)="auth.signOut()"
-    color="danger"
-    expand="block"
-    style="margin-top: 2rem"
-    >Sign Out</ion-button
-  >
+    >
+      <ion-img
+        src="{{ getPhotoURL(imageObject) }}"
+        alt="user-profile-picture"
+        style="
+          border-radius: 50%;
+          width: 100px;
+          height: 100px;
+          object-fit: scale-down;
+        "
+      ></ion-img>
+      <p>{{user.displayName | async}}</p>
+      <p>{{user.email | async}}</p>
+    </div>
+    <ion-list>
+      <ion-item
+        lines="full"
+        href="/settings/profile"
+        (click)="toProfile($event)"
+      >
+        <ion-label> Profil bearbeiten </ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="moon"></ion-icon>
+        <ion-label> Dunkled Design </ion-label>
+        <ion-toggle
+          id="themeToggle"
+          slot="end"
+          (ionChange)="toggleTheme($event)"
+          checked="{{isDarkMode}}"
+        ></ion-toggle>
+      </ion-item>
+    </ion-list>
+    <ion-button
+      (click)="auth.signOut()"
+      color="danger"
+      expand="block"
+      style="margin-top: 2rem"
+      >Sign Out</ion-button
+    >
+  </ng-container>
 </ion-content>

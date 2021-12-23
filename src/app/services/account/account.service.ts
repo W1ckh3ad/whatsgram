@@ -1,14 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Auth, User } from '@angular/fire/auth';
-import {
-  doc,
-  DocumentReference,
-  Firestore,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from '@angular/fire/firestore';
+import { DocumentReference, Firestore, getDoc } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
+import { FirestoreService } from '../firestore/firestore.service';
 import { Account } from './account.model';
 import { UserEdit } from './user-edit.model';
 
@@ -17,8 +11,9 @@ import { UserEdit } from './user-edit.model';
 })
 export class AccountService {
   private uid = new BehaviorSubject<string>(null);
-  private docRef = new BehaviorSubject<DocumentReference>(null);
-  constructor(private auth: Auth, private firestore: Firestore) {
+  private docRef = new BehaviorSubject<DocumentReference<Account>>(null);
+
+  constructor(private auth: Auth, private db: FirestoreService) {
     if (auth.currentUser) {
       this.uid.next(auth.currentUser.uid);
       this.docRef.next(this.getDoc(auth.currentUser.uid));
@@ -26,9 +21,12 @@ export class AccountService {
     this.authEventlistener();
   }
 
-  async load(): Promise<Account> {
-    const snap = await getDoc(this.docRef.value);
-    return snap.data() as Account;
+  load() {
+    return this.db.doc$(this.docRef.value);
+  }
+
+  async loadSnap() {
+    return this.db.docSnap(this.docRef.value);
   }
 
   async updateProfile({
@@ -37,8 +35,8 @@ export class AccountService {
     phoneNumber,
     photoURL,
   }: UserEdit) {
-    const prev = await this.load();
-    return await this.update({
+    const prev = await this.loadSnap();
+    return this.update({
       ...prev,
       displayName,
       phoneNumber: phoneNumber ?? null,
@@ -47,10 +45,9 @@ export class AccountService {
     });
   }
 
-  async create({ displayName, email, photoURL, uid }: User) {
-    // this.docRef.next(doc(this.firestore, `users/${this.uid.value}`));
+  create({ displayName, email, photoURL, uid }: User) {
     this.docRef.next(this.getDoc(uid));
-    return await setDoc(this.docRef.value, {
+    return this.db.set(this.docRef.value, {
       displayName,
       email,
       photoURL,
@@ -62,16 +59,16 @@ export class AccountService {
   }
 
   async exists() {
-    return (await getDoc(this.docRef.value)).exists();
+    return this.db.exists(this.docRef.value);
   }
 
   async add(uid: string) {
-    const { privateData, ...rest } = await this.load();
+    const { privateData, ...rest } = await this.loadSnap();
     const { contacts, ...restPrivate } = privateData ?? { contacts: [] };
     if (contacts.includes(uid)) {
       throw new Error('User already in Contacts');
     }
-    return await this.update({
+    return this.update({
       ...rest,
       privateData: {
         ...restPrivate,
@@ -92,11 +89,11 @@ export class AccountService {
     });
   }
 
-  private async update(data) {
-    return await updateDoc(this.docRef.value, data);
+  private update(data) {
+    return this.db.update(this.docRef.value, data);
   }
 
-  getDoc(uid: string): DocumentReference {
-    return doc(this.firestore, `users/${uid}`);
+  getDoc(uid: string): DocumentReference<Account> {
+    return this.db.doc<Account>(`users/${uid}`);
   }
 }

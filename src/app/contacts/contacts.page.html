@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngFor="let contact of contacts">
+  <ng-container *ngFor="let contact of contacts | async">
     <app-contact [user]="contact"></app-contact>
   </ng-container>
 </ion-content>

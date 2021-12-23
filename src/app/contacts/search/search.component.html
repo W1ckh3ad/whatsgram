@@ -30,13 +30,10 @@
     <ion-label> Ergebnisse </ion-label>
   </ion-item-divider>
   <ion-list>
-    <ng-container *ngFor="let user of users">
+    <ng-container *ngFor="let user of users | async">
       <app-user
         [user]="user"
-        [includes]="
-          currentUser.privateData.contacts &&
-          currentUser.privateData.contacts.includes(user.uid)
-        "
+        [includes]="contacts && contacts.includes(user.uid)"
       ></app-user>
     </ng-container>
   </ion-list>

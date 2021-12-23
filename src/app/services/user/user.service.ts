@@ -12,41 +12,44 @@ import {
   where,
   orderBy,
   limit,
+  CollectionReference,
 } from '@angular/fire/firestore';
-import { DocumentData } from 'rxfire/firestore/interfaces';
+import { Account } from '../account/account.model';
+import { FirestoreService } from '../firestore/firestore.service';
 
+const collectionName = 'users';
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  ref;
-  constructor(private firestore: Firestore, public auth: Auth) {
-    this.ref = collection(this.firestore, `users`);
+  ref: CollectionReference<Account>;
+
+  constructor(private db: FirestoreService, public auth: Auth) {
+    this.ref = this.db.collection<Account>(collectionName);
   }
 
   find(emailUidOrTelephone: string) {
-    return getDocs(
-      query(
-        this.ref,
-        where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
-        limit(100)
-      )
+    return this.db.collectionQuery$<Account>(
+      collectionName,
+      where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
+      limit(100)
     );
   }
 
-  async load(userId: string) {
-    const userRef = this.getRef(userId);
-    return await getDoc(userRef);
+  load(userId: string) {
+    return this.db.doc$(this.getRef(userId));
   }
 
-  async loadList(userIds: string[]) {
-    return getDocs(
-      query(this.ref, where('uid', 'in', userIds), orderBy('displayName'))
+  loadList(userIds: string[]) {
+    return this.db.collectionQuery$<Account>(
+      collectionName,
+      where('uid', 'in', userIds),
+      orderBy('displayName')
     );
   }
 
   private getRef(userId: string) {
-    return doc(this.firestore, `users/${userId}`);
+    return this.db.doc(`users/${userId}`);
   }
 
   private getField(input: string) {

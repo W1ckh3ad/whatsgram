@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
 import { ModalController } from '@ionic/angular';
+import { Observable } from 'rxjs';
 import { Account } from '../services/account/account.model';
 import { AccountService } from '../services/account/account.service';
 import { UserService } from '../services/user/user.service';
@@ -13,22 +13,20 @@ import { SearchComponent } from './search/search.component';
 })
 export class ContactsPage implements OnInit {
   showSearch = false;
-  currentUser: Account;
-  contacts = [];
+  currentUser: Observable<Account>;
+  contacts: Observable<Account[]>;
   constructor(
-    private auth: Auth,
     private account: AccountService,
     private user: UserService,
     public modalController: ModalController
   ) {}
 
-  async ngOnInit() {
-    this.currentUser = await this.account.load();
-    this.contacts = [];
-    (await this.user.loadList(this.currentUser.privateData.contacts)).forEach(
-      (x) => this.contacts.push(x.data())
-    );
-    console.log(this.contacts);
+  ngOnInit() {
+    this.currentUser = this.account.load();
+    this.currentUser.subscribe((x) => {
+      console.log('UPDATE', x);
+      this.contacts = this.user.loadList(x.privateData.contacts);
+    });
   }
 
   search() {}
@@ -38,6 +36,9 @@ export class ContactsPage implements OnInit {
       component: SearchComponent,
       cssClass: 'contacts-search',
       swipeToClose: true,
+      componentProps: {
+        currentUser: this.currentUser,
+      },
     });
     return await modal.present();
   }
