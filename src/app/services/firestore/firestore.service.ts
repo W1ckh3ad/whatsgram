@@ -12,7 +12,7 @@ import {
   Query,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import { setDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 
 type CollectionPredicate<T> = string | CollectionReference<T>;
@@ -24,6 +24,12 @@ type QueryPredicate<T> = string | Query<T>;
 })
 export class FirestoreService {
   constructor(private fs: Firestore) {}
+
+  doc<T>(ref: DocumentPredicate<T>): DocumentReference<T> {
+    return typeof ref === 'string'
+      ? (doc(this.fs, ref) as DocumentReference<T>)
+      : ref;
+  }
 
   collection<T>(ref: CollectionPredicate<T>): CollectionReference<T> {
     return typeof ref === 'string'
@@ -37,20 +43,18 @@ export class FirestoreService {
       : ref;
   }
 
-  doc<T>(ref: DocumentPredicate<T>): DocumentReference<T> {
-    return typeof ref === 'string'
-      ? (doc(this.fs, ref) as DocumentReference<T>)
-      : ref;
-  }
-
   // query
-
-  collection$<T>(ref: CollectionPredicate<T>): Observable<T[]> {
-    return collectionData(this.collection<T>(ref));
-  }
 
   doc$<T>(ref: DocumentPredicate<T>): Observable<T> {
     return docData(this.doc(ref));
+  }
+
+  async docSnap<T>(ref: DocumentPredicate<T>): Promise<T> {
+    return (await getDoc(this.doc(ref))).data() as T;
+  }
+
+  collection$<T>(ref: CollectionPredicate<T>): Observable<T[]> {
+    return collectionData(this.collection<T>(ref));
   }
 
   collectionQuery$<T>(
@@ -60,15 +64,13 @@ export class FirestoreService {
     return collectionData(this.collectionQuery(ref, ...queryFn));
   }
 
-  collectionWithIds$<T>(
-    ref: CollectionPredicate<T>,
-    ...queryFn: QueryConstraint[]
-  ): Observable<any[]> {
-    return collectionData(this.collectionQuery(ref, ...queryFn));
-  }
-
   get timestamp() {
     return serverTimestamp();
+  }
+
+  async exists<T>(ref: DocumentPredicate<T>) {
+    const snap = await getDoc(this.doc(ref));
+    return snap.exists();
   }
 
   // write
@@ -81,5 +83,9 @@ export class FirestoreService {
   update<T>(ref: DocumentPredicate<T>, data: any) {
     const ts = this.timestamp;
     return updateDoc(this.doc(ref), { ...data, updatedAt: ts });
+  }
+
+  remove<T>(ref: DocumentPredicate<T>) {
+    return deleteDoc(this.doc(ref));
   }
 }

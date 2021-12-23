@@ -1,9 +1,6 @@
 <ion-item>
   <ion-avatar slot="start">
-    <ion-img
-      src="{{ getPhotoURL(user.photoURL, user.email) }}"
-      alt="profile-picture"
-    ></ion-img>
+    <ion-img src="{{ getPhotoURL(user) }}" alt="profile-picture"></ion-img>
   </ion-avatar>
   <ion-label>
     <ion-row>
@@ -13,7 +10,9 @@
       </ion-col>
       <ion-col style="display: flex; justify-content: flex-end">
         <ion-button (click)="add()" disabled="{{ added || includes }}">
-          <ion-icon name="{{ added ? 'checkmark' : 'add' }}"></ion-icon>
+          <ion-icon
+            name="{{ added || includes ? 'checkmark' : 'add' }}"
+          ></ion-icon>
         </ion-button>
       </ion-col>
     </ion-row>

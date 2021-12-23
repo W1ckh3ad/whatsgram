@@ -12,10 +12,11 @@ import { Observable } from 'rxjs';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  users: Observable<any[]>;
+  users: Observable<Account[]>;
   search = '';
+  contacts;
 
-  @Input() currentUser: Account;
+  @Input() currentUser: Observable<Account>;
   constructor(
     public modalController: ModalController,
     private user: UserService,
@@ -23,7 +24,7 @@ export class SearchComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log(this);
+    this.currentUser.subscribe((x) => (this.contacts = x.privateData.contacts));
   }
 
   add(uid: string) {

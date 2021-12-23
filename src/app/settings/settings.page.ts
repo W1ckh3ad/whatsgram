@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Auth, signOut, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
+import { Observable } from 'rxjs';
 import { getPhotoURL } from '../../utils';
 import { Account } from '../services/account/account.model';
 import { AccountService } from '../services/account/account.service';
@@ -12,9 +13,12 @@ import { AccountService } from '../services/account/account.service';
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  user: Account;
+  user: Observable<Account>;
   isDarkMode: boolean;
-  image: string;
+  imageObject: { email: string; photoURL: string } = {
+    photoURL: '',
+    email: 'T',
+  };
   getPhotoURL = getPhotoURL;
   constructor(
     private auth: Auth,
@@ -28,6 +32,9 @@ export class SettingsPage implements OnInit {
       this.account.load(),
     ]);
     this.user = user;
+    this.user.subscribe(
+      ({ photoURL, email }) => (this.imageObject = { photoURL, email })
+    );
     this.isDarkMode = r.value === 'dark';
   }
 

@@ -21,7 +21,7 @@ export class ProfilePage implements OnInit {
   constructor(private router: Router, private account: AccountService) {}
   // phoneNumber regex validation
   async ngOnInit() {
-    const data = await this.account.load();
+    const data = await this.account.loadSnap();
     this.model = new UserEdit(
       data.displayName,
       data.phoneNumber,
