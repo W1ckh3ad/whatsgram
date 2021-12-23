@@ -14,7 +14,7 @@ import { SearchComponent } from './search/search.component';
 export class ContactsPage implements OnInit {
   showSearch = false;
   currentUser: Account;
-  contacts = [];
+  contacts;
   constructor(
     private auth: Auth,
     private account: AccountService,
@@ -24,10 +24,7 @@ export class ContactsPage implements OnInit {
 
   async ngOnInit() {
     this.currentUser = await this.account.load();
-    this.contacts = [];
-    (await this.user.loadList(this.currentUser.privateData.contacts)).forEach(
-      (x) => this.contacts.push(x.data())
-    );
+    this.contacts = this.user.loadList(this.currentUser.privateData.contacts);
     console.log(this.contacts);
   }
 
@@ -38,6 +35,9 @@ export class ContactsPage implements OnInit {
       component: SearchComponent,
       cssClass: 'contacts-search',
       swipeToClose: true,
+      componentProps: {
+        currentUser: this.currentUser,
+      },
     });
     return await modal.present();
   }

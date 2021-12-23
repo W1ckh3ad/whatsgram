@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NgForm } from '@angular/forms';
 import { UserService } from 'src/app/services/user/user.service';
 import { AccountService } from 'src/app/services/account/account.service';
+import { Account } from 'src/app/services/account/account.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -10,9 +12,10 @@ import { AccountService } from 'src/app/services/account/account.service';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  users = [];
+  users: Observable<any[]>;
   search = '';
-  currentUser;
+
+  @Input() currentUser: Account;
   constructor(
     public modalController: ModalController,
     private user: UserService,
@@ -28,12 +31,7 @@ export class SearchComponent implements OnInit {
   }
 
   async onSubmit() {
-    const snap = await this.user.find(this.search);
-    this.users = [];
-    snap.forEach((x) => {
-      const data = x.data();
-      this.users.push(data);
-    });
+    this.users = this.user.find(this.search);
   }
 
   async dismissModal() {

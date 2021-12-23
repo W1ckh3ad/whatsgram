@@ -3,6 +3,7 @@ import { Auth, signOut, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { getPhotoURL } from '../../utils';
+import { Account } from '../services/account/account.model';
 import { AccountService } from '../services/account/account.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { AccountService } from '../services/account/account.service';
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  user;
+  user: Account;
   isDarkMode: boolean;
   image: string;
   getPhotoURL = getPhotoURL;
@@ -19,8 +20,7 @@ export class SettingsPage implements OnInit {
     private auth: Auth,
     private account: AccountService,
     private router: Router
-  ) {
-  }
+  ) {}
 
   async ngOnInit() {
     const [r, user] = await Promise.all([
