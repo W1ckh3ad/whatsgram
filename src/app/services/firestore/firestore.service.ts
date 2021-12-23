@@ -11,7 +11,6 @@ import {
   QueryConstraint,
   Query,
   serverTimestamp,
-  change,
 } from '@angular/fire/firestore';
 import { setDoc, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
