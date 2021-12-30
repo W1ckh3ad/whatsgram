@@ -11,6 +11,7 @@ import { getPhotoURL } from 'src/utils';
 export class ContactComponent implements OnInit {
   @Input('user') user: Account;
   getPhotoURL = getPhotoURL;
+  uid: string = '';
   constructor(private router: Router) {}
 
   ngOnInit() {}

@@ -1,7 +1,13 @@
 <ion-header>
   <ion-toolbar>
+    <ion-button slot="start">
+      <ion-back-button defaultHref="/chats"></ion-back-button>
+    </ion-button>
     <ion-title>single-chat</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content> work in progress </ion-content>
+
+<!-- <app-chat-footer (onSubmit)="onSubmit($event)" ></app-chat-footer> -->
+<app-chat-footer [responseTo]="responseTo" [receiverId]="uid"></app-chat-footer>

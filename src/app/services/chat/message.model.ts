@@ -1,8 +1,11 @@
+import { FieldValue } from "firebase/firestore";
+
 export interface Message {
-  uid: string;
-  senderText: string;
-  receiverText: string;
-  userId: string;
-  createdAt: Date;
+  guid: string;
+  text: string;
+  senderId: string;
+  receiverId: string;
+  createdAt: FieldValue;
   responseTo?: string;
+  groupId?: string;
 }

@@ -7,14 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { SingleChatPageRoutingModule } from './single-chat-routing.module';
 
 import { SingleChatPage } from './single-chat.page';
+import { ChatFooterComponent } from '../chat-footer/chat-footer.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    SingleChatPageRoutingModule
+    SingleChatPageRoutingModule,
   ],
-  declarations: [SingleChatPage]
+  declarations: [SingleChatPage, ChatFooterComponent],
 })
 export class SingleChatPageModule {}

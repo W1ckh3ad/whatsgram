@@ -18,16 +18,28 @@ export class ProfilePage implements OnInit {
 
   private authStatusSub = new BehaviorSubject<User>(null);
 
-  constructor(private router: Router, private account: AccountService) {}
+  constructor(
+    private router: Router,
+    private account: AccountService,
+    private auth: Auth
+  ) {}
   // phoneNumber regex validation
   async ngOnInit() {
     const data = await this.account.loadSnap();
-    this.model = new UserEdit(
-      data.displayName,
-      data.phoneNumber,
-      data.photoURL,
-      data.description
-    );
+
+    this.model = data
+      ? new UserEdit(
+          data.displayName,
+          data.phoneNumber,
+          data.photoURL,
+          data.description
+        )
+      : new UserEdit(
+          this.auth.currentUser.displayName ?? '',
+          '',
+          this.auth.currentUser.photoURL ?? '',
+          ''
+        );
   }
 
   async onSubmit() {

@@ -49,7 +49,7 @@ export class UserService {
   }
 
   private getRef(userId: string) {
-    return this.db.doc(`users/${userId}`);
+    return this.db.doc<Account>(`users/${userId}`);
   }
 
   private getField(input: string) {

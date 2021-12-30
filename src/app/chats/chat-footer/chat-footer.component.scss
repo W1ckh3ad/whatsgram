@@ -1,0 +1,14 @@
+.chat-footer {
+  display: flex;
+  padding: 4px 8px;
+  gap: 8px;
+  & > ion-button::part(native) {
+    padding: 2px;
+    border-radius: 50%;
+    width: 36px;
+  }
+
+  & > ion-item {
+    flex-grow: 1;
+  }
+}
