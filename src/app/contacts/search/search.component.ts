@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { NgForm } from '@angular/forms';
 import { UserService } from 'src/app/services/user/user.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { Account } from 'src/app/services/account/account.model';
 import { Observable } from 'rxjs';
+import { User } from 'src/app/services/account/user.model';
 
 @Component({
   selector: 'app-search',
@@ -12,11 +12,10 @@ import { Observable } from 'rxjs';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  users: Observable<Account[]>;
+  users: Observable<User[]>;
   search = '';
-  contacts;
+  @Input() contacts: Observable<Account>[];
 
-  @Input() currentUser: Observable<Account>;
   constructor(
     public modalController: ModalController,
     private user: UserService,
@@ -24,7 +23,7 @@ export class SearchComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.currentUser.subscribe((x) => (this.contacts = x.privateData.contacts));
+    console.log(this.contacts);
   }
 
   add(uid: string) {

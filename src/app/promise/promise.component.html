@@ -1,0 +1,8 @@
+<ng-container *ngIf="result">
+  {{ result.toString() }}
+</ng-container>
+<ng-container *ngIf="error">
+  {{ error.message }}
+</ng-container>
+
+<ng-container *ngIf="!error && !result"> Loading ... </ng-container>

@@ -1,8 +1,8 @@
-import { FieldValue } from 'firebase/firestore';
+import { DocumentReference, Timestamp } from '@angular/fire/firestore';
 import { Message } from '../chat/message.model';
 
 export class Chat {
-  createdAt: FieldValue;
-  updatedAt: FieldValue;
-  messages: Message[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  messages: DocumentReference<Message>[];
 }

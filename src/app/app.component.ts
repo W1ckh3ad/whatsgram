@@ -35,25 +35,25 @@ export class AppComponent implements OnInit {
     }
     document.body.classList.add(theme);
 
-    const message = 'Test 123';
-    const keys = await this.crypto.exportKeys(await this.crypto.generateKeys());
-    console.log(keys, message);
-    // const keyObj = await this.crypto.importKeys(
-    //   keys.privateKey,
-    //   keys.publicKey
-    // );
+    // const message = 'Test 123';
+    // const keys = await this.crypto.exportKeys(await this.crypto.generateKeys());
+    // console.log(keys, message);
+    // // const keyObj = await this.crypto.importKeys(
+    // //   keys.privateKey,
+    // //   keys.publicKey
+    // // );
 
-    const publicKeyObj = await this.crypto.importPublicKey(keys.publicKey);
-    console.log(publicKeyObj);
-    const privateKeyObj = await this.crypto.importPrivateKey(keys.privateKey);
-    console.log(privateKeyObj);
-    const encrypted = await this.crypto.encryptMessage(message, publicKeyObj);
-    console.log(encrypted);
-    const decrypted = await this.crypto.decryptMessage(
-      encrypted,
-      privateKeyObj
-    );
-    console.log(decrypted);
+    // const publicKeyObj = await this.crypto.importPublicKey(keys.publicKey);
+    // console.log(publicKeyObj);
+    // const privateKeyObj = await this.crypto.importPrivateKey(keys.privateKey);
+    // console.log(privateKeyObj);
+    // const encrypted = await this.crypto.encryptMessage(message, publicKeyObj);
+    // console.log(encrypted);
+    // const decrypted = await this.crypto.decryptMessage(
+    //   encrypted,
+    //   privateKeyObj
+    // );
+    // console.log(decrypted);
   }
 
   private authStatusListener() {

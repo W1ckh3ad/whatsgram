@@ -38,10 +38,8 @@ export class NavComponent implements OnInit {
       if (x instanceof NavigationStart) {
         if (x.url.match('/chats/[a-zA-Z0-9]+')) {
           this.showNav = false;
-          console.log('hide');
         } else {
           this.showNav = true;
-          console.log('show');
         }
       }
     });

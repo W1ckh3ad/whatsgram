@@ -1,11 +1,14 @@
-import { FieldValue } from "firebase/firestore";
+import { DocumentReference, Timestamp } from '@angular/fire/firestore';
+import { User } from '../account/user.model';
 
-export interface Message {
-  guid: string;
-  text: string;
-  senderId: string;
-  receiverId: string;
-  createdAt: FieldValue;
-  responseTo?: string;
-  groupId?: string;
+export class Message {
+  constructor(
+    public guid: string,
+    public text: string,
+    public senderId: DocumentReference<User>,
+    public receiverId: DocumentReference<User>,
+    public createdAt: Timestamp,
+    public responseTo?: DocumentReference<Message>,
+    public groupId?: string
+  ) {}
 }

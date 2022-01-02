@@ -10,7 +10,22 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngFor="let contact of contacts">
-    <app-contact [user]="contact | async"></app-contact>
-  </ng-container>
+  <ion-list>
+    <ng-container *ngFor="let contact$ of contacts">
+      <ng-container *ngIf="contact$ | async as contact">
+        <ion-item [routerLink]="'/chats/' + contact.uid">
+          <ion-avatar slot="start">
+            <ion-img
+              src="{{ getPhotoURL(contact) }}"
+              alt="profile-picture"
+            ></ion-img>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ contact.displayName }} [{{ contact.email }}]</h2>
+            <p>{{ contact.description }}</p>
+          </ion-label>
+        </ion-item>
+      </ng-container>
+    </ng-container>
+  </ion-list>
 </ion-content>

@@ -20,11 +20,11 @@ export class ChatFooterComponent implements OnInit {
     if (this.message === '') {
       return;
     }
-    this.accountService.sendMessage(
-      this.message,
-      this.receiverId,
-      this.responseTo,
-      this.groupId
-    );
+    this.accountService
+      .sendMessage(this.message, this.receiverId, this.responseTo, this.groupId)
+      .then(() => {
+        this.message = '';
+        this.responseTo = '';
+      });
   }
 }

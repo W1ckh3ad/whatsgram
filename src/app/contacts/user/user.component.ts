@@ -16,7 +16,9 @@ export class UserComponent implements OnInit {
   getPhotoURL = getPhotoURL;
   constructor(private account: AccountService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.includes);
+  }
 
   async add() {
     if (this.added || this.includes) {

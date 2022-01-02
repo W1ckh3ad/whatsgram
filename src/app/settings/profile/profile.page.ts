@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Auth, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { debug } from 'console';
 import { BehaviorSubject } from 'rxjs';
 import { AccountService } from 'src/app/services/account/account.service';
 import { UserService } from 'src/app/services/user/user.service';
@@ -27,19 +28,12 @@ export class ProfilePage implements OnInit {
   async ngOnInit() {
     const data = await this.account.loadSnap();
 
-    this.model = data
-      ? new UserEdit(
-          data.displayName,
-          data.phoneNumber,
-          data.photoURL,
-          data.description
-        )
-      : new UserEdit(
-          this.auth.currentUser.displayName ?? '',
-          '',
-          this.auth.currentUser.photoURL ?? '',
-          ''
-        );
+    this.model = new UserEdit(
+      data.displayName ?? '',
+      data.phoneNumber ?? '',
+      data.photoURL ?? '',
+      data.description ?? ''
+    );
   }
 
   async onSubmit() {

@@ -11,9 +11,16 @@ import {
   QueryConstraint,
   Query,
   serverTimestamp,
+  Timestamp,
+  deleteDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
 } from '@angular/fire/firestore';
-import { deleteDoc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
+import { PrivateData } from '../account/private-data.model';
+import { User } from '../account/user.model';
+import { Message } from '../chat/message.model';
 
 type CollectionPredicate<T> = string | CollectionReference<T>;
 type DocumentPredicate<T> = string | DocumentReference<T>;
@@ -65,7 +72,7 @@ export class FirestoreService {
   }
 
   get timestamp() {
-    return serverTimestamp();
+    return serverTimestamp() as Timestamp;
   }
 
   async exists<T>(ref: DocumentPredicate<T>) {
@@ -87,5 +94,15 @@ export class FirestoreService {
 
   remove<T>(ref: DocumentPredicate<T>) {
     return deleteDoc(this.doc(ref));
+  }
+
+  getUsersDoc(uid: string): DocumentReference<User> {
+    return this.doc<User>(`users/${uid}`);
+  }
+  getPrivateDataDoc(uid: string): DocumentReference<PrivateData> {
+    return this.doc<PrivateData>(`privateData/${uid}`);
+  }
+  getMessageDoc(guid: string): DocumentReference<Message> {
+    return this.doc<Message>(`messages/${guid}`);
   }
 }

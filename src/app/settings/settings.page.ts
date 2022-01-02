@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth, signOut, User } from '@angular/fire/auth';
+import { Auth, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { Observable } from 'rxjs';
 import { getPhotoURL } from '../../utils';
-import { Account } from '../services/account/account.model';
 import { AccountService } from '../services/account/account.service';
+import { User } from '../services/account/user.model';
 
 @Component({
   selector: 'app-settings',
@@ -13,12 +13,8 @@ import { AccountService } from '../services/account/account.service';
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  user: Observable<Account>;
+  user$: Observable<User>;
   isDarkMode: boolean;
-  imageObject: { email: string; photoURL: string } = {
-    photoURL: '',
-    email: 'T',
-  };
   getPhotoURL = getPhotoURL;
   constructor(
     private auth: Auth,
@@ -31,10 +27,7 @@ export class SettingsPage implements OnInit {
       Storage.get({ key: 'theme' }),
       this.account.load(),
     ]);
-    this.user = user;
-    this.user.subscribe(
-      ({ photoURL, email }) => (this.imageObject = { photoURL, email })
-    );
+    this.user$ = user;
     this.isDarkMode = r.value === 'dark';
   }
 
@@ -48,10 +41,5 @@ export class SettingsPage implements OnInit {
     const newTheme = this.isDarkMode ? 'dark' : 'light';
     document.body.className = newTheme;
     await Storage.set({ key: 'theme', value: newTheme });
-  }
-
-  toProfile(e) {
-    e.preventDefault();
-    this.router.navigateByUrl('/settings/profile');
   }
 }

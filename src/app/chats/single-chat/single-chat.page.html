@@ -7,7 +7,14 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content> work in progress </ion-content>
+<ion-content>
+  <ng-container *ngFor="let message$ of messages">
+    <div *ngIf="message$ | async as message">
+      <!-- <div>{{decrypt(message.text) }}</div> -->
+      <div><app-promise [promise]="decrypt(message.text)"></app-promise></div>
+      <div>{{message.createdAt.toDate()}}</div>
+    </div>
+  </ng-container>
+</ion-content>
 
-<!-- <app-chat-footer (onSubmit)="onSubmit($event)" ></app-chat-footer> -->
 <app-chat-footer [responseTo]="responseTo" [receiverId]="uid"></app-chat-footer>

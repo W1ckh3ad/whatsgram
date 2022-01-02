@@ -5,5 +5,19 @@
 </ion-header>
 
 <ion-content>
-  <ion-button routerLink="/chats/oKmH3umn97a5jSn71pLtHPct5lv1"></ion-button>
+  <ion-list>
+    <ng-container *ngFor="let user$ of chats">
+      <ng-container *ngIf="user$ | async as user">
+        <ion-item [routerLink]="'/chats/' + user.uid">
+          <ion-avatar class="">
+            <img src="{{getPhotoURL(user.photoURL)}}" />
+          </ion-avatar>
+          <div class="ion-margin-start">
+            <h2 style="margin: 0 0 8px">{{user.displayName}}</h2>
+            <p style="margin: 0">324234 nbjksab djkh bg21bekjq</p>
+          </div>
+        </ion-item>
+      </ng-container>
+    </ng-container>
+  </ion-list>
 </ion-content>
