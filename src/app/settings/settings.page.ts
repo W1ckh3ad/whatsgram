@@ -3,9 +3,8 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { Observable } from 'rxjs';
-import { getPhotoURL } from '../../utils';
 import { AccountService } from '../services/account/account.service';
-import { User } from '../services/account/user.model';
+import { WhatsgramUser } from '../services/account/whatsgram.user.model';
 
 @Component({
   selector: 'app-settings',
@@ -13,9 +12,8 @@ import { User } from '../services/account/user.model';
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  user$: Observable<User>;
+  user$: Observable<WhatsgramUser>;
   isDarkMode: boolean;
-  getPhotoURL = getPhotoURL;
   constructor(
     private auth: Auth,
     private account: AccountService,
@@ -23,12 +21,9 @@ export class SettingsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const [r, user] = await Promise.all([
-      Storage.get({ key: 'theme' }),
-      this.account.load(),
-    ]);
-    this.user$ = user;
-    this.isDarkMode = r.value === 'dark';
+    const themeStorage = await Storage.get({ key: 'theme' });
+    this.user$ = this.account.user;
+    this.isDarkMode = themeStorage.value === 'dark';
   }
 
   async logout() {

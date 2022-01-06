@@ -6,7 +6,7 @@ import {
   limit,
   CollectionReference,
 } from '@angular/fire/firestore';
-import { User } from '../account/user.model';
+import { WhatsgramUser } from '../account/whatsgram.user.model';
 import { FirestoreService } from '../firestore/firestore.service';
 
 const collectionName = 'users';
@@ -14,14 +14,14 @@ const collectionName = 'users';
   providedIn: 'root',
 })
 export class UserService {
-  ref: CollectionReference<User>;
+  ref: CollectionReference<WhatsgramUser>;
 
   constructor(private db: FirestoreService, public auth: Auth) {
-    this.ref = this.db.collection<User>(collectionName);
+    this.ref = this.db.getUsersCol();
   }
 
   find(emailUidOrTelephone: string) {
-    return this.db.collectionQuery$<User>(
+    return this.db.collectionQuery$<WhatsgramUser>(
       collectionName,
       where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
       limit(100)
@@ -37,7 +37,7 @@ export class UserService {
   }
 
   loadList(userIds: string[]) {
-    return this.db.collectionQuery$<User>(
+    return this.db.collectionQuery$<WhatsgramUser>(
       collectionName,
       where('uid', 'in', userIds),
       orderBy('displayName')

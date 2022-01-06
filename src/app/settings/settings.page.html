@@ -18,7 +18,7 @@
       *ngIf="user$ | async as user"
     >
       <ion-avatar>
-        <img src="{{ getPhotoURL(user) }}" alt="user-profile-picture" />
+        <img src="{{ user | photoUrl }}" alt="user-profile-picture" />
       </ion-avatar>
       <p>{{user.displayName }}</p>
       <p>{{user.email}}</p>

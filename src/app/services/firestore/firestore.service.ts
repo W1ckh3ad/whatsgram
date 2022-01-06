@@ -18,8 +18,9 @@ import {
   updateDoc,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { Inbox } from '../account/inbox.model';
 import { PrivateData } from '../account/private-data.model';
-import { User } from '../account/user.model';
+import { WhatsgramUser } from '../account/whatsgram.user.model';
 import { Message } from '../chat/message.model';
 
 type CollectionPredicate<T> = string | CollectionReference<T>;
@@ -61,14 +62,14 @@ export class FirestoreService {
   }
 
   collection$<T>(ref: CollectionPredicate<T>): Observable<T[]> {
-    return collectionData(this.collection<T>(ref));
+    return collectionData<T>(this.collection<T>(ref));
   }
 
   collectionQuery$<T>(
     ref: QueryPredicate<T>,
     ...queryFn: QueryConstraint[]
   ): Observable<T[]> {
-    return collectionData(this.collectionQuery(ref, ...queryFn));
+    return collectionData<T>(this.collectionQuery(ref, ...queryFn));
   }
 
   get timestamp() {
@@ -96,13 +97,31 @@ export class FirestoreService {
     return deleteDoc(this.doc(ref));
   }
 
-  getUsersDoc(uid: string): DocumentReference<User> {
-    return this.doc<User>(`users/${uid}`);
+  getUsersDoc(uid: string): DocumentReference<WhatsgramUser> {
+    return this.doc<WhatsgramUser>(`users/${uid}`);
   }
   getPrivateDataDoc(uid: string): DocumentReference<PrivateData> {
     return this.doc<PrivateData>(`privateData/${uid}`);
   }
   getMessageDoc(guid: string): DocumentReference<Message> {
     return this.doc<Message>(`messages/${guid}`);
+  }
+
+  getInboxDoc(uid: string): DocumentReference<Inbox> {
+    return this.doc<Inbox>(`inbox/${uid}`);
+  }
+
+  getUsersCol(): CollectionReference<WhatsgramUser> {
+    return this.collection<WhatsgramUser>(`users`);
+  }
+  getPrivateDataCol(): CollectionReference<PrivateData> {
+    return this.collection<PrivateData>(`privateData`);
+  }
+  getMessageCol(): CollectionReference<Message> {
+    return this.collection<Message>(`messages`);
+  }
+
+  getInboxCol(): CollectionReference<Inbox> {
+    return this.collection<Inbox>(`inbox`);
   }
 }

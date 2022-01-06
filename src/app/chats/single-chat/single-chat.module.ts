@@ -9,6 +9,7 @@ import { SingleChatPageRoutingModule } from './single-chat-routing.module';
 import { SingleChatPage } from './single-chat.page';
 import { ChatFooterComponent } from '../chat-footer/chat-footer.component';
 import { PromiseComponent } from 'src/app/promise/promise.component';
+import { ChatMessageComponent } from '../chat-message/chat-message.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { PromiseComponent } from 'src/app/promise/promise.component';
     IonicModule,
     SingleChatPageRoutingModule,
   ],
-  declarations: [SingleChatPage, ChatFooterComponent, PromiseComponent],
+  declarations: [SingleChatPage, ChatFooterComponent, PromiseComponent, ChatMessageComponent],
 })
 export class SingleChatPageModule {}

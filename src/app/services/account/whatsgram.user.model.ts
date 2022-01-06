@@ -1,8 +1,7 @@
 import { DocumentReference } from '@angular/fire/firestore';
 import { PrivateData } from './private-data.model';
-import { DisplayName, PhotoURL } from './utils.types';
 
-export class User {
+export class WhatsgramUser {
   constructor(
     public uid: string,
     public email: string,

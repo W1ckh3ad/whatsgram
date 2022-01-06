@@ -5,19 +5,27 @@
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ng-container *ngFor="let user$ of chats">
-      <ng-container *ngIf="user$ | async as user">
-        <ion-item [routerLink]="'/chats/' + user.uid">
-          <ion-avatar class="">
-            <img src="{{getPhotoURL(user.photoURL)}}" />
-          </ion-avatar>
-          <div class="ion-margin-start">
-            <h2 style="margin: 0 0 8px">{{user.displayName}}</h2>
-            <p style="margin: 0">324234 nbjksab djkh bg21bekjq</p>
-          </div>
-        </ion-item>
-      </ng-container>
-    </ng-container>
-  </ion-list>
+  <ng-container *ngIf="chats$ | async as chats">
+    <ion-list *ngFor="let chat of chats">
+      <ion-item
+        *ngIf="chat.userRef | doc | async as user"
+        [routerLink]="'/chats/' + user.uid"
+      >
+        <ion-avatar class="">
+          <img src="{{user | photoUrl }}" />
+        </ion-avatar>
+        <div class="ion-margin-start">
+          <h2 style="margin: 0 0 8px">
+            {{user.displayName}} <span *ngIf="unread">{{chat.unread}}</span>
+          </h2>
+          <p
+            style="margin: 0"
+            *ngIf="chat.lastMessageRef | doc | async as lastMessage"
+          >
+            {{lastMessage | decrypt | async}} {{ lastMessage.createdAt | time }}
+          </p>
+        </div>
+      </ion-item>
+    </ion-list>
+  </ng-container>
 </ion-content>

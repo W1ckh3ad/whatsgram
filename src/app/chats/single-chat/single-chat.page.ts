@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DocumentReference } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Account } from 'src/app/services/account/account.model';
+import { switchMap, map } from 'rxjs/operators';
 import { AccountService } from 'src/app/services/account/account.service';
-import { PrivateData } from 'src/app/services/account/private-data.model';
-import { User } from 'src/app/services/account/user.model';
+import { WhatsgramUser } from 'src/app/services/account/whatsgram.user.model';
 import { Message } from 'src/app/services/chat/message.model';
-import { CryptoService } from 'src/app/services/crypto/crypto.service';
-import { FirestoreService } from 'src/app/services/firestore/firestore.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
@@ -17,43 +15,35 @@ import { UserService } from 'src/app/services/user/user.service';
 })
 export class SingleChatPage implements OnInit {
   uid: string;
+  uid$: Observable<string>;
   responseTo: string = null;
-  account: Observable<User>;
-  privateData: Observable<PrivateData>;
-  messages: Observable<Message>[];
-  receiver: Observable<User>;
-  privateKey: CryptoKey;
+  messageRefs$: Observable<DocumentReference<Message>[]>;
+  unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
+  receiver$: Observable<WhatsgramUser>;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private accountService: AccountService,
-    private userService: UserService,
-    private db: FirestoreService,
-    private crypto: CryptoService
+    private userService: UserService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.uid = this.activeRoute.snapshot.paramMap.get('id');
-    this.account = this.accountService.load();
-    this.account.subscribe((x) => {
-      this.privateData = this.db.doc$(x.privateData);
-      this.privateData.subscribe((y) => {
-        this.crypto.importPrivateKey(y.privateKey).then((x) => {
-          this.privateKey = x;
-        });
-        this.messages = y.chats[this.uid].messages.map((z) => this.db.doc$(z));
-      });
-    });
-    this.receiver = this.userService.load(this.uid);
+    this.uid$ = this.activeRoute.paramMap.pipe(switchMap((x) => x.get('id')));
+    this.messageRefs$ = this.accountService.privateData.pipe(
+      map((x) => (x.chats[this.uid] ? x.chats[this.uid].messages : []))
+    );
+    this.messageRefs$.subscribe((x) => console.log(x));
+    this.unreadMessageRefs$ = this.accountService.inbox.pipe(
+      map((x) => (x.chats[this.uid] ? x.chats[this.uid].messages : []))
+    );
+
+    this.receiver$ = this.userService.load(this.uid);
   }
 
   onSubmit(msg: string) {
     this.accountService.sendMessage(msg, this.uid, this.responseTo).then(() => {
       console.log('send');
     });
-  }
-
-  async decrypt(text: string) {
-    return await this.crypto.decryptMessage(text, this.privateKey);
   }
 }

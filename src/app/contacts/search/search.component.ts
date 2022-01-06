@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { UserService } from 'src/app/services/user/user.service';
 import { AccountService } from 'src/app/services/account/account.service';
-import { Account } from 'src/app/services/account/account.model';
 import { Observable } from 'rxjs';
-import { User } from 'src/app/services/account/user.model';
+import { WhatsgramUser } from 'src/app/services/account/whatsgram.user.model';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search',
@@ -12,9 +12,9 @@ import { User } from 'src/app/services/account/user.model';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  users: Observable<User[]>;
+  users: Observable<WhatsgramUser[]>;
   search = '';
-  @Input() contacts: Observable<Account>[];
+  contacts$: Observable<string[]>;
 
   constructor(
     public modalController: ModalController,
@@ -23,7 +23,9 @@ export class SearchComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log(this.contacts);
+    this.contacts$ = this.account.privateData.pipe(
+      map((x) => x.contacts.map((y) => y.path.split('/')[1]))
+    );
   }
 
   add(uid: string) {

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { Buffer } from 'buffer';
+const algName = 'RSA-OAEP';
+const hashName: AlgorithmIdentifier = 'SHA-256';
+const modulusLength = 2048;
 @Injectable({
   providedIn: 'root',
 })
@@ -10,19 +12,18 @@ export class CryptoService {
   async encryptMessage(messageString: string, publicKey: CryptoKey) {
     const encrypted = await window.crypto.subtle.encrypt(
       {
-        name: 'RSA-OAEP',
+        name: algName,
       },
       publicKey,
       this.stringToBuffer(messageString)
     );
-
     return this.bufferToHex(encrypted);
   }
 
   async decryptMessage(messageHex: string, privateKey: CryptoKey) {
     let decrypted = await window.crypto.subtle.decrypt(
       {
-        name: 'RSA-OAEP',
+        name: algName,
       },
       privateKey,
       this.hexToBuffer(messageHex)
@@ -34,10 +35,10 @@ export class CryptoService {
   generateKeys() {
     return window.crypto.subtle.generateKey(
       {
-        name: 'RSA-OAEP',
-        modulusLength: 4096,
+        name: algName,
+        modulusLength,
         publicExponent: new Uint8Array([1, 0, 1]),
-        hash: 'SHA-256',
+        hash: hashName,
       },
       true,
       ['encrypt', 'decrypt']
@@ -58,7 +59,7 @@ export class CryptoService {
   async importKeys(privateKey: string, publicKey: string) {
     const res = await Promise.all([
       this.importPrivateKey(privateKey),
-      this.importPrivateKey(publicKey),
+      this.importPublicKey(publicKey),
     ]);
     return { privateKey: res[0], publicKey: res[1] };
   }
@@ -69,8 +70,8 @@ export class CryptoService {
       'spki',
       binaryDer,
       {
-        name: 'RSA-OAEP',
-        hash: 'SHA-256',
+        name: algName,
+        hash: hashName,
       },
       true,
       ['encrypt']
@@ -83,29 +84,34 @@ export class CryptoService {
       'pkcs8',
       binaryDer,
       {
-        name: 'RSA-OAEP',
-        hash: 'SHA-256',
+        name: algName,
+        hash: hashName,
       },
       true,
       ['decrypt']
     );
   }
 
-  private stringToBuffer(message: string) {
-    return Buffer.from(message);
+  private stringToBuffer(message: string): ArrayBuffer {
+    var buffer = new ArrayBuffer(message.length * 2); // 2 bytes for each char
+    var bufView = new Uint16Array(buffer);
+    for (var i = 0, strLen = message.length; i < strLen; i++) {
+      bufView[i] = message.charCodeAt(i);
+    }
+    return buffer;
   }
 
-  private bufferToString(buffer: ArrayBuffer) {
-    return Buffer.from(buffer).toString();
+  private bufferToString(buffer: ArrayBuffer): string {
+    return String.fromCharCode.apply(null, new Uint16Array(buffer));
   }
 
-  private bufferToHex(buffer: ArrayBuffer) {
-    return [...new Uint8Array(Buffer.from(buffer))]
+  private bufferToHex(buffer: ArrayBuffer): string {
+    return [...new Uint8Array(buffer)]
       .map((x) => x.toString(16).padStart(2, '0'))
       .join('');
   }
 
-  private hexToBuffer(hexString: string) {
+  private hexToBuffer(hexString: string): ArrayBuffer {
     hexString = hexString.replace(/^0x/, '');
     if (hexString.length % 2 != 0) {
       console.error(

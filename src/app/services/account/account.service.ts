@@ -1,30 +1,38 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Auth, User as AuthUser } from '@angular/fire/auth';
 import { DocumentReference } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatService } from '../chat/chat.service';
-import { Message } from '../chat/message.model';
 import { CryptoService } from '../crypto/crypto.service';
 import { FirestoreService } from '../firestore/firestore.service';
 import { Account } from './account.model';
 import { Chat } from './chat-model';
+import { Inbox } from './inbox.model';
 import { PrivateData } from './private-data.model';
 import { UserEdit } from './user-edit.model';
-import { User } from './user.model';
+import { WhatsgramUser } from './whatsgram.user.model';
+import { Unsubscribe } from '@angular/fire/auth';
+
+
+type KeyStorage = {
+  privateKey: CryptoKey;
+  publicKey: CryptoKey;
+};
+
+const defaultKeyStorage = {
+  privateKey: null,
+  publicKey: null,
+};
 
 @Injectable({
   providedIn: 'root',
 })
-export class AccountService {
-  private storage: {
-    uid: string;
-    usersRef: DocumentReference<User>;
-    privateDataRef: DocumentReference<PrivateData>;
-  } = {
-    privateDataRef: null,
-    uid: null,
-    usersRef: null,
-  };
+export class AccountService implements OnDestroy {
+  private keyStorage: KeyStorage = defaultKeyStorage;
+  // ToDo: Keystorage überarbeiten
+  authSub: Unsubscribe;
+
+  uid$ = new BehaviorSubject<string>(null);
 
   constructor(
     private auth: Auth,
@@ -32,20 +40,68 @@ export class AccountService {
     private crypto: CryptoService,
     private chat: ChatService
   ) {
-    if (auth.currentUser) {
-      this.uid = auth.currentUser.uid;
+    if (this.auth.currentUser) {
+      this.uid$.next(this.auth.currentUser.uid);
     }
     this.authEventlistener();
   }
 
-  load(): Observable<User> {
-    return this.db.doc$(this.usersRef);
+  ngOnDestroy(): void {
+    this.authSub();
   }
 
-  async loadSnap(): Promise<Account> {
-    const data = await this.db.docSnap(this.usersRef);
-    const privateData = await this.db.docSnap(this.privateDataRef);
+  async getPublicKey() {
+    if (this.keyStorage.publicKey == null) {
+      this.keyStorage = await this.loadKeys();
+    }
+    return this.keyStorage.publicKey;
+  }
+
+  async getPrivateKey() {
+    if (this.keyStorage.privateKey == null) {
+      this.keyStorage = await this.loadKeys();
+    }
+    return this.keyStorage.privateKey;
+  }
+
+  get userRef(): DocumentReference<WhatsgramUser> {
+    return this.db.getUsersDoc(this.uid$.value);
+  }
+
+  get privateDataRef(): DocumentReference<PrivateData> {
+    return this.db.getPrivateDataDoc(this.uid$.value);
+  }
+
+  get inboxRef(): DocumentReference<Inbox> {
+    return this.db.getInboxDoc(this.uid$.value);
+  }
+
+  get user(): Observable<WhatsgramUser> {
+    return this.db.doc$(this.userRef);
+  }
+
+  get privateData(): Observable<PrivateData> {
+    return this.db.doc$(this.privateDataRef);
+  }
+
+  get inbox(): Observable<Inbox> {
+    return this.db.doc$(this.inboxRef);
+  }
+
+  async loadSnapComplete(): Promise<Account> {
+    const [data, privateData] = await Promise.all([
+      this.loadSnapUser(),
+      this.loadSnapPrivate(),
+    ]);
     return { ...data, privateData };
+  }
+
+  async loadSnapUser(): Promise<WhatsgramUser> {
+    return await this.db.docSnap(this.userRef);
+  }
+
+  async loadSnapPrivate(): Promise<PrivateData> {
+    return await this.db.docSnap(this.privateDataRef);
   }
 
   async updateProfile({
@@ -54,7 +110,7 @@ export class AccountService {
     phoneNumber,
     photoURL,
   }: UserEdit) {
-    const { privateData, ...rest } = await this.loadSnap();
+    const { privateData, ...rest } = await this.loadSnapUser();
     return this.update({
       ...rest,
       displayName,
@@ -66,7 +122,9 @@ export class AccountService {
   }
 
   async create({ displayName, email, photoURL, uid }: AuthUser) {
-    this.uid = uid;
+    if (this.uid$.value !== uid) {
+      this.uid$.next(uid);
+    }
     const { privateKey, publicKey } = await this.crypto.exportKeys(
       await this.crypto.generateKeys()
     );
@@ -76,6 +134,10 @@ export class AccountService {
       chats: {},
       groupChats: [],
     });
+    this.db.set(this.inboxRef, {
+      groups: {},
+      chats: {},
+    });
     const data = {
       displayName,
       email,
@@ -84,18 +146,15 @@ export class AccountService {
       publicKey,
       privateData: this.privateDataRef,
     };
-    return this.db.set(this.usersRef, data);
+    return this.db.set(this.userRef, data);
   }
 
   async exists() {
-    return this.db.exists(this.usersRef);
+    return this.db.exists(this.userRef);
   }
 
   async add(uid: string) {
-    const {
-      privateData: { contacts, ...rest },
-    } = await this.loadSnap();
-
+    const { contacts, ...rest } = await this.loadSnapPrivate();
     const doc = this.db.getUsersDoc(uid);
     if (contacts.includes(doc)) {
       throw new Error('User already in Contacts');
@@ -112,10 +171,10 @@ export class AccountService {
     responseTo: string = null,
     groupId: string = null
   ) {
-    let {
-      privateData: { chats, ...restPrivate },
-      ...rest
-    } = await this.loadSnap();
+    let [{ chats, ...restPrivate }, publicKey] = await Promise.all([
+      this.loadSnapPrivate(),
+      this.getPublicKey(),
+    ]);
     if (chats && chats[receiverUid] === undefined) {
       chats = {
         ...chats,
@@ -128,54 +187,46 @@ export class AccountService {
     } else {
       chats[receiverUid].updatedAt = this.db.timestamp;
     }
-    try {
-      const ownMessage = await this.chat.createMessageForSender(
+    const [ownMessage] = await Promise.all([
+      this.chat.createMessageForSender(
         msg,
         receiverUid,
         responseTo,
         groupId,
-        rest.publicKey,
+        publicKey,
         this.uid
-      );
-      // if (groupId) {
-      //   await this.chat.createMessageForEveryGroupMember(
-      //     msg,
-      //     responseTo,
-      //     groupId,
-      //     rest.uid
-      //   );
-      // } else {
-      //   await this.chat.createMessageForSingleReceiver(
-      //     msg,
-      //     receiverUid,
-      //     responseTo,
-      //     groupId,
-      //     rest.uid
-      //   );
-      // }
+      ),
+      groupId
+        ? await this.chat.createMessageForEveryGroupMember(
+            msg,
+            responseTo,
+            groupId,
+            this.uid
+          )
+        : await this.chat.createMessageForSingleReceiver(
+            msg,
+            receiverUid,
+            responseTo,
+            groupId,
+            this.uid
+          ),
+    ]);
 
-      chats[receiverUid].messages.push(ownMessage);
-      this.updatePrivate({
-        ...restPrivate,
-        chats,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  private authEventlistener() {
-    this.auth.onAuthStateChanged((credential) => {
-      if (credential) {
-        this.uid = credential.uid;
-      } else {
-        this.uid = null;
-      }
+    chats[receiverUid].messages.push(ownMessage);
+    this.updatePrivate({
+      ...restPrivate,
+      chats,
     });
   }
 
-  private update(data: User) {
-    return this.db.update(this.usersRef, data);
+  private authEventlistener() {
+    this.authSub = this.auth.onAuthStateChanged(async (credential) => {
+      this.uid = credential ? credential.uid : null;
+    });
+  }
+
+  private update(data: WhatsgramUser) {
+    return this.db.update(this.userRef, data);
   }
 
   private updatePrivate(data: PrivateData) {
@@ -183,22 +234,29 @@ export class AccountService {
   }
 
   private get uid() {
-    return this.storage.uid;
+    return this.uid$.value;
   }
 
   private set uid(val) {
-    this.storage = {
-      uid: val,
-      privateDataRef: this.db.getPrivateDataDoc(val),
-      usersRef: this.db.getUsersDoc(val),
+    if (val !== this.uid) {
+      if (val === null) {
+        this.uid$.next(null);
+        this.keyStorage = defaultKeyStorage;
+        return;
+      }
+      this.uid$.next(val);
+    }
+  }
+
+  private async loadKeys() {
+    const {
+      publicKey,
+      privateData: { privateKey },
+    } = await this.loadSnapComplete();
+    const res = await this.crypto.importKeys(privateKey, publicKey);
+    return {
+      privateKey: res.privateKey,
+      publicKey: res.publicKey,
     };
-  }
-
-  private get usersRef() {
-    return this.storage.usersRef;
-  }
-
-  private get privateDataRef() {
-    return this.storage.privateDataRef;
   }
 }

@@ -1,26 +1,41 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../services/user/user.service';
 import {
   Router,
   NavigationStart,
   Event,
-  ActivatedRoute,
 } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Unsubscribe } from '@angular/fire/auth';
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss'],
 })
-export class NavComponent implements OnInit {
+export class NavComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   isVerified = false;
   showNav = true;
-  constructor(private user: UserService, private router: Router) {
-    this.isLoggedIn = !!user.auth.currentUser;
+  routeSub: Subscription;
+  authSub: Unsubscribe;
+  constructor(private user: UserService, private router: Router) {}
+
+  ngOnInit() {
+    this.addAuthEventlistener();
+    this.addRouteEventlistener();
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub.unsubscribe();
+    this.authSub();
+  }
+
+  private addAuthEventlistener() {
+    this.isLoggedIn = !!this.user.auth.currentUser;
     if (this.isLoggedIn) {
-      this.isVerified = user.auth.currentUser.emailVerified;
+      this.isVerified = this.user.auth.currentUser.emailVerified;
     }
-    this.user.auth.onAuthStateChanged((cred) => {
+    this.authSub = this.user.auth.onAuthStateChanged((cred) => {
       this.isLoggedIn = !!cred;
       if (this.isLoggedIn) {
         this.isVerified = cred.emailVerified;
@@ -28,13 +43,10 @@ export class NavComponent implements OnInit {
         this.isVerified = false;
       }
     });
-    this.addRouteEventlistener();
   }
 
-  ngOnInit() {}
-
   private addRouteEventlistener() {
-    this.router.events.subscribe((x: Event) => {
+    this.routeSub = this.router.events.subscribe((x: Event) => {
       if (x instanceof NavigationStart) {
         if (x.url.match('/chats/[a-zA-Z0-9]+')) {
           this.showNav = false;

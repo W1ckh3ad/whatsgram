@@ -8,13 +8,30 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngFor="let message$ of messages">
-    <div *ngIf="message$ | async as message">
-      <!-- <div>{{decrypt(message.text) }}</div> -->
-      <div><app-promise [promise]="decrypt(message.text)"></app-promise></div>
-      <div>{{message.createdAt.toDate()}}</div>
-    </div>
-  </ng-container>
+  <div class="message-container">
+    <ng-container *ngIf="messageRefs$ | async as mesasgeRefs">
+      <ng-container *ngFor="let messageRef of messageRefs">
+        <app-chat-message
+          *ngIf="messageRef | doc | async as message$"
+          [message$]="message$"
+          [receiverId]="uid"
+        ></app-chat-message>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="unreadMessageRefs$ | async as unreadMesasgeRefs">
+      <ng-container *ngIf=" unreadMessageRefs && unreadMessageRefs.length > 0">
+        <div>{{messageRefs}}</div>
+        <ng-container *ngFor="let unreadMessageRef of unreadMessageRefs">
+          <app-chat-message
+            *ngIf="unreadMessageRef | doc |async as unreadMessage$"
+            [message$]="unreadMessage$"
+            [receiverId]="uid"
+          ></app-chat-message>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    content
+  </div>
 </ion-content>
 
 <app-chat-footer [responseTo]="responseTo" [receiverId]="uid"></app-chat-footer>

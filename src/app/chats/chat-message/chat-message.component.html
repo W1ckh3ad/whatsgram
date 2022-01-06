@@ -1,0 +1,25 @@
+<ng-container *ngIf="message$ | async as message">
+  <div
+    [ngClass]="{
+      'chat-message': true,
+      own: receiverId === message.receiver._key.path.segments[6]
+    }"
+  >
+    <div>
+      <div
+        class="name"
+        *ngIf="message.groupId && message.sender | async as senderInstance"
+      >
+        {{ message.sender.displayName }}
+      </div>
+      <p class="text">
+        {{ message | decrypt | async }}
+      </p>
+      <ng-container *ngIf="message.createdAt && message.createdAt.toDate">
+        <div class="time">
+          {{ message.createdAt | time }}
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>

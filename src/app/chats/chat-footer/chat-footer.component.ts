@@ -1,6 +1,5 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AccountService } from 'src/app/services/account/account.service';
-import { EventEmitter } from 'stream';
 
 @Component({
   selector: 'app-chat-footer',

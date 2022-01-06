@@ -1,12 +1,12 @@
 import { DocumentReference, Timestamp } from '@angular/fire/firestore';
-import { User } from '../account/user.model';
+import { WhatsgramUser } from '../account/whatsgram.user.model';
 
 export class Message {
   constructor(
     public guid: string,
     public text: string,
-    public senderId: DocumentReference<User>,
-    public receiverId: DocumentReference<User>,
+    public sender: DocumentReference<WhatsgramUser>,
+    public receiver: DocumentReference<WhatsgramUser>,
     public createdAt: Timestamp,
     public responseTo?: DocumentReference<Message>,
     public groupId?: string

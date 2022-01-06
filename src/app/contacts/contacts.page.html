@@ -11,20 +11,22 @@
 
 <ion-content>
   <ion-list>
-    <ng-container *ngFor="let contact$ of contacts">
-      <ng-container *ngIf="contact$ | async as contact">
-        <ion-item [routerLink]="'/chats/' + contact.uid">
-          <ion-avatar slot="start">
-            <ion-img
-              src="{{ getPhotoURL(contact) }}"
-              alt="profile-picture"
-            ></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>{{ contact.displayName }} [{{ contact.email }}]</h2>
-            <p>{{ contact.description }}</p>
-          </ion-label>
-        </ion-item>
+    <ng-container *ngIf="privateData$ | async as privateData">
+      <ng-container *ngFor="let uid of privateData.contacts">
+        <ng-container *ngIf="uid | doc | async as contact">
+          <ion-item [routerLink]="'/chats/' + contact.uid">
+            <ion-avatar slot="start">
+              <ion-img
+                src="{{ contact | photoUrl }}"
+                alt="profile-picture"
+              ></ion-img>
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ contact.displayName }} [{{ contact.email }}]</h2>
+              <p>{{ contact.description }}</p>
+            </ion-label>
+          </ion-item>
+        </ng-container>
       </ng-container>
     </ng-container>
   </ion-list>
