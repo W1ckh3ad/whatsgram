@@ -24,7 +24,7 @@ export class SearchComponent implements OnInit {
 
   async ngOnInit() {
     this.contacts$ = this.account.privateData.pipe(
-      map((x) => x.contacts.map((y) => y.path.split('/')[1]))
+      map((x) => x.contactRefs.map((y) => y.path.split('/')[1]))
     );
   }
 

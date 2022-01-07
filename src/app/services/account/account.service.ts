@@ -13,7 +13,6 @@ import { UserEdit } from './user-edit.model';
 import { WhatsgramUser } from './whatsgram.user.model';
 import { Unsubscribe } from '@angular/fire/auth';
 
-
 type KeyStorage = {
   privateKey: CryptoKey;
   publicKey: CryptoKey;
@@ -104,20 +103,24 @@ export class AccountService implements OnDestroy {
     return await this.db.docSnap(this.privateDataRef);
   }
 
+  async loadSnapInbox(): Promise<Inbox> {
+    return await this.db.docSnap(this.inboxRef);
+  }
+
   async updateProfile({
     displayName,
     description,
     phoneNumber,
     photoURL,
   }: UserEdit) {
-    const { privateData, ...rest } = await this.loadSnapUser();
+    const { privateDataRef: privateData, ...rest } = await this.loadSnapUser();
     return this.update({
       ...rest,
       displayName,
       phoneNumber: phoneNumber ?? null,
       description: description ?? null,
       photoURL: photoURL ?? null,
-      privateData: this.db.getPrivateDataDoc(this.uid),
+      privateDataRef: this.db.getPrivateDataDoc(this.uid),
     });
   }
 
@@ -129,7 +132,7 @@ export class AccountService implements OnDestroy {
       await this.crypto.generateKeys()
     );
     this.db.set(this.privateDataRef, {
-      contacts: [],
+      contactRefs: [],
       privateKey,
       chats: {},
       groupChats: [],
@@ -138,13 +141,13 @@ export class AccountService implements OnDestroy {
       groups: {},
       chats: {},
     });
-    const data = {
+    const data: WhatsgramUser = {
       displayName,
       email,
       photoURL,
       uid,
       publicKey,
-      privateData: this.privateDataRef,
+      privateDataRef: this.privateDataRef,
     };
     return this.db.set(this.userRef, data);
   }
@@ -154,14 +157,14 @@ export class AccountService implements OnDestroy {
   }
 
   async add(uid: string) {
-    const { contacts, ...rest } = await this.loadSnapPrivate();
+    const { contactRefs: contacts, ...rest } = await this.loadSnapPrivate();
     const doc = this.db.getUsersDoc(uid);
     if (contacts.includes(doc)) {
       throw new Error('User already in Contacts');
     }
     return this.updatePrivate({
       ...rest,
-      contacts: [...contacts, doc],
+      contactRefs: [...contacts, doc],
     });
   }
 
@@ -181,42 +184,55 @@ export class AccountService implements OnDestroy {
         [receiverUid]: {
           createdAt: this.db.timestamp,
           updatedAt: this.db.timestamp,
-          messages: [],
+          messageRefs: [],
         } as Chat,
       };
     } else {
       chats[receiverUid].updatedAt = this.db.timestamp;
     }
-    const [ownMessage] = await Promise.all([
-      this.chat.createMessageForSender(
-        msg,
-        receiverUid,
-        responseTo,
-        groupId,
-        publicKey,
-        this.uid
-      ),
-      groupId
-        ? await this.chat.createMessageForEveryGroupMember(
-            msg,
-            responseTo,
-            groupId,
-            this.uid
-          )
-        : await this.chat.createMessageForSingleReceiver(
-            msg,
-            receiverUid,
-            responseTo,
-            groupId,
-            this.uid
-          ),
-    ]);
+    const ownMessage = await this.chat.createMessageForSender(
+      msg,
+      receiverUid,
+      responseTo,
+      groupId,
+      publicKey,
+      this.uid
+    );
 
-    chats[receiverUid].messages.push(ownMessage);
+    chats[receiverUid].messageRefs.push(ownMessage);
     this.updatePrivate({
       ...restPrivate,
       chats,
     });
+  }
+
+  public async readMessagesForPrivateChat(
+    messageIds: string[],
+    receiverId: string
+  ) {
+    const [privateDate, inbox] = await Promise.all([
+      this.loadSnapPrivate(),
+      this.loadSnapInbox(),
+    ]);
+    if (!privateDate.chats[receiverId]) {
+      privateDate.chats[receiverId] = {
+        createdAt: this.db.timestamp,
+        updatedAt: this.db.timestamp,
+        messageRefs: [],
+      };
+    }
+    for (const messageId of messageIds) {
+      const messageDoc = this.db.getMessageDoc(messageId);
+      privateDate.chats[receiverId].messageRefs.push(messageDoc);
+      inbox.chats[receiverId].messageRefs.splice(
+        inbox.chats[receiverId].messageRefs.findIndex((x) => x.id === messageId)
+      );
+    }
+    const res = await Promise.all([
+      this.updatePrivate(privateDate),
+      this.updateInbox(inbox),
+    ]);
+    return res;
   }
 
   private authEventlistener() {
@@ -231,6 +247,10 @@ export class AccountService implements OnDestroy {
 
   private updatePrivate(data: PrivateData) {
     return this.db.update(this.privateDataRef, data);
+  }
+
+  private updateInbox(data: Inbox) {
+    return this.db.update(this.inboxRef, data);
   }
 
   private get uid() {

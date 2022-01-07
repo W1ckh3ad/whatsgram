@@ -8,8 +8,9 @@ import { SingleChatPageRoutingModule } from './single-chat-routing.module';
 
 import { SingleChatPage } from './single-chat.page';
 import { ChatFooterComponent } from '../chat-footer/chat-footer.component';
-import { PromiseComponent } from 'src/app/promise/promise.component';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
+import { ApplicationPipesModule } from 'src/app/application-pipes/application-pipes.module';
+import { ObserveVisibilityDirective } from 'src/app/directives/observeVisibility/observe-visibility.directive';
 
 @NgModule({
   imports: [
@@ -17,7 +18,13 @@ import { ChatMessageComponent } from '../chat-message/chat-message.component';
     FormsModule,
     IonicModule,
     SingleChatPageRoutingModule,
+    ApplicationPipesModule,
   ],
-  declarations: [SingleChatPage, ChatFooterComponent, PromiseComponent, ChatMessageComponent],
+  declarations: [
+    SingleChatPage,
+    ChatFooterComponent,
+    ChatMessageComponent,
+    ObserveVisibilityDirective,
+  ],
 })
 export class SingleChatPageModule {}

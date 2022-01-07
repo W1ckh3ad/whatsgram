@@ -7,10 +7,10 @@ import { IonicModule } from '@ionic/angular';
 import { SettingsPageRoutingModule } from './settings-routing.module';
 
 import { SettingsPage } from './settings.page';
-import { PhotoUrlPipe } from '../pipes/photo-url/photo-url.pipe';
+import { ApplicationPipesModule } from '../application-pipes/application-pipes.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, SettingsPageRoutingModule],
-  declarations: [SettingsPage, PhotoUrlPipe],
+  imports: [CommonModule, FormsModule, IonicModule, SettingsPageRoutingModule, ApplicationPipesModule],
+  declarations: [SettingsPage],
 })
 export class SettingsPageModule {}

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
 import { FirestoreService } from '../firestore/firestore.service';
-import { Message } from './message.model';
+import { GroupReceiverMessageRef, Message } from './message.model';
 import { guid } from 'src/utils';
 import { CryptoService } from '../crypto/crypto.service';
 import { UserService } from '../user/user.service';
 import { WhatsgramUser } from '../account/whatsgram.user.model';
 import { Inbox } from '../account/inbox.model';
 import { where } from 'firebase/firestore';
+import { Chat } from '../account/chat-model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,33 +26,49 @@ export class ChatService {
     responseTo: string = null,
     groupId: string = null,
     publicKey: CryptoKey,
-    uid: string
+    senderUid: string
   ): Promise<DocumentReference<Message>> {
     const messageGuid = guid();
     const messageDoc = this.db.getMessageDoc(messageGuid);
-
-    this.db.set(messageDoc, {
+    const message: Message = {
       createdAt: this.db.timestamp,
       guid: messageGuid,
-      receiver: this.db.getUsersDoc(receiverUid),
-      sender: this.db.getUsersDoc(uid),
+      receiverRef: this.db.getUsersDoc(receiverUid),
+      senderRef: this.db.getUsersDoc(senderUid),
       text: await this.crypto.encryptMessage(msg, publicKey),
-      responseTo: responseTo ? this.db.getMessageDoc(responseTo) : null,
-      groupId,
-    });
+      responseToRef: responseTo ? this.db.getMessageDoc(responseTo) : null,
+    };
+    if (groupId) {
+      message.groupReceiverMessageRefs =
+        await this.createMessageForEveryGroupMember(
+          msg,
+          responseTo,
+          groupId,
+          senderUid
+        );
+    } else {
+      message.receiverMessageRef = await this.createMessageForSingleReceiver(
+        msg,
+        receiverUid,
+        responseTo,
+        groupId,
+        senderUid
+      );
+    }
+    this.db.set(messageDoc, message);
     return messageDoc;
   }
 
-  async createMessageForSingleReceiver(
+  private async createMessageForSingleReceiver(
     msg: string,
-    receiverUid: string,
+    receiverId: string,
     responseTo: string = null,
     groupId: string = null,
-    uid: string
+    senderId: string
   ) {
-    const inboxDoc = this.db.getInboxDoc(receiverUid);
+    const inboxDoc = this.db.getInboxDoc(receiverId);
     const [{ publicKey }, inboxSnap] = await Promise.all([
-      this.user.loadSnap(receiverUid),
+      this.user.loadSnap(receiverId),
       this.db.docSnap(inboxDoc),
     ]);
     const messageGuid = guid();
@@ -59,46 +76,49 @@ export class ChatService {
     this.db.set(messageDoc, {
       createdAt: this.db.timestamp,
       guid: messageGuid,
-      receiverId: this.db.getUsersDoc(receiverUid),
-      senderId: this.db.getUsersDoc(uid),
+      receiverRef: this.db.getUsersDoc(receiverId),
+      senderRef: this.db.getUsersDoc(senderId),
       text: await this.crypto.encryptMessage(
         msg,
         await this.crypto.importPublicKey(publicKey)
       ),
-      responseTo: responseTo && this.db.getMessageDoc(responseTo),
+      responseToRef: responseTo && this.db.getMessageDoc(responseTo),
       groupId,
     });
 
-    const newInbox = this.getInboxDoc(inboxSnap, messageDoc, uid, groupId);
+    const newInbox = this.getInboxDoc(inboxSnap, messageDoc, senderId, groupId);
     this.db.update(inboxDoc, newInbox);
     return messageDoc;
   }
 
-  async createMessageForEveryGroupMember(
+  private async createMessageForEveryGroupMember(
     msg: string,
     responseTo: string = null,
     groupId: string = null,
-    uid: string
-  ) {
+    senderUid: string
+  ): Promise<GroupReceiverMessageRef[]> {
     const group: {
       members: DocumentReference<WhatsgramUser>[];
       admins: DocumentReference<WhatsgramUser>[];
     } = { members: [], admins: [] };
     alert('Group Service missing');
-    const promises = [];
+    const promises: Promise<DocumentReference<Message>>[] = [];
+    const users: DocumentReference<WhatsgramUser>[] = [];
     for (const member of [...group.members, ...group.admins]) {
+      users.push(member);
       promises.push(
         this.createMessageForSingleReceiver(
           msg,
           member.id,
           responseTo,
           groupId,
-          uid
+          senderUid
         )
       );
     }
 
-    await Promise.all(promises);
+    const res = await Promise.all(promises);
+    return res.map((x, i) => ({ userRef: users[i], messageRef: x }));
   }
 
   loadList(ids: string[]) {
@@ -111,47 +131,45 @@ export class ChatService {
   private getInboxDoc(
     snap: Inbox,
     messageDoc: DocumentReference<Message>,
-    uid: string,
+    senderId: string,
     groupId: string | null = null
   ) {
     const alreadExists = groupId
       ? Object.keys(snap.groups).includes(groupId)
-      : Object.keys(snap.chats).includes(uid);
-    let obj: Inbox = (
-      groupId
-        ? {
-            ...snap.chats,
-            groups: {
-              ...snap.groups,
-              [groupId]: {
-                updatedAt: this.db.timestamp,
-                createdAt: alreadExists
-                  ? snap.groups[uid].createdAt
-                  : this.db.timestamp,
-                messages: [
-                  ...(alreadExists ? snap.groups[uid].messages : []),
-                  messageDoc,
-                ],
-              },
-            },
-          }
-        : {
+      : Object.keys(snap.chats).includes(senderId);
+    let obj: Inbox = groupId
+      ? {
+          chats: { ...snap.chats },
+          groups: {
             ...snap.groups,
-            chats: {
-              ...snap.chats,
-              [uid]: {
-                updatedAt: this.db.timestamp,
-                createdAt: alreadExists
-                  ? snap.chats[uid].createdAt
-                  : this.db.timestamp,
-                messages: [
-                  ...(alreadExists ? snap.chats[uid].messages : []),
-                  messageDoc,
-                ],
-              },
-            },
-          }
-    ) as Inbox;
+            [groupId]: {
+              updatedAt: this.db.timestamp,
+              createdAt: alreadExists
+                ? snap.groups[groupId].createdAt
+                : this.db.timestamp,
+              messageRefs: [
+                ...(alreadExists ? snap.groups[groupId].messageRefs : []),
+                messageDoc,
+              ],
+            } as Chat,
+          },
+        }
+      : {
+          groups: { ...snap.groups },
+          chats: {
+            ...snap.chats,
+            [senderId]: {
+              updatedAt: this.db.timestamp,
+              createdAt: alreadExists
+                ? snap.chats[senderId].createdAt
+                : this.db.timestamp,
+              messageRefs: [
+                ...(alreadExists ? snap.chats[senderId].messageRefs : []),
+                messageDoc,
+              ],
+            } as Chat,
+          },
+        };
     if (!obj.chats) {
       obj.chats = {};
     }

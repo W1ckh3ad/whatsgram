@@ -5,7 +5,7 @@ export class WhatsgramUser {
   constructor(
     public uid: string,
     public email: string,
-    public privateData: DocumentReference<PrivateData>,
+    public privateDataRef: DocumentReference<PrivateData>,
     public publicKey: string,
     public displayName: string,
     public photoURL?: string,

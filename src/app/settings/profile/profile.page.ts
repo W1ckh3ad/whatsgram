@@ -11,13 +11,15 @@ export class ProfilePage implements OnInit {
   model = new UserEdit('', '', '', '');
   submitted = false;
 
-
-  constructor(
-    private account: AccountService,
-  ) {}
+  constructor(private account: AccountService) {}
   // phoneNumber regex validation
   async ngOnInit() {
-    const data = await this.account.loadSnapUser();
+    const data = (await this.account.loadSnapUser()) ?? {
+      displayName: '',
+      phoneNumber: '',
+      photoURL: '',
+      description: '',
+    };
 
     this.model = new UserEdit(
       data.displayName ?? '',

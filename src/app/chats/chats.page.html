@@ -25,6 +25,9 @@
             {{lastMessage | decrypt | async}} {{ lastMessage.createdAt | time }}
           </p>
         </div>
+        <ion-note *ngIf="chat.unread" slot="end"
+          ><ion-badge color="primary">{{chat.unread}}</ion-badge></ion-note
+        >
       </ion-item>
     </ion-list>
   </ng-container>

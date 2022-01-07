@@ -4,7 +4,7 @@ import { WhatsgramUser } from './whatsgram.user.model';
 
 export class PrivateData {
   constructor(
-    public contacts: DocumentReference<WhatsgramUser>[],
+    public contactRefs: DocumentReference<WhatsgramUser>[],
     public privateKey: string,
     public chats: {
       [uid: string]: Chat;

@@ -83,14 +83,14 @@ export class FirestoreService {
 
   // write
 
-  set<T>(ref: DocumentPredicate<T>, data: any) {
+  set<T>(ref: DocumentPredicate<T>, data: T) {
     const ts = this.timestamp;
-    return setDoc(this.doc(ref), { ...data, updatedAt: ts, createdAt: ts });
+    return setDoc(this.doc<T>(ref), { ...data, updatedAt: ts, createdAt: ts });
   }
 
-  update<T>(ref: DocumentPredicate<T>, data: any) {
+  update<T>(ref: DocumentPredicate<T>, data: T) {
     const ts = this.timestamp;
-    return updateDoc(this.doc(ref), { ...data, updatedAt: ts });
+    return updateDoc(this.doc<T>(ref), { ...data, updatedAt: ts } as any);
   }
 
   remove<T>(ref: DocumentPredicate<T>) {

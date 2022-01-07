@@ -1,21 +1,12 @@
-import { DocumentReference, Timestamp } from '@angular/fire/firestore';
-import { Message } from '../chat/message.model';
+import { Chat } from './chat-model';
 
 export class Inbox {
   constructor(
     public chats: {
-      [uid: string]: {
-        updatedAt: Timestamp;
-        createdAt: Timestamp;
-        messages: DocumentReference<Message>[];
-      };
+      [uid: string]: Chat;
     },
     public groups: {
-      [uid: string]: {
-        updatedAt: Timestamp;
-        createdAt: Timestamp;
-        messages: DocumentReference<Message>[];
-      };
+      [uid: string]: Chat;
     }
   ) {}
 }

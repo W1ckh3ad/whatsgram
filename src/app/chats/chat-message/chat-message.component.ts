@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { Message } from 'src/app/services/chat/message.model';
 
 @Component({
@@ -8,7 +7,7 @@ import { Message } from 'src/app/services/chat/message.model';
   styleUrls: ['./chat-message.component.scss'],
 })
 export class ChatMessageComponent implements OnInit {
-  @Input() message$: Observable<Message> = null;
+  @Input() message: Message = null;
   @Input() receiverId: string;
 
   constructor() {}

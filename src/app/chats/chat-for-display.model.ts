@@ -6,6 +6,6 @@ export type ChatForDisplay = {
   uid: string;
   updatedAt: Timestamp;
   userRef: DocumentReference<WhatsgramUser>;
-  lastMessageRef: DocumentReference<Message>;
+  lastMessageRef?: DocumentReference<Message>;
   unread?: number;
 };

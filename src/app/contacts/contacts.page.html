@@ -12,7 +12,7 @@
 <ion-content>
   <ion-list>
     <ng-container *ngIf="privateData$ | async as privateData">
-      <ng-container *ngFor="let uid of privateData.contacts">
+      <ng-container *ngFor="let uid of privateData.contactRefs">
         <ng-container *ngIf="uid | doc | async as contact">
           <ion-item [routerLink]="'/chats/' + contact.uid">
             <ion-avatar slot="start">

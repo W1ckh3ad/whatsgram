@@ -23,23 +23,25 @@ export class ChatsPage implements OnInit {
     const readChats = this.account.privateData;
     const unreadChats = this.account.inbox;
 
-    readChats.subscribe((x) => console.log(x));
-    unreadChats.subscribe((x) => console.log(x));
     this.chats$ = combineLatest([readChats, unreadChats]).pipe(
       map((array: [PrivateData, Inbox]) => {
         const chatsList: ChatForDisplay[][] = [];
-        debugger;
-        for (const storage of array) {
+
+        for (let i = 0; i < array.length; i++) {
+          const storage = array[i];
           const list = [];
           const { chats } = storage;
           if (chats) {
             for (const uid of Object.keys(chats)) {
-              list.push(this.transform(uid, chats, storage));
+              list.push(this.transform(uid, chats, i === 1));
             }
           }
           chatsList.push(list);
         }
         for (const chat of chatsList[1]) {
+          if (!chat.lastMessageRef) {
+            continue;
+          }
           const index = chatsList[0].findIndex((x) => x.uid === chat.uid);
           if (index !== -1) {
             chatsList[0].splice(index, 1, chat);
@@ -56,16 +58,21 @@ export class ChatsPage implements OnInit {
     );
   }
   private transform(
-    uid: string,
+    partnerIid: string,
     chats: { [uid: string]: Chat },
-    storage: any
+    isInbox: boolean
   ): ChatForDisplay {
     return {
-      uid,
-      updatedAt: chats[uid].updatedAt,
-      userRef: this.db.getUsersDoc(uid),
-      lastMessageRef: chats[uid].messages[chats[uid].messages.length - 1],
-      unread: storage instanceof Inbox ? chats[uid].messages.length : undefined,
+      uid: partnerIid,
+      updatedAt: chats[partnerIid].updatedAt,
+      userRef: this.db.getUsersDoc(partnerIid),
+      lastMessageRef:
+        chats[partnerIid].messageRefs.length > 0
+          ? chats[partnerIid].messageRefs[
+              chats[partnerIid].messageRefs.length - 1
+            ]
+          : undefined,
+      unread: isInbox ? chats[partnerIid].messageRefs.length : undefined,
     };
   }
 }
