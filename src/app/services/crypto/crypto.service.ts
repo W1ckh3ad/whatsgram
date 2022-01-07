@@ -1,99 +1,129 @@
 import { Injectable } from '@angular/core';
 
+const algName = 'RSA-OAEP';
+const hashName: AlgorithmIdentifier = 'SHA-256';
+const modulusLength = 2048;
 @Injectable({
   providedIn: 'root',
 })
 export class CryptoService {
-  public ciphertext: any;
-  constructor() {
-    /*
-  Generate an encryption key pair, then set up event listeners
-  on the "Encrypt" and "Decrypt" buttons.
-  */
-    window.crypto.subtle
-      .generateKey(
-        {
-          name: 'RSA-OAEP',
-          // Consider using a 4096-bit key for systems that require long-term security
-          modulusLength: 4096,
-          publicExponent: new Uint8Array([1, 0, 1]),
-          hash: 'SHA-256',
-        },
-        true,
-        ['encrypt', 'decrypt']
-      )
-      .then((keyPair) => {
-        const encryptButton = document.querySelector(
-          '.rsa-oaep .encrypt-button'
-        );
-        encryptButton.addEventListener('click', () => {
-          this.encryptMessage(keyPair.publicKey);
-        });
+  constructor() {}
 
-        const decryptButton = document.querySelector(
-          '.rsa-oaep .decrypt-button'
-        );
-        decryptButton.addEventListener('click', () => {
-          this.decryptMessage(keyPair.privateKey);
-        });
-      });
-  }
-
-  /*
-  Fetch the contents of the "message" textbox, and encode it
-  in a form we can use for the encrypt operation.
-  */
-  private getMessageEncoding() {
-    const messageBox = document.querySelector('#rsa-oaep-message');
-    let message = messageBox.value;
-    let enc = new TextEncoder();
-    return enc.encode(message);
-  }
-
-  /*
-  Get the encoded message, encrypt it and display a representation
-  of the ciphertext in the "Ciphertext" element.
-  */
-  async encryptMessage(key) {
-    let encoded = this.getMessageEncoding();
-    this.ciphertext = await window.crypto.subtle.encrypt(
+  async encryptMessage(messageString: string, publicKey: CryptoKey) {
+    const encrypted = await window.crypto.subtle.encrypt(
       {
-        name: 'RSA-OAEP',
+        name: algName,
       },
-      key,
-      encoded
+      publicKey,
+      this.stringToBuffer(messageString)
     );
-
-    let buffer = new Uint8Array(this.ciphertext, 0, 5);
-    const ciphertextValue = document.querySelector(
-      '.rsa-oaep .ciphertext-value'
-    );
-    ciphertextValue.classList.add('fade-in');
-    ciphertextValue.addEventListener('animationend', () => {
-      ciphertextValue.classList.remove('fade-in');
-    });
-    ciphertextValue.textContent = `${buffer}...[${this.ciphertext.byteLength} bytes total]`;
+    return this.bufferToHex(encrypted);
   }
 
-  /*
-  Fetch the ciphertext and decrypt it.
-  Write the decrypted message into the "Decrypted" box.
-  */
-  async decryptMessage(key) {
+  async decryptMessage(messageHex: string, privateKey: CryptoKey) {
     let decrypted = await window.crypto.subtle.decrypt(
       {
-        name: 'RSA-OAEP',
+        name: algName,
       },
-      key,
-      this.ciphertext
+      privateKey,
+      this.hexToBuffer(messageHex)
     );
 
-    let dec = new TextDecoder();
-    const decryptedValue = document.querySelector('.rsa-oaep .decrypted-value');
-    decryptedValue.classList.add('fade-in');
-    decryptedValue.addEventListener('animationend', () => {
-      decryptedValue.classList.remove('fade-in');
-    });
-    decryptedValue.textContent = dec.decode(decrypted);
+    return this.bufferToString(decrypted);
+  }
+
+  generateKeys() {
+    return window.crypto.subtle.generateKey(
+      {
+        name: algName,
+        modulusLength,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: hashName,
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async exportKeys(pair: CryptoKeyPair) {
+    const [privateKey, publicKey] = await Promise.all([
+      window.crypto.subtle.exportKey('pkcs8', pair.privateKey),
+      window.crypto.subtle.exportKey('spki', pair.publicKey),
+    ]);
+    return {
+      privateKey: this.bufferToHex(privateKey),
+      publicKey: this.bufferToHex(publicKey),
+    };
+  }
+
+  async importKeys(privateKey: string, publicKey: string) {
+    const res = await Promise.all([
+      this.importPrivateKey(privateKey),
+      this.importPublicKey(publicKey),
+    ]);
+    return { privateKey: res[0], publicKey: res[1] };
+  }
+
+  importPublicKey(key: string): Promise<CryptoKey> {
+    const binaryDer = this.hexToBuffer(key);
+    return window.crypto.subtle.importKey(
+      'spki',
+      binaryDer,
+      {
+        name: algName,
+        hash: hashName,
+      },
+      true,
+      ['encrypt']
+    );
+  }
+
+  importPrivateKey(key: string): Promise<CryptoKey> {
+    const binaryDer = this.hexToBuffer(key);
+    return window.crypto.subtle.importKey(
+      'pkcs8',
+      binaryDer,
+      {
+        name: algName,
+        hash: hashName,
+      },
+      true,
+      ['decrypt']
+    );
+  }
+
+  private stringToBuffer(message: string): ArrayBuffer {
+    var buffer = new ArrayBuffer(message.length * 2); // 2 bytes for each char
+    var bufView = new Uint16Array(buffer);
+    for (var i = 0, strLen = message.length; i < strLen; i++) {
+      bufView[i] = message.charCodeAt(i);
+    }
+    return buffer;
+  }
+
+  private bufferToString(buffer: ArrayBuffer): string {
+    return String.fromCharCode.apply(null, new Uint16Array(buffer));
+  }
+
+  private bufferToHex(buffer: ArrayBuffer): string {
+    return [...new Uint8Array(buffer)]
+      .map((x) => x.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  private hexToBuffer(hexString: string): ArrayBuffer {
+    hexString = hexString.replace(/^0x/, '');
+    if (hexString.length % 2 != 0) {
+      console.error(
+        'WARNING: expecting an even number of characters in the hexString'
+      );
+    }
+    const bad = hexString.match(/[G-Z\s]/i);
+    if (bad) {
+      console.error('WARNING: found non-hex characters', bad);
+    }
+
+    var integers = hexString.match(/[\dA-F]{2}/gi).map((s) => parseInt(s, 16));
+    return new Uint8Array(integers).buffer;
   }
 }

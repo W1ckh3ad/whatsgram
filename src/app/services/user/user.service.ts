@@ -1,20 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import {
-  Firestore,
-  getDoc,
-  getDocs,
-  setDoc,
-  doc,
-  updateDoc,
-  query,
-  collection,
   where,
   orderBy,
   limit,
   CollectionReference,
 } from '@angular/fire/firestore';
-import { Account } from '../account/account.model';
+import { WhatsgramUser } from '../account/whatsgram.user.model';
 import { FirestoreService } from '../firestore/firestore.service';
 
 const collectionName = 'users';
@@ -22,14 +14,14 @@ const collectionName = 'users';
   providedIn: 'root',
 })
 export class UserService {
-  ref: CollectionReference<Account>;
+  ref: CollectionReference<WhatsgramUser>;
 
   constructor(private db: FirestoreService, public auth: Auth) {
-    this.ref = this.db.collection<Account>(collectionName);
+    this.ref = this.db.getUsersCol();
   }
 
   find(emailUidOrTelephone: string) {
-    return this.db.collectionQuery$<Account>(
+    return this.db.collectionQuery$<WhatsgramUser>(
       collectionName,
       where(this.getField(emailUidOrTelephone), '==', emailUidOrTelephone),
       limit(100)
@@ -37,19 +29,19 @@ export class UserService {
   }
 
   load(userId: string) {
-    return this.db.doc$(this.getRef(userId));
+    return this.db.doc$(this.db.getUsersDoc(userId));
+  }
+
+  loadSnap(userId: string) {
+    return this.db.docSnap(this.db.getUsersDoc(userId));
   }
 
   loadList(userIds: string[]) {
-    return this.db.collectionQuery$<Account>(
+    return this.db.collectionQuery$<WhatsgramUser>(
       collectionName,
       where('uid', 'in', userIds),
       orderBy('displayName')
     );
-  }
-
-  private getRef(userId: string) {
-    return this.db.doc(`users/${userId}`);
   }
 
   private getField(input: string) {

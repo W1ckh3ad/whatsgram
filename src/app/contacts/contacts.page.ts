@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
-import { Account } from '../services/account/account.model';
 import { AccountService } from '../services/account/account.service';
-import { UserService } from '../services/user/user.service';
+import { PrivateData } from '../services/account/private-data.model';
+import { FirestoreService } from '../services/firestore/firestore.service';
 import { SearchComponent } from './search/search.component';
 
 @Component({
@@ -13,35 +13,22 @@ import { SearchComponent } from './search/search.component';
 })
 export class ContactsPage implements OnInit {
   showSearch = false;
-  currentUser: Observable<Account>;
-  contacts: Observable<Account[]>;
+  privateData$: Observable<PrivateData>;
   constructor(
     private account: AccountService,
-    private user: UserService,
-    public modalController: ModalController
+    public modalController: ModalController,
+    public db: FirestoreService
   ) {}
 
   ngOnInit() {
-    this.currentUser = this.account.load();
-    this.currentUser.subscribe((x) => {
-      console.log('UPDATE', x);
-      this.contacts = this.user.loadList(x.privateData.contacts);
-    });
+    this.privateData$ = this.account.privateData;
   }
-
-  search() {}
 
   async openSearch() {
     const modal = await this.modalController.create({
       component: SearchComponent,
       cssClass: 'contacts-search',
-      swipeToClose: true,
-      componentProps: {
-        currentUser: this.currentUser,
-      },
     });
     return await modal.present();
   }
-
-  get() {}
 }

@@ -6,7 +6,6 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   TwitterAuthProvider,
-  User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AccountService } from '../services/account/account.service';
@@ -60,7 +59,7 @@ export class SignInPage implements OnInit {
   }
 
   private async createIfDoesntExistsAndRedirect() {
-    const { displayName, photoURL, uid, email, emailVerified } =
+    const { emailVerified } =
       this.auth.currentUser;
 
     if (!(await this.account.exists())) {

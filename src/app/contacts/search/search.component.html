@@ -30,8 +30,8 @@
     <ion-label> Ergebnisse </ion-label>
   </ion-item-divider>
   <ion-list>
-    <ng-container *ngFor="let user of users | async">
-      <app-user
+    <ng-container *ngIf="contacts$ |async as contacts">
+      <app-user *ngFor="let user of users | async"
         [user]="user"
         [includes]="contacts && contacts.includes(user.uid)"
       ></app-user>

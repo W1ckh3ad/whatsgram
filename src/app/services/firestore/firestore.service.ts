@@ -11,9 +11,17 @@ import {
   QueryConstraint,
   Query,
   serverTimestamp,
+  Timestamp,
+  deleteDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
 } from '@angular/fire/firestore';
-import { deleteDoc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
+import { Inbox } from '../account/inbox.model';
+import { PrivateData } from '../account/private-data.model';
+import { WhatsgramUser } from '../account/whatsgram.user.model';
+import { Message } from '../chat/message.model';
 
 type CollectionPredicate<T> = string | CollectionReference<T>;
 type DocumentPredicate<T> = string | DocumentReference<T>;
@@ -54,18 +62,18 @@ export class FirestoreService {
   }
 
   collection$<T>(ref: CollectionPredicate<T>): Observable<T[]> {
-    return collectionData(this.collection<T>(ref));
+    return collectionData<T>(this.collection<T>(ref));
   }
 
   collectionQuery$<T>(
     ref: QueryPredicate<T>,
     ...queryFn: QueryConstraint[]
   ): Observable<T[]> {
-    return collectionData(this.collectionQuery(ref, ...queryFn));
+    return collectionData<T>(this.collectionQuery(ref, ...queryFn));
   }
 
   get timestamp() {
-    return serverTimestamp();
+    return serverTimestamp() as Timestamp;
   }
 
   async exists<T>(ref: DocumentPredicate<T>) {
@@ -75,17 +83,45 @@ export class FirestoreService {
 
   // write
 
-  set<T>(ref: DocumentPredicate<T>, data: any) {
+  set<T>(ref: DocumentPredicate<T>, data: T) {
     const ts = this.timestamp;
-    return setDoc(this.doc(ref), { ...data, updatedAt: ts, createdAt: ts });
+    return setDoc(this.doc<T>(ref), { ...data, updatedAt: ts, createdAt: ts });
   }
 
-  update<T>(ref: DocumentPredicate<T>, data: any) {
+  update<T>(ref: DocumentPredicate<T>, data: T) {
     const ts = this.timestamp;
-    return updateDoc(this.doc(ref), { ...data, updatedAt: ts });
+    return updateDoc(this.doc<T>(ref), { ...data, updatedAt: ts } as any);
   }
 
   remove<T>(ref: DocumentPredicate<T>) {
     return deleteDoc(this.doc(ref));
+  }
+
+  getUsersDoc(uid: string): DocumentReference<WhatsgramUser> {
+    return this.doc<WhatsgramUser>(`users/${uid}`);
+  }
+  getPrivateDataDoc(uid: string): DocumentReference<PrivateData> {
+    return this.doc<PrivateData>(`privateData/${uid}`);
+  }
+  getMessageDoc(guid: string): DocumentReference<Message> {
+    return this.doc<Message>(`messages/${guid}`);
+  }
+
+  getInboxDoc(uid: string): DocumentReference<Inbox> {
+    return this.doc<Inbox>(`inbox/${uid}`);
+  }
+
+  getUsersCol(): CollectionReference<WhatsgramUser> {
+    return this.collection<WhatsgramUser>(`users`);
+  }
+  getPrivateDataCol(): CollectionReference<PrivateData> {
+    return this.collection<PrivateData>(`privateData`);
+  }
+  getMessageCol(): CollectionReference<Message> {
+    return this.collection<Message>(`messages`);
+  }
+
+  getInboxCol(): CollectionReference<Inbox> {
+    return this.collection<Inbox>(`inbox`);
   }
 }

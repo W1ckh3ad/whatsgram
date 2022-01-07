@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Auth, User } from '@angular/fire/auth';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Auth, Unsubscribe, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 import { BehaviorSubject } from 'rxjs';
@@ -8,16 +8,17 @@ import { BehaviorSubject } from 'rxjs';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   private authStatusSub = new BehaviorSubject<User>(null);
+  showNav = true;
+  authSub: Unsubscribe;
   constructor(
     private auth: Auth,
-    private router: Router
-  ) {
-    this.authStatusListener();
-  }
+    private router: Router,
+  ) {}
 
   async ngOnInit() {
+    this.authStatusListener();
     let { value: theme } = await Storage.get({ key: 'theme' });
     if (theme == null) {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -27,8 +28,12 @@ export class AppComponent implements OnInit {
     document.body.classList.add(theme);
   }
 
+  ngOnDestroy(): void {
+    this.authSub();
+  }
+
   private authStatusListener() {
-    this.auth.onAuthStateChanged((credential) => {
+    this.authSub = this.auth.onAuthStateChanged((credential) => {
       if (credential) {
         if (credential.emailVerified) {
           this.authStatusSub.next(credential);

@@ -15,12 +15,8 @@ import {
   UserTrackingService,
 } from '@angular/fire/analytics';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideStorage, getStorage } from '@angular/fire/storage';
 import { NavComponent } from './nav/nav.component';
-import { UserService } from './services/user/user.service';
-import { AccountService } from './services/account/account.service';
 
 @NgModule({
   declarations: [AppComponent, NavComponent],
