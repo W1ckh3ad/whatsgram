@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>chats</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="chats$ | async as chats">
+    <ion-list *ngFor="let chat of chats">
+      <ion-item
+        *ngIf="chat.userRef | doc | async as user"
+        [routerLink]="'/chats/' + user.uid"
+      >
+        <ion-avatar class="">
+          <img [src]="user | photoUrl" />
+        </ion-avatar>
+        <div class="ion-margin-start">
+          <h2 style="margin: 0 0 8px">{{user.displayName}}</h2>
+          <p
+            style="margin: 0"
+            *ngIf="chat.lastMessageRef | doc | async as lastMessage"
+          >
+            {{lastMessage | decrypt | async}} {{ lastMessage.createdAt | time }}
+          </p>
+        </div>
+        <ion-note *ngIf="chat.unread" slot="end"
+          ><ion-badge color="primary">{{chat.unread}}</ion-badge></ion-note
+        >
+      </ion-item>
+    </ion-list>
+  </ng-container>
+</ion-content>

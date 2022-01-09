@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Kontakte</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openSearch()"
+        ><ion-icon name="add" slot="icon-only"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ng-container *ngIf="privateData$ | async as privateData">
+      <ng-container *ngFor="let uid of privateData.contactRefs">
+        <ng-container *ngIf="uid | doc | async as contact">
+          <ion-item [routerLink]="'/chats/' + contact.uid">
+            <ion-avatar slot="start">
+              <ion-img
+                [src]="contact | photoUrl"
+                alt="profile-picture"
+              ></ion-img>
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ contact.displayName }} [{{ contact.email }}]</h2>
+              <p>{{ contact.description }}</p>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ion-list>
+</ion-content>

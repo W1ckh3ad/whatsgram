@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Einstellungen</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="!user$"> loading... </ng-container>
+  <ng-container *ngIf="user$">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        margin: 2rem;
+        flex-direction: column;
+        gap: 1rem;
+      "
+      *ngIf="user$ | async as user"
+    >
+      <ion-avatar>
+        <img [src]="user | photoUrl" alt="user-profile-picture" />
+      </ion-avatar>
+      <p>{{user.displayName }}</p>
+      <p>{{user.email}}</p>
+    </div>
+    <ion-list>
+      <ion-item lines="full" [routerLink]="'/settings/profile'">
+        <ion-label> Profil bearbeiten </ion-label>
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="moon"></ion-icon>
+        <ion-label> Dunkled Design </ion-label>
+        <ion-toggle
+          id="themeToggle"
+          slot="end"
+          (ionChange)="toggleTheme($event)"
+          checked="{{isDarkMode}}"
+        ></ion-toggle>
+      </ion-item>
+    </ion-list>
+    <ion-button
+      (click)="auth.signOut()"
+      color="danger"
+      expand="block"
+      style="margin-top: 2rem"
+      >Sign Out</ion-button
+    >
+  </ng-container>
+</ion-content>

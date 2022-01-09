@@ -13,7 +13,16 @@
     "target": "es2015",
     "module": "es2020",
     "lib": ["es2018", "dom"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@models/*": ["./src/app/core/models/*"],
+      "@components/*": ["./src/app/core/components/*"],
+      "@enums/*": ["./src/app/core/enums/*"],
+      "@guards/*": ["./src/app/core/guards/*"],
+      "@interceptors/*": ["./src/app/core/interceptors/*"],
+      "@services/*": ["./src/app/core/services/*"],
+      "@utils/*": ["./src/app/core/utils/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
