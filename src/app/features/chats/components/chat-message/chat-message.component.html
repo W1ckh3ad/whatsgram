@@ -1,14 +1,12 @@
 <ng-container *ngIf="message">
-  <ion-item
-    [ngClass]="{
-      'chat-message': true,
-      own: receiverId === message.receiverRef._key.path.segments[6]
-    }"
-    id="{{ message.guid }}"
-  >
-    <div>
+  <ion-item class="chat-message" id="{{ message.id }}">
+    <div
+      [ngClass]="{
+        own: receiverId === message.receiverId
+      }"
+    >
       <div class="name" *ngIf="message.groupId">
-        <ng-container *ngIf="message.senderRef | doc | async as sender">
+        <ng-container *ngIf="message.senderId | doc | async as sender">
           {{ sender.displayName }}
         </ng-container>
       </div>

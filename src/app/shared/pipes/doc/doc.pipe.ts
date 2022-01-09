@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FirestoreService } from 'src/app/services/firestore/firestore.service';
+import { FirestoreService } from '@services/firestore/firestore.service';
 
 @Pipe({
   name: 'doc',

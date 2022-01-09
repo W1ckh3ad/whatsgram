@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import {
-  getAnalytics, provideAnalytics, ScreenTrackingService,
-  UserTrackingService
+  getAnalytics,
+  provideAnalytics,
+  ScreenTrackingService,
+  UserTrackingService,
 } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
@@ -16,8 +18,6 @@ import { getMessaging } from 'firebase/messaging';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-
 
 @NgModule({
   declarations: [AppComponent, NavComponent],

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { signOut } from 'firebase/auth';
-import { UserService } from '../services/user/user.service';
+import { AuthService } from '@services/auth/auth.service';
 
 @Component({
   selector: 'app-sign-out',
@@ -9,10 +8,10 @@ import { UserService } from '../services/user/user.service';
   styleUrls: ['./sign-out.page.scss'],
 })
 export class SignOutPage implements OnInit {
-  constructor(private user: UserService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   async ngOnInit() {
-    await signOut(this.user.auth);
+    await this.auth.signOut();
     this.router.navigateByUrl('sign-in');
   }
 }

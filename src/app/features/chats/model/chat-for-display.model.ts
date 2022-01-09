@@ -1,11 +1,13 @@
-import { DocumentReference, Timestamp } from '@angular/fire/firestore';
-import { WhatsgramUser } from '../services/account/whatsgram.user.model';
-import { Message } from '../services/chat/message.model';
+import { Timestamp } from '@angular/fire/firestore';
 
 export type ChatForDisplay = {
-  uid: string;
-  updatedAt: Timestamp;
-  userRef: DocumentReference<WhatsgramUser>;
-  lastMessageRef?: DocumentReference<Message>;
+  id: string;
+  displayName: string;
+  photoURL: string;
+  lastMessage: {
+    isRead: boolean;
+    createdAt: Timestamp;
+    text: string;
+  };
   unread?: number;
 };

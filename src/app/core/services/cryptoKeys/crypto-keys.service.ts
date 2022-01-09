@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AccountService } from '@services/account/account.service';
 import { AuthService } from '@services/auth/auth.service';
-import { FirestoreService } from '@services/firestore/firestore.service';
-import { BehaviorSubject, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, switchMap } from 'rxjs';
+import { importKeys } from '../../utls/crypto.utils';
 
 type KeyStorage = {
   privateKey: CryptoKey;
@@ -10,17 +10,31 @@ type KeyStorage = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CryptoKeysService {
   private keyStorage = new BehaviorSubject<KeyStorage>(null);
-  constructor(private auth: AuthService, private account: AccountService) {
-    auth.user$.pipe(
-      switchMap(async () => {
-        const [user, private] = await Promise.all([account.loadSnapUser])
-      })
-    )
-
+  constructor(auth: AuthService, private account: AccountService) {
+    if (account.uid$.value) {
+      this.loadKeys();
+    }
+    auth.user$
+      .pipe(
+        switchMap(async () => {
+          const [user, privateData] = await Promise.all([
+            account.loadSnapUser(),
+            account.loadSnapPrivate(),
+          ]);
+          return user && privateData
+            ? { publicKey: user.publicKey, privateKey: privateData.privateKey }
+            : null;
+        }),
+        switchMap(async (x) => {
+          if (!x) return null;
+          return await importKeys(x.privateKey, x.publicKey);
+        })
+      )
+      .subscribe((x) => this.keyStorage.next(x));
   }
 
   async getPublicKey() {
@@ -38,11 +52,11 @@ export class CryptoKeysService {
   }
 
   private async loadKeys() {
-    const {
-      publicKey,
-      privateData: { privateKey },
-    } = await this.loadSnapComplete();
-    const res = await this.crypto.importKeys(privateKey, publicKey);
+    const [{ publicKey }, { privateKey }] = await Promise.all([
+      this.account.loadSnapUser(),
+      this.account.loadSnapPrivate(),
+    ]);
+    const res = await importKeys(privateKey, publicKey);
     return {
       privateKey: res.privateKey,
       publicKey: res.publicKey,

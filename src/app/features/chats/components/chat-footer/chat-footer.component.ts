@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AccountService } from 'src/app/services/account/account.service';
+import { ChatService } from '@services/chat/chat.service';
 
 @Component({
   selector: 'app-chat-footer',
@@ -11,7 +11,7 @@ export class ChatFooterComponent implements OnInit {
   @Input() message: string = '';
   @Input() receiverId: string = '';
   @Input() groupId: string = null;
-  constructor(private accountService: AccountService) {}
+  constructor(private chat: ChatService) {}
 
   ngOnInit() {}
 
@@ -19,8 +19,13 @@ export class ChatFooterComponent implements OnInit {
     if (this.message === '') {
       return;
     }
-    this.accountService
-      .sendMessage(this.message, this.receiverId, this.responseTo, this.groupId)
+    this.chat
+      .handleSendMessage(
+        this.message,
+        this.receiverId,
+        this.responseTo,
+        this.groupId
+      )
       .then(() => {
         this.message = '';
         this.responseTo = '';

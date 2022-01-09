@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Storage } from '@capacitor/storage';
+import { FirestoreService } from '@services/firestore/firestore.service';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -8,9 +9,13 @@ import { Storage } from '@capacitor/storage';
 export class AppComponent implements OnInit {
   showNav = true;
 
-  constructor() {}
+  constructor(
+    private db: FirestoreService
+  ) {}
 
   async ngOnInit() {
+    // this.db.collection$("users")
+    console.log(this.db);
     let { value: theme } = await Storage.get({ key: 'theme' });
     if (theme == null) {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -20,4 +25,3 @@ export class AppComponent implements OnInit {
     document.body.classList.add(theme);
   }
 }
-

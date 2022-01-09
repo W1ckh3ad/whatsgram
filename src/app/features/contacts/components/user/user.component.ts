@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Account } from 'src/app/services/account/account.model';
-import { AccountService } from 'src/app/services/account/account.service';
+import { AccountService } from '@services/account/account.service';
+import { DocumentBase } from '@models/document-base.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 
 @Component({
   selector: 'app-user',
@@ -8,7 +9,7 @@ import { AccountService } from 'src/app/services/account/account.service';
   styleUrls: ['./user.component.scss'],
 })
 export class UserComponent implements OnInit {
-  @Input('user') user: Account;
+  @Input('user') user: WhatsgramUser & DocumentBase;
   @Input('includes') includes = false;
   added = false;
   constructor(private account: AccountService) {}
@@ -19,8 +20,7 @@ export class UserComponent implements OnInit {
     if (this.added || this.includes) {
       return;
     }
-    var res = await this.account.add(this.user.uid);
     this.added = true;
-    return res;
+    return await this.account.add(this.user.id);
   }
 }

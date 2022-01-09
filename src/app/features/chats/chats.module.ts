@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ChatsPageRoutingModule } from './chats-routing.module';
 
 import { ChatsPage } from './chats.page';
-import { ApplicationPipesModule } from '../shared/application-pipes/application-pipes.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,7 +15,7 @@ import { ApplicationPipesModule } from '../shared/application-pipes/application-
     FormsModule,
     IonicModule,
     ChatsPageRoutingModule,
-    ApplicationPipesModule,
+    SharedModule
   ],
   declarations: [ChatsPage],
 })

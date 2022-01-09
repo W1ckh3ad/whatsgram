@@ -17,7 +17,9 @@ export class SignInPage implements OnInit {
     private router: Router,
     private auth: AuthService,
     private account: AccountService
-  ) {}
+  ) {
+    alert('instance');
+  }
 
   ngOnInit() {}
 

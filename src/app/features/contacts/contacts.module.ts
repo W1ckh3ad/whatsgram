@@ -8,16 +8,17 @@ import { ContactsPageRoutingModule } from './contacts-routing.module';
 
 import { ContactsPage } from './contacts.page';
 import { SearchComponent } from './components/search/search.component';
-import { UserComponent } from './user/user.component';
-import { ApplicationPipesModule } from '../shared/application-pipes/application-pipes.module';
+import { UserComponent } from './components/user/user.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     ContactsPageRoutingModule,
-    ApplicationPipesModule,
+    SharedModule,
   ],
+  exports: [IonicModule, SharedModule],
   declarations: [ContactsPage, SearchComponent, UserComponent],
 })
 export class ContactsPageModule {}

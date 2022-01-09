@@ -8,7 +8,19 @@ import { ObserveVisibilityDirective } from './directives/observeVisibility/obser
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [DocPipe, PhotoUrlPipe, DecryptPipe, TimePipe, ObserveVisibilityDirective],
-  exports: [DocPipe, PhotoUrlPipe, DecryptPipe, TimePipe, ObserveVisibilityDirective],
+  declarations: [
+    DocPipe,
+    PhotoUrlPipe,
+    DecryptPipe,
+    TimePipe,
+    ObserveVisibilityDirective,
+  ],
+  exports: [
+    DocPipe,
+    PhotoUrlPipe,
+    DecryptPipe,
+    TimePipe,
+    ObserveVisibilityDirective,
+  ],
 })
-export class ApplicationPipesModule {}
+export class SharedModule {}

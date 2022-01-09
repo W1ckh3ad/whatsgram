@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
-import { SignUp } from '../../models/sign-up.model';
+import { SignUp } from './models/sign-up.model';
 import { sendEmailVerification } from 'firebase/auth';
 
 @Component({

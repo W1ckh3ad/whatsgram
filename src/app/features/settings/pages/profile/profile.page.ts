@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AccountService } from 'src/app/services/account/account.service';
-import { WhatsgramUser } from 'src/app/services/account/whatsgram.user.model';
-import { UserEdit } from '../../services/account/user-edit.model';
+import { AccountService } from '@services/account/account.service';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { UserEdit } from '@models/user-edit.model';
 
 @Component({
   selector: 'app-profile',

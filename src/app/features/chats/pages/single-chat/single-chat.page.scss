@@ -2,5 +2,14 @@
   & ion-item {
     --border-width: 0;
     --inner-border-width: 0;
+    --padding-top: 0;
+    --padding-end: 0;
+    --padding-start: 0;
+    --padding-bottom: 0;
+    --inner-padding-start: 0;
+    --inner-padding-end: 0;
+  }
+  &::part(native) {
+    background: var(--ion-background-color);
   }
 }

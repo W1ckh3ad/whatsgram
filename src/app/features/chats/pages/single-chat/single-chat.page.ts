@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DocumentBase } from '@models/document-base.model';
+import { Message } from '@models/message.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { AccountService } from '@services/account/account.service';
+import { ChatService } from '@services/chat/chat.service';
+import { UserService } from '@services/user/user.service';
 import { DocumentReference } from 'firebase/firestore';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { AccountService } from 'src/app/services/account/account.service';
-import { WhatsgramUser } from 'src/app/services/account/whatsgram.user.model';
-import { Message } from 'src/app/services/chat/message.model';
-import { UserService } from 'src/app/services/user/user.service';
+import { map, Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-single-chat',
@@ -15,32 +16,30 @@ import { UserService } from 'src/app/services/user/user.service';
 })
 export class SingleChatPage implements OnInit {
   receiverId: string;
+  receiverId$: Observable<string> = null;
   responseTo: string = null;
-  messageRefs$: Observable<DocumentReference<Message>[]>;
+  messageRefs$: Observable<(Message & DocumentBase)[]>;
   unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
   receiver$: Observable<WhatsgramUser>;
-  readMessages: string[] = [];
+  readMessage: { createdAt: number; id: string } = null;
   timeout: any;
 
   constructor(
     private activeRoute: ActivatedRoute,
-    private accountService: AccountService,
-    private userService: UserService
+    private account: AccountService,
+    private chat: ChatService,
+    private user: UserService
   ) {}
 
   async ngOnInit() {
     this.receiverId = this.activeRoute.snapshot.paramMap.get('id');
-    this.messageRefs$ = this.accountService.privateData.pipe(
-      map((x) =>
-        x.chats[this.receiverId] ? x.chats[this.receiverId].messageRefs : []
-      )
+    this.receiverId$ = this.activeRoute.paramMap.pipe(map((x) => x.get('id')));
+    this.messageRefs$ = this.activeRoute.paramMap.pipe(
+      switchMap((x) => this.chat.loadMessages(x.get('id')))
     );
-    this.unreadMessageRefs$ = this.accountService.inbox.pipe(
-      map((x) =>
-        x.chats[this.receiverId] ? x.chats[this.receiverId].messageRefs : []
-      )
+    this.receiver$ = this.activeRoute.paramMap.pipe(
+      switchMap((x) => this.user.load(x.get('id')))
     );
-    this.receiver$ = this.userService.load(this.receiverId);
   }
 
   onVisible(target) {
@@ -49,17 +48,17 @@ export class SingleChatPage implements OnInit {
       console.log('cleared Timeout');
     }
 
-    this.readMessages.push(target.id);
+    // this.readMessages.push(target.id);
     this.timeout = setTimeout(async () => {
       console.log('in timeout');
 
-      await this.updateMessageState();
+      // await this.updateMessageState();
     }, 2000);
   }
 
   async updateMessageState() {
-    return this.accountService.readMessagesForPrivateChat(
-      this.readMessages,
+    return this.account.readMessagesForPrivateChat(
+      this.readMessage.id,
       this.receiverId
     );
   }

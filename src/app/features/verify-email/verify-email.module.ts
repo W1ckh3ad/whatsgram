@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-
-import { ProfilePage } from './profile.page';
+import { VerifyEmailPage } from './verify-email.page';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule],
-  declarations: [ProfilePage],
+  declarations: [VerifyEmailPage],
 })
-export class ProfilePageModule {}
+export class VerifyEmailPageModule {}

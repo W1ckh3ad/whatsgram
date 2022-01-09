@@ -22,19 +22,17 @@ import { Observable } from 'rxjs';
 import { PrivateData } from '@models/private-data.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { Message } from '@models/message.model';
-import { DocumentBase as DocumentMetaData } from '../../models/document-base.model';
+import { DocumentBase } from '@models/document-base.model';
 import {
   devices,
   groups,
   messages,
   privateData,
   users,
-} from 'src/app/core/constants/collection-names';
+} from '@constants/collection-names';
 import { Group } from '@models/group.model';
 
-type CollectionPredicate<T> =
-  | string
-  | CollectionReference<T & DocumentMetaData>;
+type CollectionPredicate<T> = string | CollectionReference<T & DocumentBase>;
 type DocumentPredicate<T> = string | DocumentReference<T>;
 
 @Injectable({
@@ -66,8 +64,8 @@ export class FirestoreService {
   }
 
   docWithMetaData$<T>(
-    ref: DocumentPredicate<T & DocumentMetaData>
-  ): Observable<T & DocumentMetaData> {
+    ref: DocumentPredicate<T & DocumentBase>
+  ): Observable<T & DocumentBase> {
     return docData(this.doc(ref), this.options);
   }
 
@@ -78,21 +76,26 @@ export class FirestoreService {
 
   async docSnapWithMetaData<T>(
     ref: DocumentPredicate<T>
-  ): Promise<T & DocumentMetaData> {
+  ): Promise<T & DocumentBase> {
     const { data, id } = await getDoc(this.doc(ref));
-    return { ...data(), id } as T & DocumentMetaData;
+    return { ...data(), id } as T & DocumentBase;
   }
 
-  collection$<T>(ref: CollectionPredicate<T>): Observable<T[]> {
-    return collectionData<T>(this.collection<T>(ref), this.options);
+  collection$<T>(
+    ref: CollectionPredicate<T>
+  ): Observable<(T & DocumentBase)[]> {
+    return collectionData<T & DocumentBase>(
+      this.collection<T & DocumentBase>(ref),
+      this.options
+    );
   }
 
   collectionQuery$<T>(
     ref: string,
     ...queryContraints: QueryConstraint[]
-  ): Observable<T[]> {
-    return collectionData<T & DocumentMetaData>(
-      this.collectionQuery(ref, ...queryContraints),
+  ): Observable<(T & DocumentBase)[]> {
+    return collectionData<T & DocumentBase>(
+      this.collectionQuery<T & DocumentBase>(ref, ...queryContraints),
       this.options
     );
   }
@@ -120,7 +123,10 @@ export class FirestoreService {
     } as any);
   }
 
-  async createWithDocRef<T>(ref: DocumentPredicate<T>, data: T): Promise<void> {
+  async addWithDocumentReference<T>(
+    ref: DocumentPredicate<T>,
+    data: T
+  ): Promise<void> {
     const ts = this.timestamp;
     return setDoc(this.doc<T>(ref), { ...data, updatedAt: ts, createdAt: ts });
   }

@@ -4,6 +4,6 @@ export interface Message {
   receiverId: string;
   responseToId?: string;
   groupId?: string;
-  receiverMessagePath?: string;
-  groupReceiverMessagePath?: string;
+  receiverMessagePath?: string | string[];
+  mediaPath?: string;
 }
