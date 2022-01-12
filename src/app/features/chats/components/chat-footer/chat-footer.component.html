@@ -1,11 +1,10 @@
-
 <ion-footer>
   <form #messageForm="ngForm" (ngSubmit)="send()" class="chat-footer">
     <ion-item>
       <ion-input
         placeholder="Nachricht"
         name="message"
-        value="{{ message }}"
+        [value]="message"
         [(ngModel)]="message"
       ></ion-input>
     </ion-item>

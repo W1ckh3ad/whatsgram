@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AccountService } from '@services/account/account.service';
-import { AuthService } from '@services/auth/auth.service';
-import { BehaviorSubject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { importKeys } from '../../utls/crypto.utils';
 
 type KeyStorage = {
@@ -13,53 +12,54 @@ type KeyStorage = {
   providedIn: 'root',
 })
 export class CryptoKeysService {
-  private keyStorage = new BehaviorSubject<KeyStorage>(null);
-  constructor(auth: AuthService, private account: AccountService) {
-    if (account.uid$.value) {
-      this.loadKeys();
-    }
-    auth.user$
+  private keyStorage$ = new BehaviorSubject<KeyStorage>(null);
+  constructor(private account: AccountService) {
+    combineLatest([this.account.user$, this.account.privateData$])
       .pipe(
-        switchMap(async () => {
-          const [user, privateData] = await Promise.all([
-            account.loadSnapUser(),
-            account.loadSnapPrivate(),
-          ]);
-          return user && privateData
-            ? { publicKey: user.publicKey, privateKey: privateData.privateKey }
-            : null;
-        }),
-        switchMap(async (x) => {
-          if (!x) return null;
-          return await importKeys(x.privateKey, x.publicKey);
-        })
+        map(([user, privateData]) =>
+          user && privateData ? [privateData.privateKey, user.publicKey] : null
+        ),
+        switchMap(async (x) => (x ? await importKeys(x[0], x[1]) : null))
       )
-      .subscribe((x) => this.keyStorage.next(x));
+      .subscribe((x) => this.keyStorage$.next(x));
   }
 
   async getPublicKey() {
-    if (this.keyStorage.value == null) {
-      this.keyStorage.next(await this.loadKeys());
+    try {
+      if (this.keyStorage$.value == null) {
+        this.keyStorage$.next(await this.loadKeys());
+      }
+      return this.keyStorage$.value.publicKey;
+    } catch (error) {
+      console.error('getPublicKey error', error);
     }
-    return this.keyStorage.value.publicKey;
   }
 
   async getPrivateKey() {
-    if (this.keyStorage.value == null) {
-      this.keyStorage.next(await this.loadKeys());
+    try {
+      if (this.keyStorage$.value == null) {
+        this.keyStorage$.next(await this.loadKeys());
+      }
+      return this.keyStorage$.value.privateKey;
+    } catch (error) {
+      console.error('getPrivateKey error', error);
     }
-    return this.keyStorage.value.privateKey;
   }
 
   private async loadKeys() {
-    const [{ publicKey }, { privateKey }] = await Promise.all([
-      this.account.loadSnapUser(),
-      this.account.loadSnapPrivate(),
-    ]);
-    const res = await importKeys(privateKey, publicKey);
-    return {
-      privateKey: res.privateKey,
-      publicKey: res.publicKey,
-    };
+    try {
+      const [{ publicKey }, { privateKey }] = await Promise.all([
+        this.account.loadSnapUser(),
+        this.account.loadSnapPrivate(),
+      ]);
+      const res = await importKeys(privateKey, publicKey);
+      return {
+        privateKey: res.privateKey,
+        publicKey: res.publicKey,
+      };
+    } catch (error) {
+      console.error('loadKeys error', error);
+      throw error;
+    }
   }
 }

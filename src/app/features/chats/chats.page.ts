@@ -28,7 +28,7 @@ export class ChatsPage implements OnInit {
               lastMessage: {
                 createdAt: x.createdAt,
                 isRead: true,
-                text: 'Test',
+                text: '80a374d4979918ca61c556c622a2830d2c8eb257b5eeffbe54b12c17f76cdd1605e611a1def79e616e80ab3c1c99d15f40d0b315511bb4bdfd96ed6d7abab1fb148162e4ca51e5937cf35cf2670bf516b85236c1a4036ee0a6808e2cfbda22c8e150b37298db9c559cfbc229ac74013aac2a3b90e0f50534d7369cc453e0c8e48452ac666d95fd3d32bc299ca82473a1199fa1d61502d9487c91eee56a31f332dccfe59e0e66d48944006a6f8b947a93d31f4cd0e17837a6202459224e24fc7423d64f71c0681fcdbbc060b6065c498d8d4cabed1ed801d273e91d49f893d442d10cedea16a0f8ecae072ccbd4d8ea4bdce7d853b8d90555c63b6e0e4541e1e1',
               },
             } as ChatForDisplay)
         )

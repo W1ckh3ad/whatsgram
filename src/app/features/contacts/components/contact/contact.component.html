@@ -1,0 +1,9 @@
+<ion-item *ngIf="contact" [routerLink]="'/chats/' + contact.id">
+  <ion-avatar slot="start">
+    <ion-img [src]="contact | photoUrl" alt="profile-picture"></ion-img>
+  </ion-avatar>
+  <ion-label>
+    <h2>{{ contact.displayName }} [{{ contact.email }}]</h2>
+    <p>{{ contact.description }}</p>
+  </ion-label>
+</ion-item>

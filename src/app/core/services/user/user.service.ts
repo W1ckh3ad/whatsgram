@@ -19,11 +19,7 @@ export class UserService {
   }
 
   load(userId: string) {
-    return this.db.doc$(this.db.getUsersDoc(userId));
-  }
-
-  loadSnap(userId: string) {
-    return this.db.docSnap(this.db.getUsersDoc(userId));
+    return this.db.docWithMetaData$(this.db.getUsersDoc(userId));
   }
 
   loadList(userIds: string[]) {

@@ -2,87 +2,128 @@ const algName = 'RSA-OAEP';
 const hashName: AlgorithmIdentifier = 'SHA-256';
 const modulusLength = 2048;
 
-export async function encryptMessage(messageString: string, publicKey: CryptoKey) {
-  const encrypted = await window.crypto.subtle.encrypt(
-    {
-      name: algName,
-    },
-    publicKey,
-    stringToBuffer(messageString)
-  );
-  return bufferToHex(encrypted);
+export async function encryptMessage(
+  messageString: string,
+  publicKey: CryptoKey
+) {
+  try {
+    const encrypted = await window.crypto.subtle.encrypt(
+      {
+        name: algName,
+      },
+      publicKey,
+      stringToBuffer(messageString)
+    );
+    return bufferToHex(encrypted);
+  } catch (error) {
+    console.error('EncryptMessage error', error);
+    throw error;
+  }
 }
 
-export async function decryptMessage(messageHex: string, privateKey: CryptoKey) {
-  let decrypted = await window.crypto.subtle.decrypt(
-    {
-      name: algName,
-    },
-    privateKey,
-    hexToBuffer(messageHex)
-  );
+export async function decryptMessage(
+  messageHex: string,
+  privateKey: CryptoKey
+) {
+  try {
+    let decrypted = await window.crypto.subtle.decrypt(
+      {
+        name: algName,
+      },
+      privateKey,
+      hexToBuffer(messageHex)
+    );
 
-  return bufferToString(decrypted);
+    return bufferToString(decrypted);
+  } catch (error) {
+    console.error('DecryptMessage error', error);
+    throw error;
+  }
 }
 
 export function generateKeys() {
-  return window.crypto.subtle.generateKey(
-    {
-      name: algName,
-      modulusLength,
-      publicExponent: new Uint8Array([1, 0, 1]),
-      hash: hashName,
-    },
-    true,
-    ['encrypt', 'decrypt']
-  );
+  try {
+    return window.crypto.subtle.generateKey(
+      {
+        name: algName,
+        modulusLength,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: hashName,
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  } catch (error) {
+    console.error('Key Generation Error', error);
+    throw error;
+  }
 }
 
 export async function exportKeys(pair: CryptoKeyPair) {
-  const [privateKey, publicKey] = await Promise.all([
-    window.crypto.subtle.exportKey('pkcs8', pair.privateKey),
-    window.crypto.subtle.exportKey('spki', pair.publicKey),
-  ]);
-  return {
-    privateKey: bufferToHex(privateKey),
-    publicKey: bufferToHex(publicKey),
-  };
+  try {
+    const [privateKey, publicKey] = await Promise.all([
+      window.crypto.subtle.exportKey('pkcs8', pair.privateKey),
+      window.crypto.subtle.exportKey('spki', pair.publicKey),
+    ]);
+    return {
+      privateKey: bufferToHex(privateKey),
+      publicKey: bufferToHex(publicKey),
+    };
+  } catch (error) {
+    console.error('Exporting Keys error', error);
+    throw error;
+  }
 }
 
 export async function importKeys(privateKey: string, publicKey: string) {
-  const res = await Promise.all([
-    importPrivateKey(privateKey),
-    importPublicKey(publicKey),
-  ]);
-  return { privateKey: res[0], publicKey: res[1] };
+  try {
+    const res = await Promise.all([
+      importPrivateKey(privateKey),
+      importPublicKey(publicKey),
+    ]);
+    return { privateKey: res[0], publicKey: res[1] };
+  } catch (error) {
+    console.error('importKeys error', error);
+    throw error;
+  }
 }
 
 export function importPublicKey(key: string): Promise<CryptoKey> {
-  const binaryDer = hexToBuffer(key);
-  return window.crypto.subtle.importKey(
-    'spki',
-    binaryDer,
-    {
-      name: algName,
-      hash: hashName,
-    },
-    true,
-    ['encrypt']
-  );
+  try {
+    const binaryDer = hexToBuffer(key);
+    return window.crypto.subtle.importKey(
+      'spki',
+      binaryDer,
+      {
+        name: algName,
+        hash: hashName,
+      },
+      true,
+      ['encrypt']
+    );
+  } catch (error) {
+    console.error('importPublicKey error', error);
+    throw error;
+  }
 }
 
 export function importPrivateKey(key: string): Promise<CryptoKey> {
-  const binaryDer = hexToBuffer(key);
-  return window.crypto.subtle.importKey(
-    'pkcs8',
-    binaryDer,
-    {
-      name: algName,
-      hash: hashName,
-    },
-    true,
-    ['decrypt']
-  );
+  try {
+    const binaryDer = hexToBuffer(key);
+    return window.crypto.subtle.importKey(
+      'pkcs8',
+      binaryDer,
+      {
+        name: algName,
+        hash: hashName,
+      },
+      true,
+      ['decrypt']
+    );
+  } catch (error) {
+    console.error('importPrivateKey error', error);
+    throw error;
+  }
 }
 
 function stringToBuffer(message: string): ArrayBuffer {

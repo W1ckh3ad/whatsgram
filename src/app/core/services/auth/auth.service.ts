@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import {
   Auth,
-  User,
-  Unsubscribe,
+  AuthProvider,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  TwitterAuthProvider,
-  AuthProvider,
   signOut,
+  TwitterAuthProvider,
+  Unsubscribe,
+  User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -19,7 +20,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private authStatusSub = new BehaviorSubject<User>(null);
+  private authStatusSub$ = new BehaviorSubject<User>(null);
   private authSub: Unsubscribe;
   constructor(private auth: Auth, private router: Router) {
     this.authStatusListener();
@@ -30,11 +31,11 @@ export class AuthService {
   }
 
   get user() {
-    return this.authStatusSub.value;
+    return this.authStatusSub$.value;
   }
 
   get user$() {
-    return this.authStatusSub;
+    return this.authStatusSub$;
   }
 
   public sendPasswordResetEmail(email: string) {
@@ -46,11 +47,14 @@ export class AuthService {
     password: string
   ): Promise<[User, Error]> {
     try {
-      return [
-        (await signInWithEmailAndPassword(this.auth, email, password)).user,
-        null,
-      ];
+      const { user } = await signInWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+      return [user, null];
     } catch (error) {
+      console.log('signInWithEmailAndPassword error', error);
       return [null, error];
     }
   }
@@ -68,18 +72,26 @@ export class AuthService {
   }
 
   async signOut() {
-    await signOut(this.auth);
-    this.router.navigateByUrl('/login');
+    try {
+      await signOut(this.auth);
+      this.router.navigateByUrl('/sign-in');
+    } catch (error) {
+      console.error('signOut error', error);
+      throw error;
+    }
   }
 
   private authStatusListener() {
-    this.authSub = this.auth.onAuthStateChanged((credential) => {
-      this.authStatusSub.next(credential ?? null);
+    this.authSub = onAuthStateChanged(this.auth, (credential) => {
+      this.authStatusSub$.next(credential ?? null);
       if (credential) {
         if (credential.emailVerified) {
           if (window.location.pathname === '/sign-in') {
-            if (this.router.url.includes('returnUrl=')) {
-              alert('returnURL');
+            const url = this.router.url;
+            if (url.includes('returnUrl=')) {
+              return this.router.navigateByUrl(
+                new URLSearchParams(url.split('?')[1]).get('returnUrl')
+              );
             }
             this.router.navigateByUrl('/chats');
           }

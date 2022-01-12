@@ -1,6 +1,5 @@
 <ion-tabs>
-  <ng-container *ngIf="showNav">
-    <ion-tab-bar slot="bottom">
+    <ion-tab-bar slot="bottom" *ngIf="showNav">
       <ng-container *ngIf="isLoggedIn && isVerified">
         <ion-tab-button tab="contacts">
           <ion-icon name="person"></ion-icon>
@@ -36,5 +35,4 @@
         </ion-tab-button>
       </ng-container>
     </ion-tab-bar>
-  </ng-container>
 </ion-tabs>

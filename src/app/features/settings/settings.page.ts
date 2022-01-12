@@ -4,6 +4,7 @@ import { Storage } from '@capacitor/storage';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { AuthService } from '@services/auth/auth.service';
+import { FirebaseCloudMessagingService } from '@services/firebaseCloudMessaging/firebase-cloud-messaging.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -17,8 +18,11 @@ export class SettingsPage implements OnInit {
   constructor(
     private auth: AuthService,
     private account: AccountService,
-    private router: Router
-  ) {}
+    private router: Router,
+    fcm: FirebaseCloudMessagingService
+  ) {
+    console.log(fcm);
+  }
 
   async ngOnInit() {
     const themeStorage = await Storage.get({ key: 'theme' });
@@ -26,15 +30,24 @@ export class SettingsPage implements OnInit {
     this.isDarkMode = themeStorage.value === 'dark';
   }
 
-  async logout() {
+  async signOut() {
     await this.auth.signOut();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/sign-in');
   }
 
   async toggleTheme(ev) {
-    this.isDarkMode = ev.detail.checked;
-    const newTheme = this.isDarkMode ? 'dark' : 'light';
-    document.body.className = newTheme;
-    await Storage.set({ key: 'theme', value: newTheme });
+    try {
+      this.isDarkMode = ev.detail.checked;
+      const newTheme = this.isDarkMode ? 'dark' : 'light';
+      document.body.className = newTheme;
+      await Storage.set({ key: 'theme', value: newTheme });
+    } catch (error) {
+      console.error('toggleTheme error', ev);
+      throw error;
+    }
+  }
+
+  async getToken() {
+    // return this.fcm.getToken();
   }
 }

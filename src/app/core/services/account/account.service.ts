@@ -1,14 +1,26 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import { DocumentReference } from '@angular/fire/firestore';
-import { chats, contacts, users } from '@constants/collection-names';
+import {
+  chats,
+  contacts,
+  users,
+  privateData,
+} from '@constants/collection-names';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { exportKeys, generateKeys } from '../../utls/crypto.utils';
 import { FirestoreService } from '../firestore/firestore.service';
 
@@ -17,31 +29,53 @@ import { FirestoreService } from '../firestore/firestore.service';
 })
 export class AccountService implements OnDestroy {
   uid$ = new BehaviorSubject<string>(null);
-
+  contacts$: Observable<DocumentBase[]> = null;
+  user$: Observable<WhatsgramUser & DocumentBase> = null;
+  privateData$: Observable<PrivateData> = null;
   constructor(private auth: AuthService, private db: FirestoreService) {
-    this.auth.user$.pipe(tap((x) => this.uid$.next(x.uid)));
+    this.auth.user$
+      .pipe(
+        map((x) => (x ? x.uid : null)),
+        tap((x) => console.log(x))
+      )
+      .subscribe((x) => this.uid$.next(x));
+
+    this.contacts$ = this.auth.user$.pipe(
+      switchMap((x) => this.db.collection$(`${users}/${x}/${contacts}`)),
+      shareReplay(1)
+    );
+
+    this.user$ = this.auth.user$.pipe(
+      switchMap((x) =>
+        this.db.docWithMetaData$<WhatsgramUser>(`${users}/${x}`)
+      ),
+      shareReplay(1)
+    );
+
+    this.privateData$ = this.auth.user$.pipe(
+      switchMap((x) =>
+        this.db.docWithMetaData$<PrivateData>(`${privateData}/${x}`)
+      ),
+      shareReplay(1)
+    );
   }
 
   ngOnDestroy(): void {}
 
-  get userRef(): DocumentReference<WhatsgramUser> {
-    return this.db.getUsersDoc(this.uid$.value);
+  get userRef(): DocumentReference<WhatsgramUser & DocumentBase> {
+    const id = this.uid$.value;
+    if (!id) throw new Error('User Id is null');
+    return this.db.getUsersDoc(id);
   }
 
   get privateDataRef(): DocumentReference<PrivateData> {
-    return this.db.getPrivateDataDoc(this.uid$.value);
+    const id = this.uid$.value;
+    if (!id) throw new Error('User Id is null');
+    return this.db.getPrivateDataDoc(id);
   }
 
   get user() {
     return this.db.doc$(this.userRef);
-  }
-
-  get privateData() {
-    return this.db.doc$(this.privateDataRef);
-  }
-
-  get contacts(): Observable<DocumentBase[]> {
-    return this.db.collection$(`${users}/${this.uid}/${contacts}`);
   }
 
   async loadSnapUser() {
@@ -90,14 +124,11 @@ export class AccountService implements OnDestroy {
   }
 
   async hasContact(userId: string) {
-    return await this.db.exists(`${users}/${this.uid}/${contacts}/${userId}`);
+    return await this.db.exists(`${users}/${userId}/${contacts}/${userId}`);
   }
 
   async add(userToAddId: string) {
     const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${userToAddId}`);
-    if (await this.db.exists(doc)) {
-      throw new Error('User already in Contacts');
-    }
     return this.db.addWithDocumentReference(doc, {});
   }
 
@@ -107,7 +138,9 @@ export class AccountService implements OnDestroy {
   ) {
     const refString = `${users}/${this.uid}/${chats}/${receiverId}`;
     const chatRef = this.db.doc<Chat>(refString);
-    return this.db.update(chatRef, { lastReadMessage: messageId });
+    return this.db.setUpdate(chatRef, { lastReadMessage: messageId } as any, {
+      merge: true,
+    });
   }
 
   private get uid() {

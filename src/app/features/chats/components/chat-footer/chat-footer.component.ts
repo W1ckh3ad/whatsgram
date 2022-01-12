@@ -29,6 +29,7 @@ export class ChatFooterComponent implements OnInit {
       .then(() => {
         this.message = '';
         this.responseTo = '';
-      });
+      })
+      .catch((e) => console.error('Loading Settings/Profile error', e));
   }
 }

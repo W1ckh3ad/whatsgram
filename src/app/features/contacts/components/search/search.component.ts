@@ -7,12 +7,12 @@ import { UserService } from '@services/user/user.service';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-search',
+  selector: 'app-contacts-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  users: Observable<(WhatsgramUser & DocumentBase)[]>;
+  users$: Observable<(WhatsgramUser & DocumentBase)[]>;
   search = '';
   contacts$: Observable<string[]>;
 
@@ -22,23 +22,17 @@ export class SearchComponent implements OnInit {
     private account: AccountService
   ) {}
 
-  async ngOnInit() {
-
-  }
+  async ngOnInit() {}
 
   add(uid: string) {
     this.account.add(uid);
   }
 
   async onSubmit() {
-    this.users = this.user.find(this.search);
+    this.users$ = this.user.find(this.search);
   }
 
   async dismissModal() {
     await this.modalController.dismiss();
-  }
-
-  async includes(userId: string) {
-    return this.account.hasContact(userId);
   }
 }

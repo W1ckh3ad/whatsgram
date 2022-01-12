@@ -54,15 +54,11 @@
             </ion-item>
           </ion-col>
         </ion-row>
-        <ng-container *ngIf="errorMessage !== ''">
-          <ion-row>
-            <ion-col>
-              <span style="color: var(--ion-color-danger)"
-                >{{errorMessage}}</span
-              >
-            </ion-col>
-          </ion-row></ng-container
-        >
+        <ion-row *ngIf="errorMessage !== ''">
+          <ion-col>
+            <span style="color: var(--ion-color-danger)">{{errorMessage}}</span>
+          </ion-col>
+        </ion-row>
         <ion-row>
           <ion-col>
             <ion-button type="submit" expand="block" (click)="onSubmit"

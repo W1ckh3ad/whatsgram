@@ -29,13 +29,11 @@
   <ion-item-divider color="secondary">
     <ion-label> Ergebnisse </ion-label>
   </ion-item-divider>
-  <ion-list>
-    <ng-container>
-      <app-user
-        *ngFor="let user of users | async"
-        [user]="user"
-        [includes]="includes(user.id) | async"
-      ></app-user>
-    </ng-container>
+  <ion-list *ngIf="users$ | async as users">
+    <app-contacts-search-result
+      *ngFor="let user of users"
+      [user]="user"
+      [includes]="user.id | hasContact | async"
+    ></app-contacts-search-result>
   </ion-list>
 </ion-content>

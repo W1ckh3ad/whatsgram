@@ -24,7 +24,7 @@ export class ChatService {
 
   loadChats() {
     return this.db.collectionQuery$<Chat>(
-      this.getReceiverChatsCollection(this.senderId),
+      this.getUserChatsCollection(this.senderId),
       orderBy('updatedAt'),
       limit(50)
     );
@@ -32,7 +32,7 @@ export class ChatService {
 
   loadMessages(id: string) {
     return this.db.collection$<Message>(
-      this.getReceiverMessageCollection(this.senderId, id) + '/' + messages
+      this.getUserMessageCollection(this.senderId, id)
     );
   }
 
@@ -74,19 +74,24 @@ export class ChatService {
     groupId: string = null,
     receiverMessageIds: string | string[]
   ): Promise<DocumentReference<Message>> {
-    const message: Message = {
-      receiverId: receiverId,
-      senderId: this.senderId,
-      text: await encryptMessage(msg, await this.cryptoKeys.getPublicKey()),
-      responseToId: responseTo ? responseTo : null,
-      receiverMessagePath: receiverMessageIds,
-      groupId,
-    };
+    try {
+      const message: Message = {
+        receiverId: receiverId,
+        senderId: this.senderId,
+        text: await encryptMessage(msg, await this.cryptoKeys.getPublicKey()),
+        responseToId: responseTo ? responseTo : null,
+        receiverMessagePath: receiverMessageIds,
+        groupId,
+      };
 
-    return this.db.add<Message>(
-      this.getReceiverMessageCollection(this.senderId, groupId ?? receiverId),
-      message
-    );
+      return this.db.add<Message>(
+        this.getUserMessageCollection(this.senderId, groupId ?? receiverId),
+        message
+      );
+    } catch (error) {
+      console.error('createMessageForSender error', error);
+      throw error;
+    }
   }
 
   private async createMessageForSingleReceiver(
@@ -95,18 +100,26 @@ export class ChatService {
     responseTo: string = null,
     groupId: string = null
   ) {
-    return (
-      await this.db.add(
-        this.getReceiverMessageCollection(receiverId, groupId ?? this.senderId),
-        {
-          receiverId: receiverId,
-          senderId: this.senderId,
-          text: await encryptMessage(msg, await this.cryptoKeys.getPublicKey()),
-          responseToRef: responseTo,
-          groupId,
-        }
-      )
-    ).id;
+    try {
+      return (
+        await this.db.add(
+          this.getUserMessageCollection(receiverId, groupId ?? this.senderId),
+          {
+            receiverId: receiverId,
+            senderId: this.senderId,
+            text: await encryptMessage(
+              msg,
+              await this.cryptoKeys.getPublicKey()
+            ),
+            responseToRef: responseTo,
+            groupId,
+          }
+        )
+      ).id;
+    } catch (error) {
+      console.error('createMessageForSingleReceiver', error);
+      throw error;
+    }
   }
 
   private async handleGenerationForReceiver(
@@ -131,26 +144,40 @@ export class ChatService {
     responseTo: string = null,
     groupId: string = null
   ): Promise<string[]> {
-    const group: {
-      members: DocumentReference<DocumentBase>[];
-      admins: DocumentReference<DocumentBase>[];
-    } = { members: [], admins: [] };
-    alert('Group Service missing');
-    const promises: Promise<string>[] = [];
-    for (const member of [...group.members, ...group.admins]) {
-      promises.push(
-        this.createMessageForSingleReceiver(msg, member.id, responseTo, groupId)
-      );
+    try {
+      const group: {
+        members: DocumentReference<DocumentBase>[];
+        admins: DocumentReference<DocumentBase>[];
+      } = { members: [], admins: [] };
+      alert('Group Service missing');
+      const promises: Promise<string>[] = [];
+      for (const member of [...group.members, ...group.admins]) {
+        promises.push(
+          this.createMessageForSingleReceiver(
+            msg,
+            member.id,
+            responseTo,
+            groupId
+          )
+        );
+      }
+
+      return await Promise.all(promises);
+    } catch (error) {
+      console.error('createMessageForEveryGroupMember error', error);
+      throw error;
     }
-
-    return Promise.all(promises);
   }
 
-  private getReceiverMessageCollection(userId: string, id: string) {
-    return `${this.getReceiverChatsCollection(userId)}/${id}`;
+  private getUserMessageCollection(userId: string, id: string) {
+    return `${this.getUserChatDocument(userId, id)}/${messages}`;
   }
 
-  private getReceiverChatsCollection(userId: string) {
+  private getUserChatDocument(userId: string, documentId: string) {
+    return `${this.getUserChatsCollection(userId)}/${documentId}`;
+  }
+
+  private getUserChatsCollection(userId: string) {
     return `${users}/${userId}/${chats}`;
   }
 }

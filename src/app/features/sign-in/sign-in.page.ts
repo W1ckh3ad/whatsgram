@@ -17,35 +17,35 @@ export class SignInPage implements OnInit {
     private router: Router,
     private auth: AuthService,
     private account: AccountService
-  ) {
-    alert('instance');
-  }
+  ) {}
 
   ngOnInit() {}
 
   async login() {
     await this.handleLogin(
-      this.auth.signInWithEmailAndPassword(
+      await this.auth.signInWithEmailAndPassword(
         this.model.email,
         this.model.password
       )
     );
   }
 
-  googleLogin() {
-    this.auth.googleLogin();
+  async googleLogin() {
+    await this.handleLogin(await this.auth.googleLogin());
   }
 
-  gitHubLogin() {
-    this.auth.gitHubLogin();
+  async gitHubLogin() {
+    await this.handleLogin(await this.auth.gitHubLogin());
   }
 
-  twitterLogin() {
-    this.auth.twitterLogin();
+  async twitterLogin() {
+    await this.handleLogin(await this.auth.twitterLogin());
   }
 
-  private async handleLogin(data: Promise<[User, Error]>) {
-    const [user, error] = await data;
+  private async handleLogin(data: [User, Error]) {
+    const res = await data;
+    console.log(data);
+    const [user, error] = res;
     if (user) {
       await this.createIfDoesntExistsAndRedirect(user);
     } else if (error) {
@@ -55,7 +55,9 @@ export class SignInPage implements OnInit {
 
   private async createIfDoesntExistsAndRedirect(user: User) {
     const { emailVerified } = user;
-
+    if (this.account.uid$.value === null) {
+      this.account.uid$.next(user.uid);
+    }
     if (!(await this.account.exists())) {
       if (emailVerified) {
         this.account.create(user);

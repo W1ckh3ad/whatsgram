@@ -10,32 +10,42 @@ import { AccountService } from '@services/account/account.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
 import { BehaviorSubject } from 'rxjs';
 
+const publicKey =
+  'BOCxxACIR2YIAHgVrTQucnE5hISyzHJnHs26UfeJiugaJn4SGQi0itGpk4mKSXDDm1I_HkWnEEDWXOv0nc0rDVc';
 @Injectable({
   providedIn: 'root',
 })
 export class FirebaseCloudMessagingService {
-  currentMessage = new BehaviorSubject<MessagePayload>(null);
+  currentMessage$ = new BehaviorSubject<MessagePayload>(null);
   constructor(
     public messaging: Messaging,
     public db: FirestoreService,
     private account: AccountService,
     private toastCtrl: ToastController
   ) {
-    this.account.uid$.subscribe(async (x) =>
-      x ? await this.getToken() : null
-    );
+    this.account.uid$.subscribe(async (x) => {
+      x ? await this.getToken() : null;
+      console.log('FirebaseCloudMessagingService', x);
+      if (x) {
+        await this.getToken();
+      }
+    });
   }
 
   async getToken() {
-    const token = await getToken(this.messaging);
-    return this.saveTokenToFirestore(token);
+    try {
+      const token = await getToken(this.messaging, { vapidKey: publicKey });
+      return this.saveTokenToFirestore(token);
+    } catch (error) {
+      console.error('getToken error', error);
+    }
   }
 
   receiveMessage() {
     onMessage(this.messaging, async (payload) => {
       await this.displayReceivedMessage(payload);
       console.log('Message Received', payload);
-      this.currentMessage.next(payload);
+      this.currentMessage$.next(payload);
     });
   }
 

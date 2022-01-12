@@ -9,10 +9,8 @@
         <p>{{ user.description }}</p>
       </ion-col>
       <ion-col style="display: flex; justify-content: flex-end">
-        <ion-button (click)="add()" disabled="{{ added || includes }}">
-          <ion-icon
-            name="{{ added || includes ? 'checkmark' : 'add' }}"
-          ></ion-icon>
+        <ion-button (click)="add()" [disabled]="added || includes">
+          <ion-icon [name]="added || includes ? 'checkmark' : 'add'"></ion-icon>
         </ion-button>
       </ion-col>
     </ion-row>

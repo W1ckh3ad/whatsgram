@@ -5,6 +5,8 @@ import { PhotoUrlPipe } from './pipes/photo-url/photo-url.pipe';
 import { DecryptPipe } from './pipes/decrypt/decrypt.pipe';
 import { TimePipe } from './pipes/time/time.pipe';
 import { ObserveVisibilityDirective } from './directives/observeVisibility/observe-visibility.directive';
+import { HasContactPipe } from './pipes/hasContact/has-contact.pipe';
+import { UserPipe } from './pipes/user/user.pipe';
 
 @NgModule({
   imports: [CommonModule],
@@ -14,6 +16,8 @@ import { ObserveVisibilityDirective } from './directives/observeVisibility/obser
     DecryptPipe,
     TimePipe,
     ObserveVisibilityDirective,
+    HasContactPipe,
+    UserPipe,
   ],
   exports: [
     DocPipe,
@@ -21,6 +25,8 @@ import { ObserveVisibilityDirective } from './directives/observeVisibility/obser
     DecryptPipe,
     TimePipe,
     ObserveVisibilityDirective,
+    HasContactPipe,
+    UserPipe,
   ],
 })
 export class SharedModule {}

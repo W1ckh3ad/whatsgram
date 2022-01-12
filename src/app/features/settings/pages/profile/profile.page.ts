@@ -47,6 +47,10 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   async onSubmit() {
     this.submitted = true;
-    await this.account.updateProfile(this.model);
+    try {
+      await this.account.updateProfile(this.model);
+    } catch (error) {
+      console.log('upData Account error', error);
+    }
   }
 }

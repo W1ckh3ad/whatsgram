@@ -1,15 +1,14 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
-import { ContactsPageRoutingModule } from './contacts-routing.module';
-
-import { ContactsPage } from './contacts.page';
+import { SharedModule } from '@shared/shared.module';
+import { ContactComponent } from './components/contact/contact.component';
+import { SearchResultComponent } from './components/search-result/search-result.component';
 import { SearchComponent } from './components/search/search.component';
-import { UserComponent } from './components/user/user.component';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { ContactsPageRoutingModule } from './contacts-routing.module';
+import { ContactsPage } from './contacts.page';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -18,7 +17,12 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ContactsPageRoutingModule,
     SharedModule,
   ],
-  exports: [IonicModule, SharedModule],
-  declarations: [ContactsPage, SearchComponent, UserComponent],
+  exports: [IonicModule],
+  declarations: [
+    ContactsPage,
+    SearchComponent,
+    SearchResultComponent,
+    ContactComponent,
+  ],
 })
 export class ContactsPageModule {}

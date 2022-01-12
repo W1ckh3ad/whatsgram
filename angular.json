@@ -32,7 +32,8 @@
               },
               "src/manifest.webmanifest",
               "src/firebase-messaging-sw.js",
-              "src/combined-messaging-sw.js"
+              "src/combined-sw.js",
+              "src/manifest.webmanifest"
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],
             "scripts": [],
@@ -113,6 +114,7 @@
                 "input": "src/assets",
                 "output": "/assets"
               },
+              "src/manifest.webmanifest",
               "src/manifest.webmanifest"
             ]
           },

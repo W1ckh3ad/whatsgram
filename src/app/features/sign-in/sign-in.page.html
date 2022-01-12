@@ -17,7 +17,7 @@
                 type="email"
                 name="email"
                 [(ngModel)]="model.email"
-                value="{{model.email}}"
+                [value]="model.email"
               ></ion-input>
             </ion-item>
           </ion-col>
@@ -32,7 +32,7 @@
                 type="password"
                 name="Password"
                 [(ngModel)]="model.password"
-                value="{{model.password}}"
+                [value]="model.password"
               >
               </ion-input>
             </ion-item>
@@ -40,20 +40,16 @@
         </ion-row>
         <ion-row>
           <ion-col style="text-align: end">
-            <ion-router-link routerLink="forgot-password"
+            <ion-router-link routerLink="/forgot-password"
               >Passwort vergessen?</ion-router-link
             >
           </ion-col>
         </ion-row>
-        <ng-container *ngIf="errorMessage !== ''">
-          <ion-row>
-            <ion-col>
-              <span style="color: var(--ion-color-danger)"
-                >{{errorMessage}}</span
-              >
-            </ion-col>
-          </ion-row></ng-container
-        >
+        <ion-row *ngIf="errorMessage !== ''">
+          <ion-col>
+            <span style="color: var(--ion-color-danger)">{{errorMessage}}</span>
+          </ion-col>
+        </ion-row>
         <ion-row>
           <ion-col>
             <ion-button type="submit" expand="block">Login</ion-button>
@@ -61,7 +57,7 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <ion-button type="button" routerLink="sign-up" expand="block"
+            <ion-button type="button" routerLink="/sign-up" expand="block"
               >Registrieren</ion-button
             >
           </ion-col>

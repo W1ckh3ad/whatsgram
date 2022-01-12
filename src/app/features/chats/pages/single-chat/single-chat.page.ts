@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DocumentBase } from '@models/document-base.model';
 import { Message } from '@models/message.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
-import { AccountService } from '@services/account/account.service';
+// import { AccountService } from '@services/account/account.service';
 import { ChatService } from '@services/chat/chat.service';
 import { UserService } from '@services/user/user.service';
 import { DocumentReference } from 'firebase/firestore';
@@ -18,7 +18,7 @@ export class SingleChatPage implements OnInit {
   receiverId: string;
   receiverId$: Observable<string> = null;
   responseTo: string = null;
-  messageRefs$: Observable<(Message & DocumentBase)[]>;
+  message$: Observable<(Message & DocumentBase)[]>;
   unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
   receiver$: Observable<WhatsgramUser>;
   readMessage: { createdAt: number; id: string } = null;
@@ -26,7 +26,7 @@ export class SingleChatPage implements OnInit {
 
   constructor(
     private activeRoute: ActivatedRoute,
-    private account: AccountService,
+    // private account: AccountService,
     private chat: ChatService,
     private user: UserService
   ) {}
@@ -34,7 +34,7 @@ export class SingleChatPage implements OnInit {
   async ngOnInit() {
     this.receiverId = this.activeRoute.snapshot.paramMap.get('id');
     this.receiverId$ = this.activeRoute.paramMap.pipe(map((x) => x.get('id')));
-    this.messageRefs$ = this.activeRoute.paramMap.pipe(
+    this.message$ = this.activeRoute.paramMap.pipe(
       switchMap((x) => this.chat.loadMessages(x.get('id')))
     );
     this.receiver$ = this.activeRoute.paramMap.pipe(
@@ -56,10 +56,10 @@ export class SingleChatPage implements OnInit {
     }, 2000);
   }
 
-  async updateMessageState() {
-    return this.account.readMessagesForPrivateChat(
-      this.readMessage.id,
-      this.receiverId
-    );
-  }
+  // async updateMessageState() {
+  //   return this.account.readMessagesForPrivateChat(
+  //     this.readMessage.id,
+  //     this.receiverId
+  //   );
+  // }
 }

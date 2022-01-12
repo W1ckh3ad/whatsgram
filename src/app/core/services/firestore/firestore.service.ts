@@ -70,15 +70,25 @@ export class FirestoreService {
   }
 
   async docSnap<T>(ref: DocumentPredicate<T>): Promise<T> {
-    const { data } = await getDoc(this.doc(ref));
-    return data() as T;
+    try {
+      const doc = await getDoc(this.doc(ref));
+      return doc.data() as T;
+    } catch (error) {
+      console.error('docSnap error', error, ref);
+      throw error;
+    }
   }
 
   async docSnapWithMetaData<T>(
     ref: DocumentPredicate<T>
   ): Promise<T & DocumentBase> {
-    const { data, id } = await getDoc(this.doc(ref));
-    return { ...data(), id } as T & DocumentBase;
+    try {
+      const doc = await getDoc(this.doc(ref));
+      return { ...doc.data(), id: doc.id } as T & DocumentBase;
+    } catch (error) {
+      console.error('docSnapWithMetaData error', error, ref);
+      throw error;
+    }
   }
 
   collection$<T>(
@@ -105,8 +115,13 @@ export class FirestoreService {
   }
 
   async exists<T>(ref: DocumentPredicate<T>) {
-    const { exists } = await getDoc(this.doc(ref));
-    return exists();
+    try {
+      const { exists } = await getDoc(this.doc(ref));
+      return exists();
+    } catch (error) {
+      console.error('exists error', error, ref);
+      return false;
+    }
   }
 
   // write
@@ -150,10 +165,10 @@ export class FirestoreService {
   }
 
   getUsersDoc(uid: string) {
-    return this.doc<WhatsgramUser>(`${users}/${uid}`);
+    return this.doc<WhatsgramUser & DocumentBase>(`${users}/${uid}`);
   }
   getPrivateDataDoc(uid: string) {
-    return this.doc<PrivateData>(`${privateData}/${uid}`);
+    return this.doc<PrivateData & DocumentBase>(`${privateData}/${uid}`);
   }
   getMessageDoc(
     userId: string,

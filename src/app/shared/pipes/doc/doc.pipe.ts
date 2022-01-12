@@ -10,7 +10,6 @@ export class DocPipe implements PipeTransform {
 
   transform(value: any): Observable<any> {
     if (!value || !value.path) {
-      debugger;
     }
     return this.db.doc$(value.path);
   }

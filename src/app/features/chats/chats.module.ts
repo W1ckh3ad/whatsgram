@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ChatsPageRoutingModule } from './chats-routing.module';
 
 import { ChatsPage } from './chats.page';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '@shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,8 +15,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     IonicModule,
     ChatsPageRoutingModule,
-    SharedModule
+    SharedModule,
   ],
+  exports: [SharedModule],
   declarations: [ChatsPage],
 })
 export class ChatsPageModule {}
