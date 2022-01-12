@@ -2,18 +2,24 @@
   <ion-toolbar>
     <ion-title>Kontakte</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openSearch()"
+      <ion-button (click)="openAdd()"
         ><ion-icon name="add" slot="icon-only"></ion-icon
       ></ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar>
-    <ion-input></ion-input>
-  </ion-toolbar>
+  <ion-toolbar
+    ><ion-searchbar
+      (ionChange)="onSearch($event)"
+      debounce="500"
+    ></ion-searchbar
+  ></ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-list>
-    <app-contact *ngFor="let contact of contacts$ | async" [contact]=" contact.id | user | async"></app-contact>
+    <app-contact
+      *ngFor="let contact of contacts$ | async"
+      [contact]=" contact"
+    ></app-contact>
   </ion-list>
 </ion-content>

@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { SharedModule } from '@shared/shared.module';
 import { ContactComponent } from './components/contact/contact.component';
-import { SearchResultComponent } from './components/search-result/search-result.component';
-import { SearchComponent } from './components/search/search.component';
+import { AddSearchResultComponent } from './components/add-search-result/add-search-result.component';
+import { AddComponent } from './components/add/add.component';
 import { ContactsPageRoutingModule } from './contacts-routing.module';
 import { ContactsPage } from './contacts.page';
 
@@ -20,8 +20,8 @@ import { ContactsPage } from './contacts.page';
   exports: [IonicModule],
   declarations: [
     ContactsPage,
-    SearchComponent,
-    SearchResultComponent,
+    AddComponent,
+    AddSearchResultComponent,
     ContactComponent,
   ],
 })

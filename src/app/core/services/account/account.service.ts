@@ -41,7 +41,7 @@ export class AccountService implements OnDestroy {
       .subscribe((x) => this.uid$.next(x));
 
     this.contacts$ = this.auth.user$.pipe(
-      switchMap((x) => this.db.collection$(`${users}/${x}/${contacts}`)),
+      switchMap((x) => this.db.collection$(`${users}/${x.uid}/${contacts}`)),
       shareReplay(1)
     );
 
@@ -105,11 +105,12 @@ export class AccountService implements OnDestroy {
     }
     const { privateKey, publicKey } = await exportKeys(await generateKeys());
 
-    const data: WhatsgramUser = {
+    const data: any = {
       displayName,
       email,
       photoURL,
       publicKey,
+      id: uid,
     };
     return Promise.all([
       this.db.addWithDocumentReference(this.privateDataRef, {
@@ -128,6 +129,9 @@ export class AccountService implements OnDestroy {
   }
 
   async add(userToAddId: string) {
+    if (userToAddId === this.uid) {
+      throw new Error("You can't add yourself as contact");
+    }
     const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${userToAddId}`);
     return this.db.addWithDocumentReference(doc, {});
   }

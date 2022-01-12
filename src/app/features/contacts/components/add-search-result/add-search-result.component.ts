@@ -4,11 +4,11 @@ import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 
 @Component({
-  selector: 'app-contacts-search-result',
-  templateUrl: './search-result.component.html',
-  styleUrls: ['./search-result.component.scss'],
+  selector: 'app-contacts-add-search-result',
+  templateUrl: './add-search-result.component.html',
+  styleUrls: ['./add-search-result.component.scss'],
 })
-export class SearchResultComponent implements OnInit {
+export class AddSearchResultComponent implements OnInit {
   @Input() user: WhatsgramUser & DocumentBase;
   @Input() includes = false;
   added = false;

@@ -30,10 +30,10 @@
     <ion-label> Ergebnisse </ion-label>
   </ion-item-divider>
   <ion-list *ngIf="users$ | async as users">
-    <app-contacts-search-result
+    <app-contacts-add-search-result
       *ngFor="let user of users"
       [user]="user"
       [includes]="user.id | hasContact | async"
-    ></app-contacts-search-result>
+    ></app-contacts-add-search-result>
   </ion-list>
 </ion-content>

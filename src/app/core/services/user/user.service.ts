@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { limit, orderBy, where } from '@angular/fire/firestore';
+import { DocumentBase } from '@models/document-base.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { FirestoreService } from '@services/firestore/firestore.service';
 
@@ -23,9 +24,10 @@ export class UserService {
   }
 
   loadList(userIds: string[]) {
-    return this.db.collectionQuery$<WhatsgramUser>(
+    debugger;
+    return this.db.collectionQuery$<WhatsgramUser & DocumentBase>(
       collectionName,
-      where('uid', 'in', userIds),
+      where('id', 'in', userIds),
       orderBy('displayName')
     );
   }

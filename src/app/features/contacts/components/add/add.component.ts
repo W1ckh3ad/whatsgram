@@ -7,11 +7,11 @@ import { UserService } from '@services/user/user.service';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-contacts-search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss'],
+  selector: 'app-contacts-add',
+  templateUrl: './add.component.html',
+  styleUrls: ['./add.component.scss'],
 })
-export class SearchComponent implements OnInit {
+export class AddComponent implements OnInit {
   users$: Observable<(WhatsgramUser & DocumentBase)[]>;
   search = '';
   contacts$: Observable<string[]>;
