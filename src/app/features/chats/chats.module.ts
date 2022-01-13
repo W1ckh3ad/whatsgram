@@ -8,6 +8,7 @@ import { ChatsPageRoutingModule } from './chats-routing.module';
 
 import { ChatsPage } from './chats.page';
 import { SharedModule } from '@shared/shared.module';
+import { CreateGroupComponent } from './components/create-group/create-group.component';
 
 @NgModule({
   imports: [
@@ -18,6 +19,6 @@ import { SharedModule } from '@shared/shared.module';
     SharedModule,
   ],
   exports: [SharedModule],
-  declarations: [ChatsPage],
+  declarations: [ChatsPage, CreateGroupComponent],
 })
 export class ChatsPageModule {}

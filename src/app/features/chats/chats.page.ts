@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { ChatService } from '@services/chat/chat.service';
-import { Observable } from 'rxjs';
+import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AddComponent } from '../contacts/components/add/add.component';
 import { ChatForDisplay } from './model/chat-for-display.model';
 
 @Component({
@@ -12,8 +15,17 @@ import { ChatForDisplay } from './model/chat-for-display.model';
 export class ChatsPage implements OnInit {
   chats$: Observable<ChatForDisplay[]>;
   privateKey: CryptoKey;
+  headerScrollConfig: ScrollHideConfig = {
+    cssProperty: 'margin-top',
+    maxValue: 154,
+  };
 
-  constructor(private chat: ChatService) {}
+  private search$ = new BehaviorSubject('');
+
+  constructor(
+    private chat: ChatService,
+    private modalController: ModalController
+  ) {}
 
   async ngOnInit() {
     this.chats$ = this.chat.loadChats().pipe(
@@ -34,5 +46,17 @@ export class ChatsPage implements OnInit {
         )
       )
     );
+  }
+
+  async onSearch(event) {
+    this.search$.next(event.target.value.toLowerCase());
+  }
+
+  async openCreateGroupChat() {
+    const modal = await this.modalController.create({
+      component: AddComponent,
+      cssClass: 'contacts-search',
+    });
+    return await modal.present();
   }
 }

@@ -13,6 +13,7 @@ import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
+import { UserService } from '@services/user/user.service';
 import {
   BehaviorSubject,
   map,
@@ -29,10 +30,14 @@ import { FirestoreService } from '../firestore/firestore.service';
 })
 export class AccountService implements OnDestroy {
   uid$ = new BehaviorSubject<string>(null);
-  contacts$: Observable<DocumentBase[]> = null;
+  contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
   user$: Observable<WhatsgramUser & DocumentBase> = null;
   privateData$: Observable<PrivateData> = null;
-  constructor(private auth: AuthService, private db: FirestoreService) {
+  constructor(
+    private auth: AuthService,
+    private db: FirestoreService,
+    private userService: UserService
+  ) {
     this.auth.user$
       .pipe(
         map((x) => (x ? x.uid : null)),
@@ -42,6 +47,7 @@ export class AccountService implements OnDestroy {
 
     this.contacts$ = this.auth.user$.pipe(
       switchMap((x) => this.db.collection$(`${users}/${x.uid}/${contacts}`)),
+      switchMap((x) => this.userService.loadList(x.map((y) => y.id))),
       shareReplay(1)
     );
 
@@ -106,7 +112,7 @@ export class AccountService implements OnDestroy {
     const { privateKey, publicKey } = await exportKeys(await generateKeys());
 
     const data: any = {
-      displayName,
+      displayName: displayName ?? uid,
       email,
       photoURL,
       publicKey,
@@ -125,7 +131,7 @@ export class AccountService implements OnDestroy {
   }
 
   async hasContact(userId: string) {
-    return await this.db.exists(`${users}/${userId}/${contacts}/${userId}`);
+    return await this.db.exists(`${users}/${this.uid}/${contacts}/${userId}`);
   }
 
   async add(userToAddId: string) {

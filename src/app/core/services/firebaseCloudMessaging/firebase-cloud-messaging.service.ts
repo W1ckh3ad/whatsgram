@@ -4,6 +4,7 @@ import {
   MessagePayload,
   Messaging,
   onMessage,
+  Unsubscribe,
 } from '@angular/fire/messaging';
 import { ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
@@ -17,6 +18,7 @@ const publicKey =
 })
 export class FirebaseCloudMessagingService {
   currentMessage$ = new BehaviorSubject<MessagePayload>(null);
+  sub: Unsubscribe;
   constructor(
     public messaging: Messaging,
     public db: FirestoreService,
@@ -28,8 +30,13 @@ export class FirebaseCloudMessagingService {
       console.log('FirebaseCloudMessagingService', x);
       if (x) {
         await this.getToken();
+        this.sub = this.receiveMessage();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.sub();
   }
 
   async getToken() {
@@ -42,7 +49,8 @@ export class FirebaseCloudMessagingService {
   }
 
   receiveMessage() {
-    onMessage(this.messaging, async (payload) => {
+    return onMessage(this.messaging, async (payload) => {
+      debugger;
       await this.displayReceivedMessage(payload);
       console.log('Message Received', payload);
       this.currentMessage$.next(payload);

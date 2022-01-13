@@ -24,7 +24,6 @@ export class UserService {
   }
 
   loadList(userIds: string[]) {
-    debugger;
     return this.db.collectionQuery$<WhatsgramUser & DocumentBase>(
       collectionName,
       where('id', 'in', userIds),

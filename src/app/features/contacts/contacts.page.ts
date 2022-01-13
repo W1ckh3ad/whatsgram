@@ -1,19 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { DocumentBase } from '@models/document-base.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { SortedContactsPart } from '@models/sortedContacts.model';
 import { AccountService } from '@services/account/account.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
 import { UserService } from '@services/user/user.service';
-import {
-  BehaviorSubject,
-  combineLatestWith,
-  map,
-  Observable,
-  shareReplay,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
+import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
+import { sortContactsIntoLetterSegments } from 'src/app/core/utls/contacts.utils';
 import { AddComponent } from './components/add/add.component';
 
 @Component({
@@ -24,8 +17,12 @@ import { AddComponent } from './components/add/add.component';
 export class ContactsPage implements OnInit {
   showSearch = false;
   private search$ = new BehaviorSubject('');
-  private contactsCache$: Observable<DocumentBase[]>;
-  contacts$: Observable<(WhatsgramUser & DocumentBase)[]>;
+  contacts$: Observable<Array<SortedContactsPart>>;
+  headerScrollConfig: ScrollHideConfig = {
+    cssProperty: 'margin-top',
+    maxValue: 154,
+  };
+
   constructor(
     private account: AccountService,
     public modalController: ModalController,
@@ -34,13 +31,8 @@ export class ContactsPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.contactsCache$ = this.account.contacts$.pipe(shareReplay(1));
-    this.contacts$ = this.contactsCache$.pipe(
-      tap((x) => console.log('before load', x)),
-      switchMap((x) => this.user.loadList(x.map((y) => y.id))),
-      tap((x) => console.log('after load', x)),
+    this.contacts$ = this.account.contacts$.pipe(
       combineLatestWith(this.search$),
-      tap((x) => console.log('after combine', x)),
       map(([contacts, search]) =>
         contacts.filter(
           (y) =>
@@ -48,7 +40,7 @@ export class ContactsPage implements OnInit {
             y.email.toLowerCase().includes(search)
         )
       ),
-      tap((x) => console.log('after filter', x))
+      map(sortContactsIntoLetterSegments)
     );
   }
 

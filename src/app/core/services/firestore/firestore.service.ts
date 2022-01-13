@@ -116,8 +116,8 @@ export class FirestoreService {
 
   async exists<T>(ref: DocumentPredicate<T>) {
     try {
-      const { exists } = await getDoc(this.doc(ref));
-      return exists();
+      const doc = await getDoc(this.doc(ref));
+      return doc.exists();
     } catch (error) {
       console.error('exists error', error, ref);
       return false;
