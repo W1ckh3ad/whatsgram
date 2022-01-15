@@ -12,7 +12,7 @@ export const environment = {
     storageBucket: 'whatsgram-105c9.appspot.com',
     messagingSenderId: '1007817643967',
     appId: '1:1007817643967:web:ecbf91ad4657937e0fb30a',
-    measurementId: '${config.measurementId}',
+    measurementId: 'G-TM8T1EDKB7',
   },
   production: false,
 };
