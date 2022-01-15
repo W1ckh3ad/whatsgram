@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DocumentBase } from '@models/document-base.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { AccountService } from '@services/account/account.service';
 
 @Component({
   selector: 'app-contact',
@@ -9,8 +10,18 @@ import { WhatsgramUser } from '@models/whatsgram.user.model';
 })
 export class ContactComponent implements OnInit {
   @Input() contact: WhatsgramUser & DocumentBase = null;
-  constructor() { }
+  disable: boolean = false;
+  constructor(private account: AccountService) {}
 
   ngOnInit() {}
 
+  async delete() {
+    try {
+      this.disable = true;
+      await this.account.deleteContact(this.contact.id);
+    } catch (error) {
+      console.error('Remove user error', this.contact, error);
+    }
+    this.disable = false;
+  }
 }

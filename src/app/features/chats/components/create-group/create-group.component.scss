@@ -1,0 +1,33 @@
+ion-slides {
+  height: 100%;
+
+  ion-slide {
+    align-items: flex-start;
+  }
+
+  .swiper-slide {
+    visibility: hidden;
+  }
+
+  .swiper-slide.swiper-slide-active {
+    visibility: visible;
+  }
+}
+
+ion-list-header ion-label {
+  margin-top: 16px;
+}
+
+.line {
+  background: var(--ion-color-primary-shade);
+  height: 3px;
+  top: 14px;
+  z-index: -1;
+}
+
+.img-thumb {
+  width: 45px;
+  height: 55px;
+  object-fit: cover;
+  display: block;
+}

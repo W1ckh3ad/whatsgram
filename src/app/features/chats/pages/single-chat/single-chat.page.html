@@ -1,10 +1,17 @@
 <ion-header>
   <ion-toolbar *ngIf="receiver$ | async as receiver">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/chats"></ion-back-button>
-    </ion-buttons>
-
-    <ion-title>{{receiver.displayName}}</ion-title>
+    <div
+      class="full-width flex align-items-center justify-content-space-between"
+      style="padding: 0 4px"
+    >
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/chats"></ion-back-button>
+      </ion-buttons>
+      <ion-avatar style="width: 40px; height: 40px">
+        <img [src]="receiver | photoUrl" />
+      </ion-avatar>
+      <ion-title>{{receiver.displayName}}</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
 

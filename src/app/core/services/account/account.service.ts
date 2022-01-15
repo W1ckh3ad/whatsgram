@@ -18,6 +18,7 @@ import {
   BehaviorSubject,
   map,
   Observable,
+  of,
   shareReplay,
   switchMap,
   tap,
@@ -47,7 +48,11 @@ export class AccountService implements OnDestroy {
 
     this.contacts$ = this.auth.user$.pipe(
       switchMap((x) => this.db.collection$(`${users}/${x.uid}/${contacts}`)),
-      switchMap((x) => this.userService.loadList(x.map((y) => y.id))),
+      switchMap((x) =>
+        x.length > 0
+          ? this.userService.loadList(x.map((y) => y.id))
+          : of([] as (WhatsgramUser & DocumentBase)[])
+      ),
       shareReplay(1)
     );
 
@@ -140,6 +145,13 @@ export class AccountService implements OnDestroy {
     }
     const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${userToAddId}`);
     return this.db.addWithDocumentReference(doc, {});
+  }
+
+  async deleteContact(userToRemoveId: string) {
+    const doc = this.db.doc(
+      `${users}/${this.uid}/${contacts}/${userToRemoveId}`
+    );
+    return this.db.remove(doc);
   }
 
   public async readMessagesForPrivateChat(

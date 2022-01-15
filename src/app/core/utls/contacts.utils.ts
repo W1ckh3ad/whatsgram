@@ -5,7 +5,10 @@ import { WhatsgramUser } from '@models/whatsgram.user.model';
 export const sortContactsIntoLetterSegments = (
   contacts: (WhatsgramUser & DocumentBase)[]
 ) => {
-  let result = [];
+  if (contacts.length === 0) {
+    return [] as SortedContactsPart[];
+  }
+  let result: SortedContactsPart[] = [];
   let subResult: SortedContactsPart = null;
   for (let index = 0; index < contacts.length; index++) {
     const element = contacts[index];

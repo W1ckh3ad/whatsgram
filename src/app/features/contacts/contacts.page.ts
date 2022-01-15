@@ -51,7 +51,8 @@ export class ContactsPage implements OnInit {
   async openAdd() {
     const modal = await this.modalController.create({
       component: AddComponent,
-      cssClass: 'contacts-search',
+      initialBreakpoint: 0.6,
+      breakpoints: [0, 0.2, 0.6, 1],
     });
     return await modal.present();
   }

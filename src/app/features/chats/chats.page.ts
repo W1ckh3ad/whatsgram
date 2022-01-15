@@ -4,7 +4,7 @@ import { ChatService } from '@services/chat/chat.service';
 import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AddComponent } from '../contacts/components/add/add.component';
+import { CreateGroupComponent } from './components/create-group/create-group.component';
 import { ChatForDisplay } from './model/chat-for-display.model';
 
 @Component({
@@ -54,8 +54,9 @@ export class ChatsPage implements OnInit {
 
   async openCreateGroupChat() {
     const modal = await this.modalController.create({
-      component: AddComponent,
-      cssClass: 'contacts-search',
+      component: CreateGroupComponent,
+      initialBreakpoint: 0.6,
+      breakpoints: [0, 0.2, 0.6, 1],
     });
     return await modal.present();
   }

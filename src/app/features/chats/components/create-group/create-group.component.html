@@ -1,41 +1,279 @@
 <ion-header translucent>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        (click)="onBackButtonTouched()"
+        defaultHref="/chats"
+      ></ion-back-button>
+    </ion-buttons>
     <ion-title>Create Group</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismissModal()"
-        ><ion-icon name="close" slot="icon-only"></ion-icon
-      ></ion-button>
+      <ion-button (click)="onNextButtonTouched()"> Next </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <form
-    #searchForm="ngForm"
-    (ngSubmit)="onSubmit()"
-    style="
-      display: flex;
-      flex-direction: column;
-      max-width: 460px;
-      margin: 2rem auto;
-      gap: 2rem;
-    "
-  >
-    <ion-item>
-      <ion-label position="floating" floating
-        >Email, Phonenumber or Id</ion-label
+
+<ion-content class="ion-padding">
+  <div>
+    <div class="flex justify-content-space-between ion-margin-top relative">
+      <div
+        class="absolute full-width line"
+        style="background: var(--ion-color-primary-shade)"
+      ></div>
+      <div
+        class="flex flex-column justify-content-center full-width"
+        *ngFor="let slide of slides; let index = index"
       >
-      <!-- <ion-input type="text" [(ngModel)]="search" name="saerch"></ion-input> -->
-    </ion-item>
-    <ion-button type="submit" expand="block">Search</ion-button>
-  </form>
-  <ion-item-divider color="secondary">
-    <ion-label>Results</ion-label>
-  </ion-item-divider>
-  <!-- <ion-list *ngIf="users$ | async as users">
-    <app-contacts-add-search-result
-      *ngFor="let user of users"
-      [user]="user"
-      [includes]="user.id | hasContact | async"
-    ></app-contacts-add-search-result>
-  </ion-list> -->
+        <span
+          class="flex flex-column align-items-center justify-content-center align-self-center bold text-medium radius"
+          style="width: 30px; height: 30px"
+          [style.background]="
+            currentSlide === slide
+              ? 'var(--ion-color-primary)'
+              : 'var(--ion-color-light-shade)'
+          "
+          [style.color]="
+            currentSlide === slide
+              ? 'var(--ion-color-light)'
+              : 'var(--ion-color-dark)'
+          "
+        >
+          {{ index + 1 }}
+        </span>
+        <span
+          [style.color]="
+            currentSlide === slide
+              ? 'var(--ion-color-primary)'
+              : 'var(--ion-color-dark)'
+          "
+          class="flex text-medium bold ion-margin-vertical align-self-center"
+        >
+          {{ slide }}
+        </span>
+      </div>
+    </div>
+
+    <swiper
+      (swiper)="setSwiterInstance($event)"
+      (slideChange)="onSlideChange($event)"
+      [config]="config"
+    >
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <form [formGroup]="groupForm" #groupFormRef="ngForm" novalidate>
+            <ion-list
+              style="gap: 1rem; background-color: var(--ion-background-color)"
+            >
+              <ion-list-header class="ion-no-padding">
+                <ion-label
+                  class="ion-text-center ion-margin-bottom bold text-large"
+                >
+                  General Data
+                </ion-label>
+              </ion-list-header>
+
+              <ion-item>
+                <ion-label position="floating">Group Name</ion-label>
+                <ion-input
+                  type="text"
+                  formControlName="displayName"
+                ></ion-input>
+              </ion-item>
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupDisplayName?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+              <ion-item>
+                <ion-label position="floating">Group Picture URL</ion-label>
+                <ion-input type="text" formControlName="photoURL"></ion-input>
+              </ion-item>
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupPhotoURL?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+              <ion-item>
+                <ion-label position="floating">Description</ion-label>
+                <ion-textarea formControlName="description"></ion-textarea>
+              </ion-item>
+
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupDescription?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+            </ion-list>
+          </form>
+        </div>
+      </ng-template>
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <form
+            [formGroup]="addMemberForm"
+            #addMemberFormRef="ngForm"
+            novalidate
+          >
+            <ion-list
+              style="gap: 1rem; background-color: var(--ion-background-color)"
+            >
+              <ion-list-header class="ion-no-padding">
+                <ion-label
+                  class="ion-text-center ion-margin-bottom bold text-large"
+                  color="dark"
+                >
+                  Members
+                </ion-label>
+              </ion-list-header>
+            </ion-list>
+          </form>
+        </div>
+      </ng-template>
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <div>
+            <ion-list-header class="ion-no-padding" style="min-height: auto">
+              <ion-label
+                class="ion-text-center ion-margin-bottom bold text-large"
+              >
+                Order details
+              </ion-label>
+            </ion-list-header>
+
+            <div *ngIf="addMemberForm.valid">
+              <p class="text-medium bold ion-text-uppercase">
+                Shipping details
+              </p>
+              <div class="divider"></div>
+            </div>
+
+            <div class="divider"></div>
+            <p class="text-medium bold ion-text-uppercase">Items</p>
+            <div class="divider"></div>
+          </div>
+
+          <form [formGroup]="paymentForm" #paymentFormRef="ngForm" novalidate>
+            <ion-list-header class="ion-no-padding" style="min-height: auto">
+              <ion-label
+                class="ion-text-center ion-margin-bottom bold text-large"
+                color="dark"
+              >
+                Pay order
+              </ion-label>
+            </ion-list-header>
+
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Card number</ion-label>
+                  <ion-input type="text" formControlName="number"></ion-input>
+                </ion-item>
+                <ion-text color="danger">
+                  <span
+                    class="text-tiny"
+                    [style.visibility]="
+                      paymentNumber?.errors?.required &&
+                      paymentFormRef.submitted
+                        ? ''
+                        : 'hidden'
+                    "
+                  >
+                    Field required
+                  </span>
+                </ion-text>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Expiration</ion-label>
+                  <ion-input
+                    type="text"
+                    formControlName="expiration"
+                  ></ion-input>
+                </ion-item>
+                <ion-text color="danger">
+                  <span
+                    class="text-tiny"
+                    [style.visibility]="
+                      paymentExpiration?.errors?.required &&
+                      paymentFormRef.submitted
+                        ? ''
+                        : 'hidden'
+                    "
+                  >
+                    Field required
+                  </span>
+                </ion-text>
+              </ion-col>
+
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">CVV</ion-label>
+                  <ion-input type="text" formControlName="cvv"></ion-input>
+                </ion-item>
+                <ion-text color="danger">
+                  <span
+                    class="text-tiny"
+                    [style.visibility]="
+                      paymentCvv?.errors?.required && paymentFormRef.submitted
+                        ? ''
+                        : 'hidden'
+                    "
+                  >
+                    Field required
+                  </span>
+                </ion-text>
+              </ion-col>
+            </ion-row>
+
+            <div class="ion-text-center">
+              <ion-button
+                type="button"
+                style="width: 200px"
+                class="ion-margin-vertical"
+                strong
+                size="large"
+                shape="round"
+                color="medium"
+                (click)="onBackButtonTouched()"
+              >
+                Back
+              </ion-button>
+            </div>
+          </form>
+        </div>
+      </ng-template>
+    </swiper>
+  </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div
+      class="full-width flex align-items-center justify-content-space-between ion-padding-horizontal"
+    ></div>
+  </ion-toolbar>
+</ion-footer>
