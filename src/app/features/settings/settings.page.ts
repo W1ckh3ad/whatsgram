@@ -19,7 +19,7 @@ export class SettingsPage implements OnInit {
     private auth: AuthService,
     private account: AccountService,
     private router: Router,
-    fcm: FirebaseCloudMessagingService
+    private fcm: FirebaseCloudMessagingService
   ) {
     console.log(fcm);
   }
@@ -48,6 +48,9 @@ export class SettingsPage implements OnInit {
   }
 
   async getToken() {
-    // return this.fcm.getToken();
+    return await this.fcm.getToken();
+  }
+  async deleteToken() {
+    return await this.fcm.deleteToken();
   }
 }
