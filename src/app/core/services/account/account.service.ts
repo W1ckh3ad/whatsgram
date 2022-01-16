@@ -13,13 +13,14 @@ import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
-import { UserService } from '@services/user/user.service';
+
 import {
   BehaviorSubject,
   map,
   Observable,
   of,
   shareReplay,
+  Subscription,
   switchMap,
   tap,
 } from 'rxjs';
@@ -32,36 +33,35 @@ import { FirestoreService } from '../firestore/firestore.service';
 export class AccountService implements OnDestroy {
   uid$ = new BehaviorSubject<string>(null);
   contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
-  user$: Observable<WhatsgramUser & DocumentBase> = null;
+  user$ = new BehaviorSubject<WhatsgramUser>(null);
   privateData$: Observable<PrivateData> = null;
-  constructor(
-    private auth: AuthService,
-    private db: FirestoreService,
-    private userService: UserService
-  ) {
+  private sub: Subscription;
+  constructor(private auth: AuthService, private db: FirestoreService) {
     this.auth.user$
       .pipe(
         map((x) => (x ? x.uid : null)),
         tap((x) => console.log(x))
       )
-      .subscribe((x) => this.uid$.next(x));
+      .subscribe((x) => (x !== this.uid$.value ? this.uid$.next(x) : null));
 
     this.contacts$ = this.auth.user$.pipe(
-      switchMap((x) => this.db.collection$(`${users}/${x.uid}/${contacts}`)),
       switchMap((x) =>
-        x.length > 0
-          ? this.userService.loadList(x.map((y) => y.id))
-          : of([] as (WhatsgramUser & DocumentBase)[])
+        this.db.collection$<WhatsgramUser & DocumentBase>(
+          `${users}/${x.uid}/${contacts}`
+        )
       ),
       shareReplay(1)
     );
 
-    this.user$ = this.auth.user$.pipe(
-      switchMap((x) =>
-        this.db.docWithMetaData$<WhatsgramUser>(`${users}/${x}`)
-      ),
-      shareReplay(1)
-    );
+    this.sub = this.uid$
+      .pipe(
+        switchMap((x) =>
+          x !== null
+            ? this.db.docWithMetaData$<WhatsgramUser>(`${users}/${x}`)
+            : of(null)
+        )
+      )
+      .subscribe((x) => this.user$.next(x));
 
     this.privateData$ = this.auth.user$.pipe(
       switchMap((x) =>
@@ -71,7 +71,9 @@ export class AccountService implements OnDestroy {
     );
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
 
   get userRef(): DocumentReference<WhatsgramUser & DocumentBase> {
     const id = this.uid$.value;
@@ -139,12 +141,12 @@ export class AccountService implements OnDestroy {
     return await this.db.exists(`${users}/${this.uid}/${contacts}/${userId}`);
   }
 
-  async add(userToAddId: string) {
-    if (userToAddId === this.uid) {
+  async add(user: WhatsgramUser) {
+    if (user.id === this.uid) {
       throw new Error("You can't add yourself as contact");
     }
-    const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${userToAddId}`);
-    return this.db.addWithDocumentReference(doc, {});
+    const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${user.id}`);
+    return this.db.addWithDocumentReference(doc, user);
   }
 
   async deleteContact(userToRemoveId: string) {

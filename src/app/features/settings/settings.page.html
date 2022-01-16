@@ -5,7 +5,6 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="!user$">loading...</div>
   <div
     *ngIf="user$ | async as user"
     style="
@@ -17,7 +16,7 @@
     "
   >
     <ion-avatar>
-      <img [src]="user | photoUrl" alt="user-profile-picture" />
+      <img [src]="user | photoUrl:user.email" alt="user-profile-picture" />
     </ion-avatar>
     <p>{{user.displayName }}</p>
     <p>{{user.email}}</p>

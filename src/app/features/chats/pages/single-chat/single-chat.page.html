@@ -8,7 +8,7 @@
         <ion-back-button defaultHref="/chats"></ion-back-button>
       </ion-buttons>
       <ion-avatar style="width: 40px; height: 40px">
-        <img [src]="receiver | photoUrl" />
+        <img [src]="receiver | photoUrl:receiver.email" />
       </ion-avatar>
       <ion-title>{{receiver.displayName}}</ion-title>
     </div>

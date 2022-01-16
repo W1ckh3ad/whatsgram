@@ -22,3 +22,4 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 
 //     admin.database().
 //   });
+export * from './create-group';

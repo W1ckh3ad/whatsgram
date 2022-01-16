@@ -10,6 +10,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "emulator": "firebase emulators:start --export-on-exit emulator-dump",
+    "emulator-with-dump": "firebase emulators:start --import emulator-dump --export-on-exit emulator-dump",
     "postinstall": "ngcc"
   },
   "private": true,

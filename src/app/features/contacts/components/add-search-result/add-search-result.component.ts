@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ToastController } from '@ionic/angular';
-import { DocumentBase } from '@models/document-base.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 
@@ -10,7 +9,7 @@ import { AccountService } from '@services/account/account.service';
   styleUrls: ['./add-search-result.component.scss'],
 })
 export class AddSearchResultComponent implements OnInit {
-  @Input() user: WhatsgramUser & DocumentBase;
+  @Input() user: WhatsgramUser;
   @Input() includes = false;
   added = false;
   constructor(
@@ -26,7 +25,7 @@ export class AddSearchResultComponent implements OnInit {
     }
     this.added = true;
     try {
-      return await this.account.add(this.user.id);
+      return await this.account.add(this.user);
     } catch (error) {
       this.added = false;
       this.handleError(error);

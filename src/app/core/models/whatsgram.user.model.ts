@@ -5,4 +5,5 @@ export interface WhatsgramUser {
   photoURL?: string;
   phoneNumber?: string;
   description?: string;
+  id: string;
 }

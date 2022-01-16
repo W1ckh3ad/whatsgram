@@ -87,18 +87,9 @@ export class FirebaseCloudMessagingService {
 
   receiveMessage() {
     return onMessage(this.messaging, async (payload) => {
-      debugger;
       await this.displayReceivedMessage(payload);
       console.log('Message Received', payload);
       this.currentMessage$.next(payload);
-
-      const alert = await this.alertCtrl.create({
-        header: payload.notification.title,
-        subHeader: payload.notification.body,
-        message: payload.data.info,
-        buttons: ['OK'],
-      });
-      await alert.present();
     });
   }
 

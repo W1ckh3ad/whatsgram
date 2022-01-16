@@ -6,8 +6,19 @@ import {
   NgForm,
   Validators,
 } from '@angular/forms';
-import { IonContent, IonicSlides, ModalController } from '@ionic/angular';
+import {
+  AlertController,
+  IonContent,
+  IonicSlides,
+  ModalController,
+} from '@ionic/angular';
 import { GroupCreate } from '@models/group-create.model';
+import { SortedContactsPart } from '@models/sortedContacts.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { AccountService } from '@services/account/account.service';
+import { GroupService } from '@services/group/group.service';
+import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
+import { sortContactsIntoLetterSegments } from 'src/app/core/utls/contacts.utils';
 import SwiperCore, { Pagination, Swiper, SwiperOptions, Zoom } from 'swiper';
 
 SwiperCore.use([Pagination, Zoom, IonicSlides]);
@@ -19,17 +30,14 @@ SwiperCore.use([Pagination, Zoom, IonicSlides]);
 export class CreateGroupComponent implements OnInit {
   @ViewChild(IonContent, { static: true }) ionContent: IonContent;
   @ViewChild('groupFormRef', { static: false }) groupFormRef: NgForm;
-  @ViewChild('addMemberFormRef', { static: false }) addMemberFormRef: NgForm;
-  @ViewChild('paymentFormRef', { static: false }) paymentFormRef: NgForm;
 
   swiperInstance: Swiper;
   public groupForm: FormGroup;
-  public paymentForm: FormGroup;
-  public addMemberForm: FormGroup;
 
   generalData = 'General Data';
   members = 'Members';
   summary = 'Summery';
+  maxMemberCount = 20;
 
   config: SwiperOptions = {
     spaceBetween: 50,
@@ -42,10 +50,17 @@ export class CreateGroupComponent implements OnInit {
   public slides = [this.generalData, this.members, this.summary];
   public currentSlide = this.generalData;
 
-  public isBeginning: boolean = true;
-  public isEnd: boolean = false;
-  model = new GroupCreate('', '', '', []);
-  constructor(private modalController: ModalController) {}
+  group = new GroupCreate('', '', '', []);
+  search$ = new BehaviorSubject('');
+  contacts$: Observable<SortedContactsPart[]> = null;
+  addedMembers: WhatsgramUser[] = [];
+
+  constructor(
+    private modalController: ModalController,
+    private account: AccountService,
+    private alertCtrl: AlertController,
+    private groupService: GroupService
+  ) {}
 
   setSwiterInstance(swiperInstance: Swiper) {
     this.swiperInstance = swiperInstance;
@@ -56,6 +71,17 @@ export class CreateGroupComponent implements OnInit {
   }
   ngOnInit() {
     this.setupForm();
+    this.contacts$ = this.account.contacts$.pipe(
+      combineLatestWith(this.search$),
+      map(([contacts, search]) =>
+        contacts.filter(
+          (y) =>
+            y.displayName.toLowerCase().includes(search) ||
+            y.email.toLowerCase().includes(search)
+        )
+      ),
+      map(sortContactsIntoLetterSegments)
+    );
   }
 
   setupForm() {
@@ -63,19 +89,6 @@ export class CreateGroupComponent implements OnInit {
       displayName: new FormControl('', Validators.required),
       photoURL: new FormControl(''),
       description: new FormControl(''),
-    });
-
-    this.addMemberForm = new FormGroup({
-      address: new FormControl('', Validators.required),
-      phone: new FormControl('', Validators.required),
-      delivery_time: new FormControl(null, Validators.required),
-      note: new FormControl(''),
-    });
-
-    this.paymentForm = new FormGroup({
-      number: new FormControl('', Validators.required),
-      expiration: new FormControl('', Validators.required),
-      cvv: new FormControl('', Validators.required),
     });
   }
 
@@ -94,6 +107,10 @@ export class CreateGroupComponent implements OnInit {
       if (!this.groupForm.valid) {
         this.ionContent.scrollToTop();
         return;
+      } else {
+        this.group.description = this.groupDescription.value;
+        this.group.displayName = this.groupDisplayName.value;
+        this.group.photoURL = this.groupPhotoURL.value;
       }
     }
 
@@ -115,31 +132,39 @@ export class CreateGroupComponent implements OnInit {
     return this.groupForm.get('description');
   }
 
-  get shippingAddress(): AbstractControl {
-    return this.addMemberForm.get('address');
+  onSearch(e) {
+    this.search$.next(e.target.value.toLowerCase());
   }
 
-  get shippingPhone(): AbstractControl {
-    return this.addMemberForm.get('phone');
+  handleClick(e, contact) {
+    const index = this.addedMembers.indexOf(contact);
+    if (e.detail.checked && index === -1) {
+      this.addedMembers.push(contact);
+    } else if (!e.detail.checked && index !== -1) {
+      this.addedMembers.splice(index, 1);
+    }
   }
 
-  get shippingDeliveryTime(): AbstractControl {
-    return this.addMemberForm.get('delivery_time');
+  async onSubmit() {
+    if (this.group.displayName === '') {
+      const alert = await this.alertCtrl.create({
+        header: 'Validation error',
+        subHeader: 'Group name must be defined',
+      });
+      await alert.present();
+      this.swiperInstance.slideTo(0, 300);
+      return;
+    }
+    this.group.members = [
+      ...this.addedMembers.map(({ phoneNumber, description, ...rest }) => ({
+        ...rest,
+      })),
+    ];
+
+    await this.groupService.create(this.group, this.account.user$.value);
+    this.dismissModal();
   }
 
-  get paymentNumber(): AbstractControl {
-    return this.paymentForm.get('number');
-  }
-
-  get paymentExpiration(): AbstractControl {
-    return this.paymentForm.get('expiration');
-  }
-
-  get paymentCvv(): AbstractControl {
-    return this.paymentForm.get('cvv');
-  }
-
-  async onSubmit() {}
   async dismissModal() {
     await this.modalController.dismiss();
   }

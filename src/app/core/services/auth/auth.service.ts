@@ -5,6 +5,7 @@ import {
   GithubAuthProvider,
   GoogleAuthProvider,
   onAuthStateChanged,
+  sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -79,6 +80,10 @@ export class AuthService {
       console.error('signOut error', error);
       throw error;
     }
+  }
+
+  sendEmailVerification() {
+    return sendEmailVerification(this.user);
   }
 
   private authStatusListener() {

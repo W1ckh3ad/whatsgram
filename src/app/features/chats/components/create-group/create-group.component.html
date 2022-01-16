@@ -130,140 +130,80 @@
       </ng-template>
       <ng-template swiperSlide>
         <div class="full-width ion-text-start">
-          <form
-            [formGroup]="addMemberForm"
-            #addMemberFormRef="ngForm"
-            novalidate
+          <ion-list
+            style="gap: 1rem; background-color: var(--ion-background-color)"
           >
-            <ion-list
-              style="gap: 1rem; background-color: var(--ion-background-color)"
-            >
-              <ion-list-header class="ion-no-padding">
-                <ion-label
-                  class="ion-text-center ion-margin-bottom bold text-large"
-                  color="dark"
-                >
-                  Members
-                </ion-label>
-              </ion-list-header>
-            </ion-list>
-          </form>
-        </div>
-      </ng-template>
-      <ng-template swiperSlide>
-        <div class="full-width ion-text-start">
-          <div>
-            <ion-list-header class="ion-no-padding" style="min-height: auto">
-              <ion-label
-                class="ion-text-center ion-margin-bottom bold text-large"
-              >
-                Order details
-              </ion-label>
-            </ion-list-header>
-
-            <div *ngIf="addMemberForm.valid">
-              <p class="text-medium bold ion-text-uppercase">
-                Shipping details
-              </p>
-              <div class="divider"></div>
-            </div>
-
-            <div class="divider"></div>
-            <p class="text-medium bold ion-text-uppercase">Items</p>
-            <div class="divider"></div>
-          </div>
-
-          <form [formGroup]="paymentForm" #paymentFormRef="ngForm" novalidate>
-            <ion-list-header class="ion-no-padding" style="min-height: auto">
+            <ion-list-header class="ion-no-padding">
               <ion-label
                 class="ion-text-center ion-margin-bottom bold text-large"
                 color="dark"
               >
-                Pay order
+                Members ({{ addedMembers.length }} / {{ maxMemberCount }})
               </ion-label>
             </ion-list-header>
-
-            <ion-row>
-              <ion-col>
-                <ion-item>
-                  <ion-label position="stacked">Card number</ion-label>
-                  <ion-input type="text" formControlName="number"></ion-input>
-                </ion-item>
-                <ion-text color="danger">
-                  <span
-                    class="text-tiny"
-                    [style.visibility]="
-                      paymentNumber?.errors?.required &&
-                      paymentFormRef.submitted
-                        ? ''
-                        : 'hidden'
-                    "
-                  >
-                    Field required
-                  </span>
-                </ion-text>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <ion-item>
-                  <ion-label position="stacked">Expiration</ion-label>
-                  <ion-input
-                    type="text"
-                    formControlName="expiration"
-                  ></ion-input>
-                </ion-item>
-                <ion-text color="danger">
-                  <span
-                    class="text-tiny"
-                    [style.visibility]="
-                      paymentExpiration?.errors?.required &&
-                      paymentFormRef.submitted
-                        ? ''
-                        : 'hidden'
-                    "
-                  >
-                    Field required
-                  </span>
-                </ion-text>
-              </ion-col>
-
-              <ion-col>
-                <ion-item>
-                  <ion-label position="stacked">CVV</ion-label>
-                  <ion-input type="text" formControlName="cvv"></ion-input>
-                </ion-item>
-                <ion-text color="danger">
-                  <span
-                    class="text-tiny"
-                    [style.visibility]="
-                      paymentCvv?.errors?.required && paymentFormRef.submitted
-                        ? ''
-                        : 'hidden'
-                    "
-                  >
-                    Field required
-                  </span>
-                </ion-text>
-              </ion-col>
-            </ion-row>
-
-            <div class="ion-text-center">
-              <ion-button
-                type="button"
-                style="width: 200px"
-                class="ion-margin-vertical"
-                strong
-                size="large"
-                shape="round"
-                color="medium"
-                (click)="onBackButtonTouched()"
+            <ion-searchbar
+              animated
+              (ionChange)="onSearch($event)"
+              debounce="500"
+              class="my-searchbar"
+            >
+            </ion-searchbar>
+            <ion-item-group *ngFor="let contactPart of contacts$ | async">
+              <ion-item-divider>
+                <ion-label>{{ contactPart.startingLetter }}</ion-label>
+              </ion-item-divider>
+              <ion-item *ngFor="let contact of contactPart.contacts">
+                <ion-checkbox
+                  slot="start"
+                  (ionChange)="handleClick($event, contact)"
+                  [checked]="addedMembers.includes(contact)"
+                ></ion-checkbox>
+                <ion-avatar>
+                  <img [src]="contact | photoUrl: contact.email" />
+                </ion-avatar>
+                <ion-label style="margin-left: 1rem">{{
+                  contact.displayName
+                }}</ion-label>
+              </ion-item>
+            </ion-item-group>
+          </ion-list>
+        </div>
+      </ng-template>
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <ion-list>
+            <ion-list-header class="ion-no-padding" style="min-height: auto">
+              <ion-label
+                class="ion-text-center ion-margin-bottom bold text-large"
               >
-                Back
-              </ion-button>
-            </div>
-          </form>
+                Group Info
+              </ion-label>
+            </ion-list-header>
+            <ion-item>
+              <ion-avatar>
+                <img [src]="group | photoUrl: group.displayName" />
+              </ion-avatar>
+              <ion-label style="margin-left: 1rem">{{
+                group.displayName
+              }}</ion-label>
+            </ion-item>
+            <ion-item>
+              <p>{{ group.description }}</p>
+            </ion-item>
+            <ion-item-divider><label>Members</label></ion-item-divider>
+
+            <ion-item *ngFor="let member of addedMembers">
+              <ion-avatar
+                ><img [src]="member | photoUrl: member.email"
+              /></ion-avatar>
+              <ion-label style="margin-left: 1rem">{{
+                member.displayName
+              }}</ion-label>
+            </ion-item>
+          </ion-list>
+          <ion-button type="button" (click)="onSubmit()"
+            >Create Group</ion-button
+          >
         </div>
       </ng-template>
     </swiper>

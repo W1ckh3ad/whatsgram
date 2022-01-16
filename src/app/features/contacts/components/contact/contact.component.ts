@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DocumentBase } from '@models/document-base.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 
@@ -9,7 +8,7 @@ import { AccountService } from '@services/account/account.service';
   styleUrls: ['./contact.component.scss'],
 })
 export class ContactComponent implements OnInit {
-  @Input() contact: WhatsgramUser & DocumentBase = null;
+  @Input() contact: WhatsgramUser = null;
   disable: boolean = false;
   constructor(private account: AccountService) {}
 

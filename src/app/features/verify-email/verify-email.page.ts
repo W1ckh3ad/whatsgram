@@ -1,18 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
-import { sendEmailVerification } from 'firebase/auth';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '@services/auth/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-verify-email',
   templateUrl: './verify-email.page.html',
   styleUrls: ['./verify-email.page.scss'],
 })
-export class VerifyEmailPage implements OnInit {
-  constructor(private auth: Auth) {}
+export class VerifyEmailPage implements OnInit, OnDestroy {
+  isVerified = false;
+  sub: Subscription;
+  constructor(private auth: AuthService, private router: Router) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.auth.user.emailVerified) {
+      this.router.navigateByUrl('/chats');
+    }
+    this.sub = this.auth.user$.subscribe((x) => {
+      if (this.auth.user.emailVerified) {
+        this.router.navigateByUrl('/chats');
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
 
   resend() {
-    sendEmailVerification(this.auth.currentUser);
+    this.auth.sendEmailVerification();
   }
 }
