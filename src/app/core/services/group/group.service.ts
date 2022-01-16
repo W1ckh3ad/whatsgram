@@ -1,54 +1,21 @@
 import { Injectable } from '@angular/core';
-import { groups, users } from '@constants/collection-names';
-import { GroupCreate } from '@models/group-create.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
-import { FirestoreService } from '@services/firestore/firestore.service';
+import { GroupCreate } from 'shared/models/group-create.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { Functions, httpsCallable } from '@angular/fire/functions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroupService {
-  constructor(private db: FirestoreService) {}
+  constructor(private fns: Functions) {}
 
-  async create(
-    { photoURL, description, displayName, members }: GroupCreate,
-    creator: WhatsgramUser
-  ) {
-    const promises = [];
-    const doc = await this.db.add(groups, {
-      photoURL,
-      description,
-      displayName,
-    });
-    {
-      const { displayName, email, id, publicKey, description, photoURL } =
-        creator;
-      promises.push(
-        this.db.addWithDocumentReference(`${groups}/${doc.id}/${users}/${id}`, {
-          displayName,
-          email,
-          id,
-          publicKey,
-          description: description ?? null,
-          photoURL: photoURL ?? null,
-          isAdmin: true,
-        })
-      );
+  async create(model: GroupCreate, creator: WhatsgramUser) {
+    try {
+      const callable = httpsCallable(this.fns, 'createGroup');
+      return await callable({ model, creator });
+    } catch (error) {
+      console.error('create group error', error);
+      throw error;
     }
-    for (const { displayName, id, photoURL, publicKey, email,  } of members) {
-      promises.push(
-        this.db.addWithDocumentReference(`${groups}/${doc.id}/${users}/${id}`, {
-          photoURL: photoURL ?? null,
-          description: description ?? null,
-          displayName,
-          id,
-          publicKey,
-          email,
-          isAdmin: false,
-        })
-      );
-    }
-
-    await Promise.all(promises);
   }
 }

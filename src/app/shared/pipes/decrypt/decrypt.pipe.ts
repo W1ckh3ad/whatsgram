@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { from, Observable, switchMap } from 'rxjs';
-import { decryptMessage } from 'src/app/core/utls/crypto.utils';
+import { decryptMessage } from '@utils/crypto.utils';
 
 @Pipe({
   name: 'decrypt',

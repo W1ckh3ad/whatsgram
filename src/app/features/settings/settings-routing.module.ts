@@ -15,7 +15,11 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/profile/profile.module').then((m) => m.ProfilePageModule),
     canActivate: [AuthGuard, VerifiedGuard],
+  },  {
+    path: 'info',
+    loadChildren: () => import('./pages/info/info.module').then( m => m.InfoPageModule)
   },
+
 ];
 
 @NgModule({

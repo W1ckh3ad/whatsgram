@@ -1,26 +1,27 @@
 import { Injectable } from '@angular/core';
 import {
+  deleteToken,
   getToken,
   MessagePayload,
   Messaging,
   onMessage,
   Unsubscribe,
-  deleteToken,
 } from '@angular/fire/messaging';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
+import { getDeviceDocPath } from 'shared/utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from 'src/environments/environment.prod';
 
-const publicKey =
-  'BOCxxACIR2YIAHgVrTQucnE5hISyzHJnHs26UfeJiugaJn4SGQi0itGpk4mKSXDDm1I_HkWnEEDWXOv0nc0rDVc';
+
 @Injectable({
   providedIn: 'root',
 })
 export class FirebaseCloudMessagingService {
   currentMessage$ = new BehaviorSubject<MessagePayload>(null);
   sub: Unsubscribe;
-  private token = null;
+  private tokenField = null;
   constructor(
     public messaging: Messaging,
     public db: FirestoreService,
@@ -42,16 +43,21 @@ export class FirebaseCloudMessagingService {
     this.sub();
   }
 
+  get token() {
+    return this.tokenField;
+  }
+
   async getToken() {
     try {
-      const token = await getToken(this.messaging, { vapidKey: publicKey });
-      this.token = token;
-      await this.saveTokenToFirestore(token);
-      const toast = await this.toastCtrl.create({
-        message: 'Successfully registered your device',
-        duration: 2000,
-      });
-      await toast.present();
+      const token = await getToken(this.messaging, { vapidKey: environment.vapidKey });
+      this.tokenField = token;
+      if (await this.saveTokenToFirestore(token)) {
+        const toast = await this.toastCtrl.create({
+          message: 'Successfully registered your device',
+          duration: 2000,
+        });
+        await toast.present();
+      }
       return;
     } catch (error) {
       const alert = await this.alertCtrl.create({
@@ -68,7 +74,7 @@ export class FirebaseCloudMessagingService {
     try {
       await deleteToken(this.messaging);
       await this.deleteTokenFromFirestore();
-      this.token = null;
+      this.tokenField = null;
       const toast = await this.toastCtrl.create({
         message: 'Successfully removed your device from messaging',
         duration: 2000,
@@ -93,19 +99,29 @@ export class FirebaseCloudMessagingService {
     });
   }
 
-  private saveTokenToFirestore(token) {
-    if (!token) return;
+  private async saveTokenToFirestore(token) {
+    if (!token) return false;
+    const doc = getDeviceDocPath(this.account.uid$.value, token);
+    if (await this.db.exists(doc)) {
+      return false;
+    }
     const data = {
       token,
-      userId: this.account.uid$.value,
+      userAgent: navigator.userAgent,
     };
-
-    return this.db.addWithDocumentReference(`devices/${token}`, data);
+    await this.db.addWithDocumentReference(doc, data);
+    return true;
   }
 
-  private deleteTokenFromFirestore() {
-    if (!this.token) return;
-    return this.db.remove(`devices/${this.token}`);
+  private async deleteTokenFromFirestore() {
+    try {
+      if (!this.tokenField) return;
+      return await this.db.remove(
+        getDeviceDocPath(this.account.uid$.value, this.tokenField)
+      );
+    } catch (error) {
+      return;
+    }
   }
 
   async displayReceivedMessage(payload: MessagePayload) {

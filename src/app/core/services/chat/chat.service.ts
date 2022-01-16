@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
-import { DocumentReference, orderBy, limit } from '@angular/fire/firestore';
-import { chats, messages, users } from '@constants/collection-names';
-import { Chat } from '@models/chat.model';
-import { DocumentBase } from '@models/document-base.model';
+import { DocumentReference, limit, orderBy } from '@angular/fire/firestore';
+import { Chat } from 'shared/models/chat.model';
+import { DocumentBase } from 'shared/models/document-base.model';
 import { AccountService } from '@services/account/account.service';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
-import { Message } from '../../models/message.model';
-import { encryptMessage } from '../../utls/crypto.utils';
+import { encryptMessage } from '@utils/crypto.utils';
+import {
+  getChatDocPath,
+  getChatsColPath,
+  getMessageColPath
+} from 'shared/utils/db.utils';
+import { Message } from 'shared/models/message.model';
 import { FirestoreService } from '../firestore/firestore.service';
 
 @Injectable({
@@ -24,16 +28,14 @@ export class ChatService {
 
   loadChats() {
     return this.db.collectionQuery$<Chat>(
-      this.getUserChatsCollection(this.senderId),
+      getChatsColPath(this.senderId),
       orderBy('updatedAt'),
       limit(50)
     );
   }
 
   loadMessages(id: string) {
-    return this.db.collection$<Message>(
-      this.getUserMessageCollection(this.senderId, id)
-    );
+    return this.db.collection$<Message>(getMessageColPath(this.senderId, id));
   }
 
   async handleSendMessage(
@@ -43,7 +45,8 @@ export class ChatService {
     groupId: string = null
   ) {
     const chatOrGroupId = groupId ?? receiverUid;
-    const refString = `${users}/${this.senderId}/${chats}/${chatOrGroupId}`;
+
+    const refString = getChatDocPath(this.senderId, chatOrGroupId);
     const chatRef = this.db.doc<Chat>(refString);
 
     const ownMessage = await this.createMessageForSender(
@@ -62,9 +65,9 @@ export class ChatService {
       lastReadMessage: ownMessage.id,
     };
     if (await this.db.exists(chatRef)) {
-      return this.db.update(chatRef, data);
+      return this.db.update(chatRef, data as any);
     }
-    return this.db.addWithDocumentReference(chatRef, data);
+    return this.db.addWithDocumentReference(chatRef, data as any);
   }
 
   private async createMessageForSender(
@@ -85,7 +88,7 @@ export class ChatService {
       };
 
       return this.db.add<Message>(
-        this.getUserMessageCollection(this.senderId, groupId ?? receiverId),
+        getMessageColPath(this.senderId, groupId ?? receiverId),
         message
       );
     } catch (error) {
@@ -103,7 +106,7 @@ export class ChatService {
     try {
       return (
         await this.db.add(
-          this.getUserMessageCollection(receiverId, groupId ?? this.senderId),
+          getMessageColPath(receiverId, groupId ?? this.senderId),
           {
             receiverId: receiverId,
             senderId: this.senderId,
@@ -167,17 +170,5 @@ export class ChatService {
       console.error('createMessageForEveryGroupMember error', error);
       throw error;
     }
-  }
-
-  private getUserMessageCollection(userId: string, id: string) {
-    return `${this.getUserChatDocument(userId, id)}/${messages}`;
-  }
-
-  private getUserChatDocument(userId: string, documentId: string) {
-    return `${this.getUserChatsCollection(userId)}/${documentId}`;
-  }
-
-  private getUserChatsCollection(userId: string) {
-    return `${users}/${userId}/${chats}`;
   }
 }

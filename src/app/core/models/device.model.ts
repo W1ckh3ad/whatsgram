@@ -1,3 +1,4 @@
 export interface Device {
-  userId: string;
+  token: string;
+  userAgent: string;
 }

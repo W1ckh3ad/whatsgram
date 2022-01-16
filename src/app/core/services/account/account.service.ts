@@ -1,19 +1,20 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import { DocumentReference } from '@angular/fire/firestore';
-import {
-  chats,
-  contacts,
-  users,
-  privateData,
-} from '@constants/collection-names';
-import { Chat } from '@models/chat.model';
-import { DocumentBase } from '@models/document-base.model';
+import { Device } from '@models/device.model';
+import { DocumentBase } from 'shared/models/document-base.model';
 import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
-
+import { exportKeys, generateKeys } from '@utils/crypto.utils';
+import {
+  getContactDocPath,
+  getContactsColPath,
+  getDevicesColPath,
+  getPrivateDataDocPath,
+  getUserDocPath,
+} from 'shared/utils/db.utils';
 import {
   BehaviorSubject,
   map,
@@ -24,7 +25,6 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { exportKeys, generateKeys } from '../../utls/crypto.utils';
 import { FirestoreService } from '../firestore/firestore.service';
 
 @Injectable({
@@ -35,6 +35,7 @@ export class AccountService implements OnDestroy {
   contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
   user$ = new BehaviorSubject<WhatsgramUser>(null);
   privateData$: Observable<PrivateData> = null;
+  devices$: Observable<(Device & DocumentBase)[]> = null;
   private sub: Subscription;
   constructor(private auth: AuthService, private db: FirestoreService) {
     this.auth.user$
@@ -44,28 +45,34 @@ export class AccountService implements OnDestroy {
       )
       .subscribe((x) => (x !== this.uid$.value ? this.uid$.next(x) : null));
 
-    this.contacts$ = this.auth.user$.pipe(
+    this.contacts$ = this.uid$.pipe(
       switchMap((x) =>
-        this.db.collection$<WhatsgramUser & DocumentBase>(
-          `${users}/${x.uid}/${contacts}`
-        )
+        this.db.collection$<WhatsgramUser & DocumentBase>(getContactsColPath(x))
       ),
       shareReplay(1)
+    );
+
+    this.devices$ = this.uid$.pipe(
+      switchMap((x) =>
+        x
+          ? this.db.collection$<Device & DocumentBase>(getDevicesColPath(x))
+          : of([] as (Device & DocumentBase)[])
+      )
     );
 
     this.sub = this.uid$
       .pipe(
         switchMap((x) =>
           x !== null
-            ? this.db.docWithMetaData$<WhatsgramUser>(`${users}/${x}`)
+            ? this.db.docWithMetaData$<WhatsgramUser>(getUserDocPath(x))
             : of(null)
         )
       )
       .subscribe((x) => this.user$.next(x));
 
-    this.privateData$ = this.auth.user$.pipe(
+    this.privateData$ = this.uid$.pipe(
       switchMap((x) =>
-        this.db.docWithMetaData$<PrivateData>(`${privateData}/${x}`)
+        this.db.docWithMetaData$<PrivateData>(getPrivateDataDocPath(x))
       ),
       shareReplay(1)
     );
@@ -78,7 +85,7 @@ export class AccountService implements OnDestroy {
   get userRef(): DocumentReference<WhatsgramUser & DocumentBase> {
     const id = this.uid$.value;
     if (!id) throw new Error('User Id is null');
-    return this.db.getUsersDoc(id);
+    return this.db.getUserDoc(id);
   }
 
   get privateDataRef(): DocumentReference<PrivateData> {
@@ -138,34 +145,32 @@ export class AccountService implements OnDestroy {
   }
 
   async hasContact(userId: string) {
-    return await this.db.exists(`${users}/${this.uid}/${contacts}/${userId}`);
+    return await this.db.exists(getContactDocPath(this.uid, userId));
   }
 
   async add(user: WhatsgramUser) {
     if (user.id === this.uid) {
       throw new Error("You can't add yourself as contact");
     }
-    const doc = this.db.doc(`${users}/${this.uid}/${contacts}/${user.id}`);
+    const doc = this.db.doc(getContactDocPath(this.uid, user.id));
     return this.db.addWithDocumentReference(doc, user);
   }
 
   async deleteContact(userToRemoveId: string) {
-    const doc = this.db.doc(
-      `${users}/${this.uid}/${contacts}/${userToRemoveId}`
-    );
+    const doc = this.db.doc(getContactDocPath(this.uid, userToRemoveId));
     return this.db.remove(doc);
   }
 
-  public async readMessagesForPrivateChat(
-    messageId: string,
-    receiverId: string
-  ) {
-    const refString = `${users}/${this.uid}/${chats}/${receiverId}`;
-    const chatRef = this.db.doc<Chat>(refString);
-    return this.db.setUpdate(chatRef, { lastReadMessage: messageId } as any, {
-      merge: true,
-    });
-  }
+  // public async readMessagesForPrivateChat(
+  //   messageId: string,
+  //   receiverId: string
+  // ) {
+  // const refString = getChatDocPath(this.uid, receiverId);
+  //   const chatRef = this.db.doc<Chat>(refString);
+  //   return this.db.setUpdate(chatRef, { lastReadMessage: messageId } as any, {
+  //     merge: true,
+  //   });
+  // }
 
   private get uid() {
     return this.uid$.value;

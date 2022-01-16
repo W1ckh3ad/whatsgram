@@ -1,36 +1,20 @@
 import { Injectable } from '@angular/core';
 import {
-  collection,
+  addDoc, collection,
   collectionData,
-  CollectionReference,
-  doc,
-  DocumentReference,
-  Firestore,
-  docData,
-  query,
+  CollectionReference, deleteDoc, doc, docData, DocumentReference,
+  Firestore, getDoc, query,
   QueryConstraint,
-  serverTimestamp,
-  Timestamp,
-  deleteDoc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  addDoc,
-  SetOptions,
+  serverTimestamp, setDoc, SetOptions, Timestamp, updateDoc
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { PrivateData } from '@models/private-data.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
-import { Message } from '@models/message.model';
-import { DocumentBase } from '@models/document-base.model';
-import {
-  devices,
-  groups,
-  messages,
-  privateData,
-  users,
-} from '@constants/collection-names';
+import { Device } from '@models/device.model';
+import { DocumentBase } from 'shared/models/document-base.model';
 import { Group } from '@models/group.model';
+import { Message } from 'shared/models/message.model';
+import { PrivateData } from '@models/private-data.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { getDevicesColPath, getGroupDocPath, getMessageColPath, getMessageDocPath, getPrivateDataDocPath, getUserDocPath, getUsersColPath } from 'shared/utils/db.utils';
+import { Observable } from 'rxjs';
 
 type CollectionPredicate<T> = string | CollectionReference<T & DocumentBase>;
 type DocumentPredicate<T> = string | DocumentReference<T>;
@@ -164,42 +148,35 @@ export class FirestoreService {
     return deleteDoc(this.doc(ref));
   }
 
-  getUsersDoc(uid: string) {
-    return this.doc<WhatsgramUser & DocumentBase>(`${users}/${uid}`);
+  getUserDoc(uid: string) {
+    return this.doc<WhatsgramUser & DocumentBase>(getUserDocPath(uid));
   }
   getPrivateDataDoc(uid: string) {
-    return this.doc<PrivateData & DocumentBase>(`${privateData}/${uid}`);
+    return this.doc<PrivateData & DocumentBase>(getPrivateDataDocPath(uid));
   }
   getMessageDoc(
     userId: string,
-    groupOrChat: 'groups' | 'chats',
     groupdOrChatID: string,
     messageId: string
   ) {
     return this.doc<Message>(
-      `${users}/${userId}/${groupOrChat}/${groupdOrChatID}/${messages}/${messageId}`
+      getMessageDocPath(userId, groupdOrChatID, messageId)
     );
   }
 
   getGroupDoc(groupId: string) {
-    return this.doc$<Group>(`${groups}/${groupId}`);
+    return this.doc$<Group>(getGroupDocPath(groupId));
   }
 
   getUsersCol() {
-    return this.collection<WhatsgramUser>(users);
+    return this.collection<WhatsgramUser>(getUsersColPath());
   }
 
-  getMessageCol(
-    userId: string,
-    groupOrChat: 'groups' | 'chats',
-    groupdOrChatID: string
-  ) {
-    return this.collection<Message>(
-      `${users}/${userId}/${groupOrChat}/${groupdOrChatID}/${messages}`
-    );
+  getMessageCol(userId: string, groupdOrChatID: string) {
+    return this.collection<Message>(getMessageColPath(userId, groupdOrChatID));
   }
 
-  getDevicesCol() {
-    return this.collection<{}>(devices);
+  getDevicesCol(userId: string) {
+    return this.collection<Device & DocumentBase>(getDevicesColPath(userId));
   }
 }

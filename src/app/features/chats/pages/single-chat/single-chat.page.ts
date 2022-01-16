@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DocumentBase } from '@models/document-base.model';
-import { Message } from '@models/message.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { DocumentBase } from 'shared/models/document-base.model';
+import { Message } from 'shared/models/message.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 // import { AccountService } from '@services/account/account.service';
 import { ChatService } from '@services/chat/chat.service';
 import { UserService } from '@services/user/user.service';

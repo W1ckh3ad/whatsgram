@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 import { UserService } from '@services/user/user.service';
 import { Observable } from 'rxjs';
 

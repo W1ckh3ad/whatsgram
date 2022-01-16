@@ -16,14 +16,14 @@
     "skipLibCheck": true,
     "paths": {
       "@models/*": ["./src/app/core/models/*"],
-      "@constants/*": ["./src/app/core/constants/*"],
+      "@constants/*": ["shared/constants/*"],
       "@components/*": ["./src/app/core/components/*"],
       "@enums/*": ["./src/app/core/enums/*"],
       "@guards/*": ["./src/app/core/guards/*"],
       "@interceptors/*": ["./src/app/core/interceptors/*"],
       "@services/*": ["./src/app/core/services/*"],
       "@utils/*": ["./src/app/core/utils/*"],
-      "@shared/*": ["./src/app/shared/*"]
+      "@shared/*": ["./src/app/shared/*"],
     }
   },
   "angularCompilerOptions": {

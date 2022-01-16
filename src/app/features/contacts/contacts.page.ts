@@ -6,7 +6,7 @@ import { FirestoreService } from '@services/firestore/firestore.service';
 import { UserService } from '@services/user/user.service';
 import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
 import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
-import { sortContactsIntoLetterSegments } from 'src/app/core/utls/contacts.utils';
+import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
 import { AddComponent } from './components/add/add.component';
 
 @Component({

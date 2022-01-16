@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Storage } from '@capacitor/storage';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { AuthService } from '@services/auth/auth.service';
 import { FirebaseCloudMessagingService } from '@services/firebaseCloudMessaging/firebase-cloud-messaging.service';

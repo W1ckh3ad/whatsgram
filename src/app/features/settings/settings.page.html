@@ -23,7 +23,11 @@
   </div>
   <ion-list>
     <ion-item lines="full" [routerLink]="'/settings/profile'">
-      <ion-label> Profil bearbeiten </ion-label>
+      <ion-label>Profil bearbeiten</ion-label>
+      <ion-icon slot="end" name="chevron-forward ios-hide"></ion-icon>
+    </ion-item>
+    <ion-item lines="full" [routerLink]="'/settings/info'">
+      <ion-label>Info</ion-label>
       <ion-icon slot="end" name="chevron-forward ios-hide"></ion-icon>
     </ion-item>
     <ion-item lines="full">

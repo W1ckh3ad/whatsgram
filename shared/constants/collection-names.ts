@@ -5,3 +5,4 @@ export const groups = 'groups';
 export const privateData = 'privateData';
 export const chats = 'chats';
 export const contacts = 'contacts';
+export const members = 'members';

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AccountService } from '@services/account/account.service';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 import { UserEdit } from '@models/user-edit.model';
 
 @Component({

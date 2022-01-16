@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AccountService } from '@services/account/account.service';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
-import { importKeys } from '../../utls/crypto.utils';
+import { importKeys } from '@utils/crypto.utils';
 
 type KeyStorage = {
   privateKey: CryptoKey;

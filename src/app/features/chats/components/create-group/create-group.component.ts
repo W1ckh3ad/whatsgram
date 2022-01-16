@@ -12,13 +12,13 @@ import {
   IonicSlides,
   ModalController,
 } from '@ionic/angular';
-import { GroupCreate } from '@models/group-create.model';
+import { GroupCreate } from 'shared/models/group-create.model';
 import { SortedContactsPart } from '@models/sortedContacts.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
+import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { GroupService } from '@services/group/group.service';
 import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
-import { sortContactsIntoLetterSegments } from 'src/app/core/utls/contacts.utils';
+import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
 import SwiperCore, { Pagination, Swiper, SwiperOptions, Zoom } from 'swiper';
 
 SwiperCore.use([Pagination, Zoom, IonicSlides]);
@@ -156,8 +156,8 @@ export class CreateGroupComponent implements OnInit {
       return;
     }
     this.group.members = [
-      ...this.addedMembers.map(({ phoneNumber, description, ...rest }) => ({
-        ...rest,
+      ...this.addedMembers.map((x) => ({
+        ...x,
       })),
     ];
 
