@@ -1,19 +1,38 @@
 import { Injectable } from '@angular/core';
 import {
-  addDoc, collection,
+  addDoc,
+  collection,
   collectionData,
-  CollectionReference, deleteDoc, doc, docData, DocumentReference,
-  Firestore, getDoc, query,
+  CollectionReference,
+  deleteDoc,
+  doc,
+  docData,
+  DocumentReference,
+  Firestore,
+  getDoc,
+  query,
   QueryConstraint,
-  serverTimestamp, setDoc, SetOptions, Timestamp, updateDoc
+  serverTimestamp,
+  setDoc,
+  SetOptions,
+  Timestamp,
+  updateDoc,
 } from '@angular/fire/firestore';
 import { Device } from '@models/device.model';
-import { DocumentBase } from 'shared/models/document-base.model';
+import { DocumentBase } from '@models/document-base.model';
 import { Group } from '@models/group.model';
-import { Message } from 'shared/models/message.model';
+import { Message } from '@models/message.model';
 import { PrivateData } from '@models/private-data.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
-import { getDevicesColPath, getGroupDocPath, getMessageColPath, getMessageDocPath, getPrivateDataDocPath, getUserDocPath, getUsersColPath } from 'shared/utils/db.utils';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
+import {
+  getDevicesColPath,
+  getGroupDocPath,
+  getMessageColPath,
+  getMessageDocPath,
+  getPrivateDataDocPath,
+  getUserDocPath,
+  getUsersColPath,
+} from '@utils/db.utils';
 import { Observable } from 'rxjs';
 
 type CollectionPredicate<T> = string | CollectionReference<T & DocumentBase>;
@@ -154,11 +173,7 @@ export class FirestoreService {
   getPrivateDataDoc(uid: string) {
     return this.doc<PrivateData & DocumentBase>(getPrivateDataDocPath(uid));
   }
-  getMessageDoc(
-    userId: string,
-    groupdOrChatID: string,
-    messageId: string
-  ) {
+  getMessageDoc(userId: string, groupdOrChatID: string, messageId: string) {
     return this.doc<Message>(
       getMessageDocPath(userId, groupdOrChatID, messageId)
     );

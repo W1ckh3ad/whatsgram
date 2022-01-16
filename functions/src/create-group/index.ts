@@ -1,13 +1,15 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { GroupCreate } from '@shared/models/group-create.model';
-import { WhatsgramUser } from '@shared/models/whatsgram.user.model';
-import { Chat } from '@shared/models/chat.model';
+import { GroupCreate } from '../models/group-create.model';
+import { WhatsgramUser } from '../models/whatsgram.user.model';
+import { Chat } from '../models/chat.model';
 import {
   getGroupsColPath,
   getGroupMemberDoc,
   getChatDocPath,
-} from '@shared/utils/db.utils';
+} from '../utils/db.utils';
+
+admin.initializeApp();
 
 export const createGroup = functions.https.onCall(
   async (data: { model: GroupCreate; creator: WhatsgramUser }, context) => {
@@ -27,7 +29,13 @@ export const createGroup = functions.https.onCall(
       description,
       displayName,
     });
-
+    const chatData: Chat = {
+      info: {
+        displayName,
+        photoURL,
+      },
+      isGroupChat: true,
+    };
     {
       promises.push(
         db.doc(getGroupMemberDoc(groupDocRef.id, creator.id)).set({
@@ -39,6 +47,10 @@ export const createGroup = functions.https.onCall(
           photoURL: creator.photoURL ?? null,
           isAdmin: true,
         })
+      );
+
+      promises.push(
+        db.doc(getChatDocPath(creator.id, groupDocRef.id)).set(chatData)
       );
     }
     for (const member of members) {
@@ -53,15 +65,8 @@ export const createGroup = functions.https.onCall(
           isAdmin: false,
         })
       );
-      const data: Chat = {
-        info: {
-          displayName,
-          photoURL,
-        },
-        isGroupChat: true,
-      };
       promises.push(
-        db.doc(getChatDocPath(groupDocRef.id, groupDocRef.id)).set(data)
+        db.doc(getChatDocPath(member.id, groupDocRef.id)).set(chatData)
       );
     }
 

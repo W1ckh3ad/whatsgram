@@ -1,11 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import { DocumentReference } from '@angular/fire/firestore';
+import { AuthAction } from '@models/auth-action.type';
 import { Device } from '@models/device.model';
-import { DocumentBase } from 'shared/models/document-base.model';
+import { DocumentBase } from '@models/document-base.model';
 import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
 import { exportKeys, generateKeys } from '@utils/crypto.utils';
 import {
@@ -14,7 +15,7 @@ import {
   getDevicesColPath,
   getPrivateDataDocPath,
   getUserDocPath,
-} from 'shared/utils/db.utils';
+} from '@utils/db.utils';
 import {
   BehaviorSubject,
   map,
@@ -119,27 +120,6 @@ export class AccountService implements OnDestroy {
     );
   }
 
-  async create({ displayName, email, photoURL, uid }: User) {
-    if (this.uid$.value !== uid) {
-      this.uid$.next(uid);
-    }
-    const { privateKey, publicKey } = await exportKeys(await generateKeys());
-
-    const data: any = {
-      displayName: displayName ?? uid,
-      email,
-      photoURL,
-      publicKey,
-      id: uid,
-    };
-    return Promise.all([
-      this.db.addWithDocumentReference(this.privateDataRef, {
-        privateKey,
-      }),
-      this.db.addWithDocumentReference(this.userRef, data),
-    ]);
-  }
-
   async exists() {
     return this.db.exists(this.userRef);
   }
@@ -161,6 +141,23 @@ export class AccountService implements OnDestroy {
     return this.db.remove(doc);
   }
 
+  async createIfDoesntExistsAndGiveAction(
+    user: User
+  ): Promise<AuthAction> {
+    const { emailVerified } = user;
+    if (this.uid$.value === null) {
+      this.uid$.next(user.uid);
+    }
+    if (!(await this.exists())) {
+      if (emailVerified) {
+        this.create(user);
+        return 'set-up-profile';
+      }
+      return 'verify-email';
+    }
+    return 'go';
+  }
+
   // public async readMessagesForPrivateChat(
   //   messageId: string,
   //   receiverId: string
@@ -171,6 +168,27 @@ export class AccountService implements OnDestroy {
   //     merge: true,
   //   });
   // }
+
+  private async create({ displayName, email, photoURL, uid }: User) {
+    if (this.uid$.value !== uid) {
+      this.uid$.next(uid);
+    }
+    const { privateKey, publicKey } = await exportKeys(await generateKeys());
+
+    const data: any = {
+      displayName: displayName ?? uid,
+      email,
+      photoURL,
+      publicKey,
+      id: uid,
+    };
+    return Promise.all([
+      this.db.addWithDocumentReference(this.privateDataRef, {
+        privateKey,
+      }),
+      this.db.addWithDocumentReference(this.userRef, data),
+    ]);
+  }
 
   private get uid() {
     return this.uid$.value;

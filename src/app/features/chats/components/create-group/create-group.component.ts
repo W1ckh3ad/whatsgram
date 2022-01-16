@@ -12,9 +12,9 @@ import {
   IonicSlides,
   ModalController,
 } from '@ionic/angular';
-import { GroupCreate } from 'shared/models/group-create.model';
+import { GroupCreate } from '@models/group-create.model';
 import { SortedContactsPart } from '@models/sortedContacts.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { GroupService } from '@services/group/group.service';
 import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
@@ -100,7 +100,7 @@ export class CreateGroupComponent implements OnInit {
     this.swiperInstance.slidePrev();
   }
 
-  onNextButtonTouched() {
+  async onNextButtonTouched() {
     if (this.currentSlide === this.generalData) {
       this.groupFormRef.onSubmit(undefined);
 
@@ -117,6 +117,8 @@ export class CreateGroupComponent implements OnInit {
     if (!this.swiperInstance.isEnd) {
       this.swiperInstance.slideNext();
       return;
+    } else {
+      await this.onSubmit();
     }
   }
 

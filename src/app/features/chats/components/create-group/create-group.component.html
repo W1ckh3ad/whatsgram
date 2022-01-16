@@ -8,7 +8,9 @@
     </ion-buttons>
     <ion-title>Create Group</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="onNextButtonTouched()"> Next </ion-button>
+      <ion-button (click)="onNextButtonTouched()">
+        {{ swiperInstance?.isEnd ? "Finish" : "Next" }}
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -201,7 +203,11 @@
               }}</ion-label>
             </ion-item>
           </ion-list>
-          <ion-button type="button" (click)="onSubmit()"
+          <ion-button
+            type="button"
+            (click)="onSubmit()"
+            expand="block"
+            style="margin: 2rem 0 3rem;"
             >Create Group</ion-button
           >
         </div>

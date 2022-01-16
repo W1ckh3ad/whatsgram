@@ -1,6 +1,6 @@
-import { DocumentBase } from 'shared/models/document-base.model';
+import { DocumentBase } from '@models/document-base.model';
 import { SortedContactsPart } from '@models/sortedContacts.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 
 export const sortContactsIntoLetterSegments = (
   contacts: (WhatsgramUser & DocumentBase)[]

@@ -15,11 +15,11 @@ export class VerifyEmailPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.auth.user.emailVerified) {
-      this.router.navigateByUrl('/chats');
+      this.router.navigateByUrl('/settings/profile');
     }
     this.sub = this.auth.user$.subscribe((x) => {
       if (this.auth.user.emailVerified) {
-        this.router.navigateByUrl('/chats');
+        this.router.navigateByUrl('/settings/profile');
       }
     });
   }

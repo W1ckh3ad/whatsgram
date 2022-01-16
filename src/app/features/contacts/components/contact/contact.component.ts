@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 
 @Component({

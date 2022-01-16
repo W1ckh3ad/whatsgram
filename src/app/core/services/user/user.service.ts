@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { limit, orderBy, where } from '@angular/fire/firestore';
-import { DocumentBase } from 'shared/models/document-base.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { DocumentBase } from '@models/document-base.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { FirestoreService } from '@services/firestore/firestore.service';
 
 const collectionName = 'users';

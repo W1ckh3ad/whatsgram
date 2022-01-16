@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AccountService } from '@services/account/account.service';
 import { AuthService } from '@services/auth/auth.service';
+import { RouteHandlerServiceService } from '@services/routeHanderService/route-handler-service.service';
 import { User } from 'firebase/auth';
 import { SignIn } from './models/sign-in.model';
 
@@ -14,9 +14,9 @@ export class SignInPage implements OnInit {
   model = new SignIn('', '');
   errorMessage = '';
   constructor(
-    private router: Router,
     private auth: AuthService,
-    private account: AccountService
+    private account: AccountService,
+    private routeHandler: RouteHandlerServiceService
   ) {}
 
   ngOnInit() {}
@@ -47,24 +47,10 @@ export class SignInPage implements OnInit {
     console.log(data);
     const [user, error] = res;
     if (user) {
-      await this.createIfDoesntExistsAndRedirect(user);
+      const action = await this.account.createIfDoesntExistsAndGiveAction(user);
+      return this.routeHandler.handleAuthAction(action);
     } else if (error) {
       this.errorMessage = error.message;
     }
-  }
-
-  private async createIfDoesntExistsAndRedirect(user: User) {
-    const { emailVerified } = user;
-    if (this.account.uid$.value === null) {
-      this.account.uid$.next(user.uid);
-    }
-    if (!(await this.account.exists())) {
-      if (emailVerified) {
-        this.account.create(user);
-        return this.router.navigateByUrl('/settings/profile');
-      }
-      return this.router.navigateByUrl('/verify-email');
-    }
-    return this.router.navigateByUrl('/chats');
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   Auth,
   AuthProvider,
+  createUserWithEmailAndPassword,
   GithubAuthProvider,
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -15,6 +16,8 @@ import {
   User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { AuthAction } from '@models/auth-action.type';
+import { RouteHandlerServiceService } from '@services/routeHanderService/route-handler-service.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -23,7 +26,11 @@ import { BehaviorSubject } from 'rxjs';
 export class AuthService {
   private authStatusSub$ = new BehaviorSubject<User>(null);
   private authSub: Unsubscribe;
-  constructor(private auth: Auth, private router: Router) {
+  constructor(
+    private auth: Auth,
+    private router: Router,
+    private routeHandler: RouteHandlerServiceService
+  ) {
     this.authStatusListener();
   }
 
@@ -86,28 +93,25 @@ export class AuthService {
     return sendEmailVerification(this.user);
   }
 
+  async emailSignup(email: string, password: string) {
+    try {
+      const res = await createUserWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+      await sendEmailVerification(res.user);
+      return res.user;
+    } catch (error) {
+      console.error('Something went wrong: ', error);
+    }
+  }
+
   private authStatusListener() {
     this.authSub = onAuthStateChanged(this.auth, (credential) => {
       this.authStatusSub$.next(credential ?? null);
-      if (credential) {
-        if (credential.emailVerified) {
-          if (window.location.pathname === '/sign-in') {
-            const url = this.router.url;
-            if (url.includes('returnUrl=')) {
-              return this.router.navigateByUrl(
-                new URLSearchParams(url.split('?')[1]).get('returnUrl')
-              );
-            }
-            this.router.navigateByUrl('/chats');
-          }
-        } else {
-          this.router.navigateByUrl('/verify-email');
-        }
-      } else {
-        if (window.location.href !== '/sign-in') {
-          this.router.navigateByUrl('/sign-in');
-        }
-      }
+      const action = this.getAuthAction(credential);
+      return this.routeHandler.handleAuthAction(action);
     });
   }
 
@@ -117,6 +121,20 @@ export class AuthService {
     } catch (error) {
       console.error('Something went wrong: ', error);
       return [null, error];
+    }
+  }
+
+  private getAuthAction(user: User): AuthAction {
+    if (user) {
+      if (user.emailVerified) {
+        return 'go';
+      } else {
+        return 'verify-email';
+      }
+    } else {
+      if (window.location.href !== '/sign-in') {
+        return 'unauthorized';
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GroupCreate } from 'shared/models/group-create.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { GroupCreate } from '@models/group-create.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 
 @Injectable({

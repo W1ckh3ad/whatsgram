@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DocumentBase } from 'shared/models/document-base.model';
-import { Message } from 'shared/models/message.model';
+import { DocumentBase } from '@models/document-base.model';
+import { Message } from '@models/message.model';
 
 @Component({
   selector: 'app-chat-message',

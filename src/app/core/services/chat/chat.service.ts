@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { DocumentReference, limit, orderBy } from '@angular/fire/firestore';
-import { Chat } from 'shared/models/chat.model';
-import { DocumentBase } from 'shared/models/document-base.model';
+import { Chat } from '@models/chat.model';
+import { DocumentBase } from '@models/document-base.model';
 import { AccountService } from '@services/account/account.service';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { encryptMessage } from '@utils/crypto.utils';
 import {
   getChatDocPath,
   getChatsColPath,
-  getMessageColPath
-} from 'shared/utils/db.utils';
-import { Message } from 'shared/models/message.model';
+  getMessageColPath,
+} from '@utils/db.utils';
+import { Message } from '@models/message.model';
 import { FirestoreService } from '../firestore/firestore.service';
 
 @Injectable({

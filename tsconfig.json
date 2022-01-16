@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "paths": {
       "@models/*": ["./src/app/core/models/*"],
-      "@constants/*": ["shared/constants/*"],
+      "@constants/*": ["src/app/core/constants/*"],
       "@components/*": ["./src/app/core/components/*"],
       "@enums/*": ["./src/app/core/enums/*"],
       "@guards/*": ["./src/app/core/guards/*"],

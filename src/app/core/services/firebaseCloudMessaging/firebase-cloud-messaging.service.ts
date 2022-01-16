@@ -10,7 +10,7 @@ import {
 import { AlertController, ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
-import { getDeviceDocPath } from 'shared/utils/db.utils';
+import { getDeviceDocPath } from '@utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 

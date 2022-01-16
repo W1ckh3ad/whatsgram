@@ -8,11 +8,8 @@
     "strict": true,
     "target": "es2017",
     "baseUrl": "./",
-    "skipLibCheck": true,
-    "paths": {
-      "@shared/*": ["../shared/*"]
-    }
+    "skipLibCheck": true
   },
   "compileOnSave": true,
-  "include": ["src", "../shared"]
+  "include": ["src"]
 }

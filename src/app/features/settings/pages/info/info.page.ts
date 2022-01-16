@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Device } from '@models/device.model';
-import { DocumentBase } from 'shared/models/document-base.model';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { DocumentBase } from '@models/document-base.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { FirebaseCloudMessagingService } from '@services/firebaseCloudMessaging/firebase-cloud-messaging.service';
 import { Observable } from 'rxjs';

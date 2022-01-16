@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { WhatsgramUser } from 'shared/models/whatsgram.user.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { UserService } from '@services/user/user.service';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-contacts-add',
@@ -22,7 +22,7 @@ export class AddComponent implements OnInit {
   async ngOnInit() {}
 
   async onSubmit() {
-    this.users$ = this.user.find(this.search);
+    this.users$ = this.user.find(this.search).pipe(tap((x) => console.log(x)));
   }
 
   async dismissModal() {

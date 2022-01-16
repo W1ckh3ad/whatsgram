@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { AccountService } from '@services/account/account.service';
+import { AuthService } from '@services/auth/auth.service';
+import { RouteHandlerServiceService } from '@services/routeHanderService/route-handler-service.service';
 import { SignUp } from './models/sign-up.model';
-import { sendEmailVerification } from 'firebase/auth';
 
 @Component({
   selector: 'app-sign-up',
@@ -14,29 +14,24 @@ export class SignUpPage implements OnInit {
   submitted = false;
   errorMessage = '';
 
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private account: AccountService,
+    private routeHandler: RouteHandlerServiceService
+  ) {}
 
-  onSubmit() {
+  async onSubmit() {
     if (this.model.confirmPassword !== this.model.password) {
       return (this.errorMessage =
         'Passwort & Passwortbestätigung stimmen nicht über ein');
     }
-    this.emailSignup(this.model.email, this.model.password);
+    const user = await this.auth.emailSignup(
+      this.model.email,
+      this.model.password
+    );
+    const action = await this.account.createIfDoesntExistsAndGiveAction(user);
+    return this.routeHandler.handleAuthAction(action);
   }
 
   ngOnInit() {}
-
-  async emailSignup(email: string, password: string) {
-    try {
-      const res = await createUserWithEmailAndPassword(
-        this.auth,
-        email,
-        password
-      );
-      await sendEmailVerification(res.user);
-      this.router.navigateByUrl('/settings/profile');
-    } catch (error) {
-      console.error('Something went wrong: ', error);
-    }
-  }
 }
