@@ -14,7 +14,6 @@ import { getDeviceDocPath } from '@utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -49,7 +48,9 @@ export class FirebaseCloudMessagingService {
 
   async getToken() {
     try {
-      const token = await getToken(this.messaging, { vapidKey: environment.vapidKey });
+      const token = await getToken(this.messaging, {
+        vapidKey: environment.vapidKey,
+      });
       this.tokenField = token;
       if (await this.saveTokenToFirestore(token)) {
         const toast = await this.toastCtrl.create({
@@ -127,6 +128,7 @@ export class FirebaseCloudMessagingService {
   async displayReceivedMessage(payload: MessagePayload) {
     const toast = await this.toastCtrl.create({
       header: payload.notification.title,
+      icon: payload.notification.image,
       message: payload.notification.body,
       duration: 2000,
       position: 'top',
