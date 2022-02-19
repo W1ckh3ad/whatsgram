@@ -1,4 +1,4 @@
-import { WhatsgramUser } from './whatsgram.user.model';
+import {WhatsgramUser} from "./whatsgram.user.model";
 
 export class GroupCreate {
   constructor(

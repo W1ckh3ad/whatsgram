@@ -8,4 +8,4 @@
 //   response.send("Hello from Firebase!");
 // });
 
-export * from './create-group';
+export * from "./create-group";

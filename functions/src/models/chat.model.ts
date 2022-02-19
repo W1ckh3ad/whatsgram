@@ -1,5 +1,5 @@
-import { DocumentBase } from './document-base.model';
-import { Message } from './message.model';
+import {DocumentBase} from "./document-base.model";
+import {Message} from "./message.model";
 
 export interface Chat {
   info: {

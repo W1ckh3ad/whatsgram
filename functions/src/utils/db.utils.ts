@@ -7,7 +7,7 @@ import {
   messages,
   privateData,
   users,
-} from '../constants/collection-names';
+} from "../constants/collection-names";
 
 export function getUsersColPath() {
   return users;
@@ -50,9 +50,9 @@ export function getMessageColPath(userId: string, id: string) {
 }
 
 export function getMessageDocPath(
-  userId: string,
-  groupdOrChatId: string,
-  id: string
+    userId: string,
+    groupdOrChatId: string,
+    id: string
 ) {
   return `${getMessageColPath(userId, groupdOrChatId)}(${id})`;
 }
