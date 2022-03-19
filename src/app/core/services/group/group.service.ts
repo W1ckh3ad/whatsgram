@@ -21,8 +21,14 @@ export class GroupService {
 
   async loadMembers(groupId?: string) {
     const colSnap = await this.dbService.collection<GroupMember>(
-      getGroupMembersCol(groupId ?? ''));
+      getGroupMembersCol(groupId ?? '')
+    );
     return colSnap.docs;
+  }
+  loadMembers$(groupId?: string) {
+    return this.dbService.collection$<GroupMember>(
+      getGroupMembersCol(groupId ?? '')
+    );
   }
 
   async create(model: GroupCreate, creator: WhatsgramUser) {

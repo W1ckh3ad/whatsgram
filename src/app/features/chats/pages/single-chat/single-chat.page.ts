@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { Message } from '@models/message.model';
@@ -25,7 +25,8 @@ export class SingleChatPage implements OnInit {
   constructor(
     private activeRoute: ActivatedRoute,
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -33,5 +34,11 @@ export class SingleChatPage implements OnInit {
     this.chat$ = this.chatService.loadChat$(chatId);
     this.message$ = this.chatService.loadMessages$(chatId);
     this.userId = this.authService.user.uid;
+  }
+
+  openGroup(isGroupChat?: boolean) {
+    if (isGroupChat) {
+      this.router.navigateByUrl(location.pathname + '/group');
+    }
   }
 }
