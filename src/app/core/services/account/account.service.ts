@@ -34,7 +34,7 @@ import { FirestoreService } from '../firestore/firestore.service';
 export class AccountService implements OnDestroy {
   uid$ = new BehaviorSubject<string>(null);
   contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
-  user$ = new BehaviorSubject<WhatsgramUser>(null);
+  userStore$ = new BehaviorSubject<WhatsgramUser>(null);
   privateData$: Observable<PrivateData> = null;
   devices$: Observable<(Device & DocumentBase)[]> = null;
   private sub: Subscription;
@@ -69,7 +69,7 @@ export class AccountService implements OnDestroy {
             : of(null)
         )
       )
-      .subscribe((x) => this.user$.next(x));
+      .subscribe((x) => this.userStore$.next(x));
 
     this.privateData$ = this.uid$.pipe(
       switchMap((x) =>
@@ -95,7 +95,7 @@ export class AccountService implements OnDestroy {
     return this.db.getPrivateDataDoc(id);
   }
 
-  get user() {
+  get user$() {
     return this.db.doc$(this.userRef);
   }
 

@@ -29,7 +29,6 @@ export const sendMessage = functions.https.onCall(
         groupId,
         mediaPath,
         receiverMessagePath,
-        responseToId,
       } = messageData;
       const db = admin.firestore();
       const fcm = admin.messaging();
@@ -43,6 +42,7 @@ export const sendMessage = functions.https.onCall(
           displayName: sender.displayName,
           photoURL: sender.photoURL,
           publicKey: sender.publicKey,
+          alt: sender.email,
         },
         isGroupChat: !!groupId,
         createdAt: ts,
@@ -63,12 +63,10 @@ export const sendMessage = functions.https.onCall(
         groupId,
         mediaPath,
         receiverMessagePath,
-        responseToId,
         createdAt: ts,
         updatedAt: ts,
       } as Message & DocumentBase;
       const message = await messageCol.add(messageBody);
-
 
       chatDocDataBody.updatedAt = ts;
       messageBody.id = message.id;

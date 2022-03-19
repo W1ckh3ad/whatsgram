@@ -35,6 +35,7 @@ export const createGroup = functions.https.onCall(
         info: {
           displayName,
           photoURL,
+          alt: groupDocRef.id,
         },
         isGroupChat: true,
       };

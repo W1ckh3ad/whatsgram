@@ -17,7 +17,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   constructor(private account: AccountService) {}
   // phoneNumber regex validation
   async ngOnInit() {
-    this.subscription = this.account.user
+    this.subscription = this.account.user$
       .pipe(
         map((x) =>
           x

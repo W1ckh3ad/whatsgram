@@ -7,7 +7,6 @@ import { ChatService } from '@services/chat/chat.service';
   styleUrls: ['./chat-footer.component.scss'],
 })
 export class ChatFooterComponent implements OnInit {
-  @Input() responseTo: string = '';
   @Input() message: string = '';
   @Input() receiverId: string = '';
   @Input() groupId: string = null;
@@ -20,15 +19,13 @@ export class ChatFooterComponent implements OnInit {
       return;
     }
     this.chat
-      .handleSendMessage(
-        this.message,
-        this.receiverId,
-        this.responseTo,
-        this.groupId
-      )
+      .handleSendMessage({
+        receiverId: this.receiverId,
+        text: this.message,
+        groupId: this.groupId,
+      })
       .then(() => {
         this.message = '';
-        this.responseTo = '';
       })
       .catch((e) => console.error('Loading Settings/Profile error', e));
   }

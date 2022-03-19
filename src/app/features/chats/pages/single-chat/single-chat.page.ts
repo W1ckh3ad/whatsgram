@@ -7,7 +7,7 @@ import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { ChatService } from '@services/chat/chat.service';
 import { UserService } from '@services/user/user.service';
 import { DocumentReference } from 'firebase/firestore';
-import { map, Observable, switchMap } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-single-chat',
@@ -17,7 +17,6 @@ import { map, Observable, switchMap } from 'rxjs';
 export class SingleChatPage implements OnInit {
   receiverId: string;
   receiverId$: Observable<string> = null;
-  responseTo: string = null;
   message$: Observable<(Message & DocumentBase)[]>;
   unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
   receiver$: Observable<WhatsgramUser>;
@@ -35,10 +34,11 @@ export class SingleChatPage implements OnInit {
     this.receiverId = this.activeRoute.snapshot.paramMap.get('id');
     this.receiverId$ = this.activeRoute.paramMap.pipe(map((x) => x.get('id')));
     this.message$ = this.activeRoute.paramMap.pipe(
-      switchMap((x) => this.chat.loadMessages(x.get('id')))
+      switchMap((x) => this.chat.loadMessages(x.get('id'))),
+      tap((x) => console.log(x))
     );
     this.receiver$ = this.activeRoute.paramMap.pipe(
-      switchMap((x) => this.user.load(x.get('id')))
+      switchMap((x) => this.user.load$(x.get('id')))
     );
   }
 

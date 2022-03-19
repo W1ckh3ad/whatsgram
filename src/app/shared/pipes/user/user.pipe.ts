@@ -10,6 +10,6 @@ import { Observable } from 'rxjs';
 export class UserPipe implements PipeTransform {
   constructor(private user: UserService) {}
   transform(userId: string): Observable<WhatsgramUser & DocumentBase> {
-    return this.user.load(userId);
+    return this.user.load$(userId);
   }
 }

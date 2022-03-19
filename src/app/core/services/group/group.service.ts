@@ -11,7 +11,10 @@ export class GroupService {
 
   async create(model: GroupCreate, creator: WhatsgramUser) {
     try {
-      const callable = httpsCallable(this.fns, 'createGroup');
+      const callable = httpsCallable<
+        { model: GroupCreate; creator: WhatsgramUser },
+        string
+      >(this.fns, 'createGroup');
       return await callable({ model, creator });
     } catch (error) {
       console.error('create group error', error);

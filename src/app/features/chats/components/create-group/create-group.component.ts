@@ -163,7 +163,7 @@ export class CreateGroupComponent implements OnInit {
       })),
     ];
 
-    await this.groupService.create(this.group, this.account.user$.value);
+    await this.groupService.create(this.group, await this.account.loadSnapUser());
     this.dismissModal();
   }
 

@@ -19,16 +19,20 @@ export class UserService {
     );
   }
 
-  load(userId: string) {
+  load$(userId: string) {
     return this.db.docWithMetaData$(this.db.getUserDoc(userId));
   }
 
-  loadList(userIds: string[]) {
+  loadList$(userIds: string[]) {
     return this.db.collectionQuery$<WhatsgramUser & DocumentBase>(
       collectionName,
       where('id', 'in', userIds),
       orderBy('displayName')
     );
+  }
+
+  load(userId: string) {
+    return this.db.docSnapWithMetaData(this.db.getUserDoc(userId));
   }
 
   private getField(input: string) {

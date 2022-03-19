@@ -4,11 +4,10 @@ import { WhatsgramUser } from './whatsgram.user.model';
 
 export interface Chat {
   info: {
-    info: {
-      photoURL?: WhatsgramUser['photoURL'];
-      displayName: WhatsgramUser['displayName'];
-      publicKey?: WhatsgramUser['publicKey'];
-    };
+    alt: string;
+    photoURL?: WhatsgramUser['photoURL'];
+    displayName: WhatsgramUser['displayName'];
+    publicKey?: WhatsgramUser['publicKey'];
   };
 
   lastReadMessage?: string;

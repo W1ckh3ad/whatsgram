@@ -1,13 +1,4 @@
-import { Timestamp } from '@angular/fire/firestore';
+import { Chat } from '@models/chat.model';
+import { DocumentBase } from '@models/document-base.model';
 
-export type ChatForDisplay = {
-  id: string;
-  displayName: string;
-  photoURL: string;
-  lastMessage: {
-    isRead: boolean;
-    createdAt: Timestamp;
-    text: string;
-  };
-  unread?: number;
-};
+export type ChatForDisplay = DocumentBase & Chat;

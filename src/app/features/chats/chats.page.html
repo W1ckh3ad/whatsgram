@@ -26,10 +26,10 @@
   <ion-list *ngIf="chats$ | async as chats">
     <ion-item *ngFor="let chat of chats" [routerLink]="'/chats/' + chat.id">
       <ion-avatar class="">
-        <img [src]="chat" />
+        <img [src]="chat.info | photoUrl:chat.info.alt" />
       </ion-avatar>
       <div class="ion-margin-start">
-        <h2 style="margin: 0 0 8px">{{chat.displayName}}</h2>
+        <h2 style="margin: 0 0 8px">{{chat.info.displayName}}</h2>
         <p style="margin: 0">
           {{chat.lastMessage.text | decrypt | async}} {{
           chat.lastMessage.createdAt | time }}
@@ -39,45 +39,5 @@
         ><ion-badge color="primary">{{chat.unread}}</ion-badge></ion-note
       >
     </ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
-    <ion-item>TEst</ion-item>
   </ion-list>
 </ion-content>

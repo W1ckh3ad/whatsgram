@@ -17,7 +17,7 @@ export const environment = {
   vapidKey:
     'BOCxxACIR2YIAHgVrTQucnE5hISyzHJnHs26UfeJiugaJn4SGQi0itGpk4mKSXDDm1I_HkWnEEDWXOv0nc0rDVc',
   production: false,
-  emulator: true,
+  emulator: false,
 };
 
 /*

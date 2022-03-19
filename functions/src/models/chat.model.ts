@@ -7,6 +7,7 @@ export interface Chat {
     photoURL?: WhatsgramUser["photoURL"];
     displayName: WhatsgramUser["displayName"];
     publicKey?: WhatsgramUser["publicKey"];
+    alt: string;
   };
 
   lastReadMessage?: string;

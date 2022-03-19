@@ -26,7 +26,7 @@ export class SettingsPage implements OnInit {
 
   async ngOnInit() {
     const themeStorage = await Storage.get({ key: 'theme' });
-    this.user$ = this.account.user;
+    this.user$ = this.account.user$;
     this.isDarkMode = themeStorage.value === 'dark';
   }
 

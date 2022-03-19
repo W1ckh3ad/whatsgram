@@ -1,17 +1,26 @@
 import { Injectable } from '@angular/core';
 import { DocumentReference, limit, orderBy } from '@angular/fire/firestore';
+import { Functions } from '@angular/fire/functions';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
+import { Message } from '@models/message.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
-import { encryptMessage } from '@utils/crypto.utils';
+import { UserService } from '@services/user/user.service';
+import { encryptMessage, importPublicKey } from '@utils/crypto.utils';
 import {
   getChatDocPath,
   getChatsColPath,
   getMessageColPath,
 } from '@utils/db.utils';
-import { Message } from '@models/message.model';
+import { httpsCallable } from 'firebase/functions';
 import { FirestoreService } from '../firestore/firestore.service';
+
+type SendMessageParameterType = {
+  messageData: Message;
+  sender: WhatsgramUser;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +30,9 @@ export class ChatService {
   constructor(
     private db: FirestoreService,
     private cryptoKeys: CryptoKeysService,
-    account: AccountService
+    private fns: Functions,
+    private account: AccountService,
+    private userService: UserService
   ) {
     account.uid$.subscribe((x) => (this.senderId = x));
   }
@@ -39,57 +50,72 @@ export class ChatService {
   }
 
   async handleSendMessage(
-    msg: string,
-    receiverUid: string,
-    responseTo: string = null,
-    groupId: string = null
+    messagePayload: Omit<Message, 'senderId'>,
+    receiverPublicKey?: string
   ) {
-    const chatOrGroupId = groupId ?? receiverUid;
-
-    const refString = getChatDocPath(this.senderId, chatOrGroupId);
+    debugger;
+    const message = { ...messagePayload, senderId: this.senderId } as Message;
+    const refString = getChatDocPath(
+      this.senderId,
+      messagePayload.groupId ?? messagePayload.receiverId
+    );
     const chatRef = this.db.doc<Chat>(refString);
 
+    const receiverMessagePath = await this.handleGenerationForReceiver(
+      message,
+      receiverPublicKey
+    );
+
     const ownMessage = await this.createMessageForSender(
-      msg,
-      receiverUid,
-      responseTo,
-      groupId,
-      await this.handleGenerationForReceiver(
-        msg,
-        receiverUid,
-        responseTo,
-        groupId
-      )
+      message,
+      receiverMessagePath,
+      chatRef
     );
     const data = {
       lastReadMessage: ownMessage.id,
     };
-    if (await this.db.exists(chatRef)) {
-      return this.db.update(chatRef, data as any);
-    }
-    return this.db.addWithDocumentReference(chatRef, data as any);
+    return this.db.update(chatRef, data as any);
   }
 
+  /**
+   * Erstellt eine Nachricht für den Sender
+   * in der Datenbank
+   * die Nachricht wird vor dem Speichern verschlüsselt
+   * @param message
+   * @param receiverMessagePath
+   * @param chatRef
+   * @returns
+   */
   private async createMessageForSender(
-    msg: string,
-    receiverId: string,
-    responseTo: string = null,
-    groupId: string = null,
-    receiverMessageIds: string | string[]
+    message: Message,
+    receiverMessagePath: string | string[],
+    chatRef?: DocumentReference<Chat>
   ): Promise<DocumentReference<Message>> {
     try {
-      const message: Message = {
-        receiverId: receiverId,
-        senderId: this.senderId,
-        text: await encryptMessage(msg, await this.cryptoKeys.getPublicKey()),
-        responseToId: responseTo ? responseTo : null,
-        receiverMessagePath: receiverMessageIds,
-        groupId,
-      };
+      if (!(await this.db.exists(chatRef)) && !message.groupId) {
+        const { displayName, publicKey, photoURL, email } =
+          await this.userService.load(message.receiverId);
+
+        await this.db.addWithDocumentReference(chatRef, {
+          info: {
+            displayName,
+            photoURL,
+            publicKey,
+            alt: email,
+          },
+        });
+      }
 
       return this.db.add<Message>(
-        getMessageColPath(this.senderId, groupId ?? receiverId),
-        message
+        getMessageColPath(this.senderId, message.groupId ?? message.receiverId),
+        {
+          ...message,
+          receiverMessagePath,
+          text: await encryptMessage(
+            message.text,
+            await this.cryptoKeys.getPublicKey()
+          ),
+        }
       );
     } catch (error) {
       console.error('createMessageForSender error', error);
@@ -97,70 +123,85 @@ export class ChatService {
     }
   }
 
+  /**
+   * Erstellt eine nachricht für den Empfänger
+   * Dafür wird eine Cloud function verwendet
+   * Die nachricht wird vor dem Versenden verschlüsselt
+   * @param message
+   * @param receiverPublicKey
+   * @returns
+   */
   private async createMessageForSingleReceiver(
-    msg: string,
-    receiverId: string,
-    responseTo: string = null,
-    groupId: string = null
+    message: Message,
+    receiverPublicKey: string = null
   ) {
     try {
+      if (!receiverPublicKey) {
+        receiverPublicKey = (await this.userService.load(message.receiverId))
+          .publicKey;
+      }
+      const messageData: Message = {
+        ...message,
+        text: await encryptMessage(
+          message.text,
+          await importPublicKey(receiverPublicKey)
+        ),
+      };
+      const callable = httpsCallable<SendMessageParameterType, string>(
+        this.fns,
+        'createGroup'
+      );
       return (
-        await this.db.add(
-          getMessageColPath(receiverId, groupId ?? this.senderId),
-          {
-            receiverId: receiverId,
-            senderId: this.senderId,
-            text: await encryptMessage(
-              msg,
-              await this.cryptoKeys.getPublicKey()
-            ),
-            responseToRef: responseTo,
-            groupId,
-          }
-        )
-      ).id;
+        await callable({
+          messageData,
+          sender: await this.account.loadSnapUser(),
+        })
+      ).data;
     } catch (error) {
       console.error('createMessageForSingleReceiver', error);
       throw error;
     }
   }
 
+  /**
+   *
+   * @param message
+   * @param receiverPublicKey
+   * @returns
+   */
   private async handleGenerationForReceiver(
-    msg: string,
-    receiverUid: string,
-    responseTo: string = null,
-    groupId: string = null
+    message: Message,
+    receiverPublicKey?: string
   ) {
-    if (groupId) {
-      return this.createMessageForEveryGroupMember(msg, responseTo, groupId);
+    if (message.groupId) {
+      return this.createMessageForEveryGroupMember(message);
     }
-    return this.createMessageForSingleReceiver(
-      msg,
-      receiverUid,
-      responseTo,
-      groupId
-    );
+    return this.createMessageForSingleReceiver(message, receiverPublicKey);
   }
 
+  /**
+   *
+   * @param message
+   * @returns
+   */
   private async createMessageForEveryGroupMember(
-    msg: string,
-    responseTo: string = null,
-    groupId: string = null
+    message: Message
   ): Promise<string[]> {
     try {
       const group: {
-        members: DocumentReference<DocumentBase>[];
-        admins: DocumentReference<DocumentBase>[];
+        members: DocumentReference<WhatsgramUser & DocumentBase>[];
+        admins: DocumentReference<WhatsgramUser & DocumentBase>[];
       } = { members: [], admins: [] };
       alert('Group Service missing');
       const promises: Promise<string>[] = [];
       for (const member of [...group.members, ...group.admins]) {
+        const data = await this.db.docSnap<WhatsgramUser & DocumentBase>(
+          member
+        );
         promises.push(
           this.createMessageForSingleReceiver(
-            msg,
-            member.id,
-            responseTo,
-            groupId
+            { ...message, receiverId: data.id },
+            data.publicKey
           )
         );
       }
