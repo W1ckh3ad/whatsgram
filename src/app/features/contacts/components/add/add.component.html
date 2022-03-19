@@ -1,0 +1,41 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>Add Contacts</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()"
+        ><ion-icon name="close" slot="icon-only"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form
+    #searchForm="ngForm"
+    (ngSubmit)="onSubmit()"
+    style="
+      display: flex;
+      flex-direction: column;
+      max-width: 460px;
+      margin: 2rem auto;
+      gap: 2rem;
+    "
+  >
+    <ion-item>
+      <ion-label position="floating" floating
+        >Email, Phonenumber or Id</ion-label
+      >
+      <ion-input type="text" [(ngModel)]="search" name="saerch"></ion-input>
+    </ion-item>
+    <ion-button type="submit" expand="block">Search</ion-button>
+  </form>
+  <ion-item-divider color="secondary">
+    <ion-label>Results</ion-label>
+  </ion-item-divider>
+  <ion-list *ngIf="users$ | async as users">
+    <app-contacts-add-search-result
+      *ngFor="let user of users"
+      [user]="user"
+      [includes]="user.id | hasContact | async"
+    ></app-contacts-add-search-result>
+  </ion-list>
+</ion-content>

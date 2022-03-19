@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/settings"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Info</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="user$ | async as user">
+    <ion-item><ion-label>Email</ion-label>{{user.email}}</ion-item>
+    <ion-item><ion-label>User Id</ion-label>{{user.id}}</ion-item>
+    <ion-item><ion-label>Display name</ion-label>{{user.displayName}}</ion-item>
+
+    <ion-item-divider color="primary" style="margin-top: 4rem"
+      ><ion-label>Devices</ion-label></ion-item-divider
+    >
+    <ion-item-group *ngFor="let device of devices$ | async; let index = index">
+      <ion-item-divider color="light">
+        <ion-label>
+          {{fcm.token === device.token ? "This Device:":"Devide Nr" + index }}
+        </ion-label>
+      </ion-item-divider>
+      <ion-item-divider>
+        <ion-label>User Agent</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-text>
+          <p>{{device.userAgent}}</p>
+        </ion-text>
+      </ion-item>
+      <ion-item-divider>
+        <ion-label>Token</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-text>
+          <p>{{device.token}}</p>
+        </ion-text>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+</ion-content>

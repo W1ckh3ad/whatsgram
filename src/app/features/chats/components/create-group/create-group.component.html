@@ -1,0 +1,225 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        (click)="onBackButtonTouched()"
+        defaultHref="/chats"
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Group</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onNextButtonTouched()">
+        {{ swiperInstance?.isEnd ? "Finish" : "Next" }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div>
+    <div class="flex justify-content-space-between ion-margin-top relative">
+      <div
+        class="absolute full-width line"
+        style="background: var(--ion-color-primary-shade)"
+      ></div>
+      <div
+        class="flex flex-column justify-content-center full-width"
+        *ngFor="let slide of slides; let index = index"
+      >
+        <span
+          class="flex flex-column align-items-center justify-content-center align-self-center bold text-medium radius"
+          style="width: 30px; height: 30px"
+          [style.background]="
+            currentSlide === slide
+              ? 'var(--ion-color-primary)'
+              : 'var(--ion-color-light-shade)'
+          "
+          [style.color]="
+            currentSlide === slide
+              ? 'var(--ion-color-light)'
+              : 'var(--ion-color-dark)'
+          "
+        >
+          {{ index + 1 }}
+        </span>
+        <span
+          [style.color]="
+            currentSlide === slide
+              ? 'var(--ion-color-primary)'
+              : 'var(--ion-color-dark)'
+          "
+          class="flex text-medium bold ion-margin-vertical align-self-center"
+        >
+          {{ slide }}
+        </span>
+      </div>
+    </div>
+
+    <swiper
+      (swiper)="setSwiterInstance($event)"
+      (slideChange)="onSlideChange($event)"
+      [config]="config"
+    >
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <form [formGroup]="groupForm" #groupFormRef="ngForm" novalidate>
+            <ion-list
+              style="gap: 1rem; background-color: var(--ion-background-color)"
+            >
+              <ion-list-header class="ion-no-padding">
+                <ion-label
+                  class="ion-text-center ion-margin-bottom bold text-large"
+                >
+                  General Data
+                </ion-label>
+              </ion-list-header>
+
+              <ion-item>
+                <ion-label position="floating">Group Name</ion-label>
+                <ion-input
+                  type="text"
+                  formControlName="displayName"
+                ></ion-input>
+              </ion-item>
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupDisplayName?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+              <ion-item>
+                <ion-label position="floating">Group Picture URL</ion-label>
+                <ion-input type="text" formControlName="photoURL"></ion-input>
+              </ion-item>
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupPhotoURL?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+              <ion-item>
+                <ion-label position="floating">Description</ion-label>
+                <ion-textarea formControlName="description"></ion-textarea>
+              </ion-item>
+
+              <ion-text color="danger">
+                <span
+                  class="text-tiny"
+                  [style.visibility]="
+                    groupDescription?.errors?.required && groupFormRef.submitted
+                      ? ''
+                      : 'hidden'
+                  "
+                >
+                  Field required
+                </span>
+              </ion-text>
+            </ion-list>
+          </form>
+        </div>
+      </ng-template>
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <ion-list
+            style="gap: 1rem; background-color: var(--ion-background-color)"
+          >
+            <ion-list-header class="ion-no-padding">
+              <ion-label
+                class="ion-text-center ion-margin-bottom bold text-large"
+                color="dark"
+              >
+                Members ({{ addedMembers.length }} / {{ maxMemberCount }})
+              </ion-label>
+            </ion-list-header>
+            <ion-searchbar
+              animated
+              (ionChange)="onSearch($event)"
+              debounce="500"
+              class="my-searchbar"
+            >
+            </ion-searchbar>
+            <ion-item-group *ngFor="let contactPart of contacts$ | async">
+              <ion-item-divider>
+                <ion-label>{{ contactPart.startingLetter }}</ion-label>
+              </ion-item-divider>
+              <ion-item *ngFor="let contact of contactPart.contacts">
+                <ion-checkbox
+                  slot="start"
+                  (ionChange)="handleClick($event, contact)"
+                  [checked]="addedMembers.includes(contact)"
+                ></ion-checkbox>
+                <ion-avatar>
+                  <img [src]="contact | photoUrl: contact.email" />
+                </ion-avatar>
+                <ion-label style="margin-left: 1rem">{{
+                  contact.displayName
+                }}</ion-label>
+              </ion-item>
+            </ion-item-group>
+          </ion-list>
+        </div>
+      </ng-template>
+      <ng-template swiperSlide>
+        <div class="full-width ion-text-start">
+          <ion-list>
+            <ion-list-header class="ion-no-padding" style="min-height: auto">
+              <ion-label
+                class="ion-text-center ion-margin-bottom bold text-large"
+              >
+                Group Info
+              </ion-label>
+            </ion-list-header>
+            <ion-item>
+              <ion-avatar>
+                <img [src]="group | photoUrl: group.displayName" />
+              </ion-avatar>
+              <ion-label style="margin-left: 1rem">{{
+                group.displayName
+              }}</ion-label>
+            </ion-item>
+            <ion-item>
+              <p>{{ group.description }}</p>
+            </ion-item>
+            <ion-item-divider><label>Members</label></ion-item-divider>
+
+            <ion-item *ngFor="let member of addedMembers">
+              <ion-avatar
+                ><img [src]="member | photoUrl: member.email"
+              /></ion-avatar>
+              <ion-label style="margin-left: 1rem">{{
+                member.displayName
+              }}</ion-label>
+            </ion-item>
+          </ion-list>
+          <ion-button
+            type="button"
+            (click)="onSubmit()"
+            expand="block"
+            style="margin: 2rem 0 3rem;"
+            >Create Group</ion-button
+          >
+        </div>
+      </ng-template>
+    </swiper>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div
+      class="full-width flex align-items-center justify-content-space-between ion-padding-horizontal"
+    ></div>
+  </ion-toolbar>
+</ion-footer>

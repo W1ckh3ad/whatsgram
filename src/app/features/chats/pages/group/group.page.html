@@ -1,0 +1,28 @@
+<ng-container *ngIf="chat$ |async as chat">
+  <ion-header>
+    <ion-toolbar>
+      <div
+        class="full-width flex align-items-center justify-content-space-between"
+        style="padding: 0 4px"
+      >
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="/chats"></ion-back-button>
+        </ion-buttons>
+        <ion-avatar style="width: 40px; height: 40px">
+          <img [src]="chat.info | photoUrl:chat.info.alt" />
+        </ion-avatar>
+        <ion-title>{{chat.info.displayName}}</ion-title>
+      </div>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-list class="message-container" *ngIf="message$">
+
+      <!-- <ion-item class="unread">
+            {{unreadMessageRefs.length}} ungelesene Nachrichten
+          </ion-item> -->
+    </ion-list>
+  </ion-content>
+
+</ng-container>

@@ -1,0 +1,20 @@
+<div *ngIf="message" class="chat-message" [id]="message.id">
+  <div
+    [ngClass]="{
+      own: message.senderId === userId,
+      other: message.senderId !== userId
+    }"
+  >
+    <div class="name" *ngIf="message.groupId">
+      <ng-container *ngIf="message.senderId | doc | async as sender">
+        {{ sender.displayName }}
+      </ng-container>
+    </div>
+    <p class="text">
+      {{ message.text | decrypt | async }}
+    </p>
+    <div class="time" *ngIf="message.createdAt && message.createdAt.toDate">
+      {{ message.createdAt | time }}
+    </div>
+  </div>
+</div>

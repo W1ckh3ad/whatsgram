@@ -1,0 +1,25 @@
+.chat-footer {
+  display: flex;
+  padding: 4px 8px;
+  gap: 8px;
+  & ion-item {
+    flex-grow: 1;
+    --highlight-background: var(--ion-color-primary);
+    --highlicht-color-focused: red;
+    --border-color: var(--ion-background-color);
+    & ion-input {
+      --border-width: 0;
+
+      --border-color: var(--ion-background-color);
+    }
+  }
+  & > ion-button::part(native) {
+    padding: 2px;
+    border-radius: 50%;
+    width: 36px;
+  }
+}
+
+ion-footer {
+  background: var(--ion-color-light);
+}

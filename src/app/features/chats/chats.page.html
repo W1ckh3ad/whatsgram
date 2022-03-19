@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Your Chats</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreateGroupChat()"
+        ><ion-icon name="add" slot="icon-only"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar
+    style="z-index: 0"
+    appScrollHide
+    [scrollHide]="headerScrollConfig"
+    [scrollContent]="pageContent"
+    ><ion-searchbar
+      placeholder="mail or name"
+      animated
+      (ionChange)="onSearch($event)"
+      debounce="500"
+      class="my-searchbar"
+    ></ion-searchbar
+  ></ion-toolbar>
+</ion-header>
+
+<ion-content #pageContent>
+  <ion-list *ngIf="chats$ | async as chats">
+    <ion-item *ngFor="let chat of chats" [routerLink]="'/chats/' + chat.id">
+      <ion-avatar class="">
+        <img [src]="chat.info | photoUrl:chat.info.alt" />
+      </ion-avatar>
+      <div class="ion-margin-start">
+        <h2 style="margin: 0 0 8px">{{chat.info.displayName}}</h2>
+        <p style="margin: 0" *ngIf="chat.lastMessage">
+          {{chat.lastMessage.text | decrypt | async}}
+          <span class="time"> {{ chat.lastMessage.createdAt | time }} </span>
+        </p>
+      </div>
+      <ion-note *ngIf="chat.unread" slot="end"
+        ><ion-badge color="primary">{{chat.unread}}</ion-badge></ion-note
+      >
+    </ion-item>
+  </ion-list>
+</ion-content>

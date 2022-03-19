@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Contacts</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openAdd()"
+        ><ion-icon name="add" slot="icon-only"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar
+    style="z-index: 0"
+    appScrollHide
+    [scrollHide]="headerScrollConfig"
+    [scrollContent]="pageContent"
+    ><ion-searchbar
+      placeholder="mail or name"
+      animated
+      (ionChange)="onSearch($event)"
+      debounce="500"
+      class="my-searchbar"
+    ></ion-searchbar
+  ></ion-toolbar>
+</ion-header>
+
+<ion-content #pageContent>
+  <ion-list>
+    <ion-item-group *ngFor="let contactPart of contacts$ | async">
+      <ion-item-divider>
+        <ion-label>{{contactPart.startingLetter}}</ion-label>
+      </ion-item-divider>
+      <app-contact
+        *ngFor="let contact of contactPart.contacts"
+        [contact]=" contact"
+      ></app-contact>
+    </ion-item-group>
+  </ion-list>
+</ion-content>
