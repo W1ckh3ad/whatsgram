@@ -80,7 +80,7 @@ export const createGroup = functions.https.onCall(
         );
 
         const devices = await db.collection(getDevicesColPath(member.id)).get();
-        var tokens: string[] = [];
+        const tokens: string[] = [];
 
         devices.forEach((result) => {
           const token = result.data().token;

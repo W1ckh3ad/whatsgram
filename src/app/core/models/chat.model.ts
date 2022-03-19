@@ -1,11 +1,14 @@
 import { DocumentBase } from './document-base.model';
 import { Message } from './message.model';
+import { WhatsgramUser } from './whatsgram.user.model';
 
 export interface Chat {
   info: {
-    photoURL: string;
-    displayName: string;
-    publicKey?: string;
+    info: {
+      photoURL?: WhatsgramUser['photoURL'];
+      displayName: WhatsgramUser['displayName'];
+      publicKey?: WhatsgramUser['publicKey'];
+    };
   };
 
   lastReadMessage?: string;

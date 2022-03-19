@@ -9,65 +9,145 @@ import {
   users,
 } from "../constants/collection-names";
 
-export function getUsersColPath() {
+/**
+ * Getting users collection path.
+ * @return {string} The users collection path.
+ */
+export function getUsersColPath(): string {
   return users;
 }
 
-export function getUserDocPath(id: string) {
+/**
+ * Getting user doc path with id.
+ * @param {string} id The user id.
+ * @return {string} The users doc path.
+ */
+export function getUserDocPath(id: string): string {
   return `${getUsersColPath()}/${id}`;
 }
 
-export function getPrivateDataDocPath(id: string) {
+/**
+ * Getting user private data doc path.
+ * @param {string} id The user id.
+ * @return {string} The users private data doc.
+ */
+export function getPrivateDataDocPath(id: string): string {
   return `${getUserDocPath(id)}/${privateData}/${id}`;
 }
 
-export function getContactsColPath(id: string) {
+/**
+ * Getting user contacts collection path.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getContactsColPath(id: string): string {
   return `${getUserDocPath(id)}/${contacts}`;
 }
 
-export function getContactDocPath(userId: string, id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} userId The user id.
+ * @param {string} id The contact id.
+ * @return {string} The users collection path.
+ */
+export function getContactDocPath(userId: string, id: string): string {
   return `${getContactsColPath(userId)}/${id}`;
 }
 
-export function getDevicesColPath(id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getDevicesColPath(id: string): string {
   return `${getUserDocPath(id)}/${devices}`;
 }
 
-export function getDeviceDocPath(id: string, token: string) {
+/**
+ * Getting users collection path.
+ * @param {string} id The user id.
+ * @param {string} token The user id.
+ * @return {string} The users collection path.
+ */
+export function getDeviceDocPath(id: string, token: string): string {
   return `${getDevicesColPath(id)}/${token}`;
 }
 
-export function getChatsColPath(id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getChatsColPath(id: string): string {
   return `${getUserDocPath(id)}/${chats}`;
 }
 
-export function getChatDocPath(userId: string, id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} userId The user id.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getChatDocPath(userId: string, id: string): string {
   return `${getChatsColPath(userId)}/${id}`;
 }
 
-export function getMessageColPath(userId: string, id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} userId The user id.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getMessageColPath(userId: string, id: string): string {
   return `${getChatDocPath(userId, id)}/${messages}`;
 }
 
+/**
+ * Getting users collection path.
+ * @param {string} userId The user id.
+ * @param {string} groupdOrChatId The user id.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
 export function getMessageDocPath(
     userId: string,
     groupdOrChatId: string,
     id: string
-) {
+): string {
   return `${getMessageColPath(userId, groupdOrChatId)}(${id})`;
 }
 
-export function getGroupsColPath() {
+/**
+ * Getting users collection path.
+ * @return {string} The users collection path.
+ */
+export function getGroupsColPath(): string {
   return groups;
 }
 
-export function getGroupDocPath(id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getGroupDocPath(id: string): string {
   return `${getGroupsColPath()}/${id}`;
 }
 
-export function getGroupMembersCol(id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getGroupMembersCol(id: string): string {
   return `${getGroupDocPath(id)}/${members}`;
 }
-export function getGroupMemberDoc(groupId: string, id: string) {
+/**
+ * Getting users collection path.
+ * @param {string} groupId The user id.
+ * @param {string} id The user id.
+ * @return {string} The users collection path.
+ */
+export function getGroupMemberDoc(groupId: string, id: string): string {
   return `${getGroupMembersCol(groupId)}/${id}`;
 }

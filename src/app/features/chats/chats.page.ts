@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { ChatService } from '@services/chat/chat.service';
 import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { CreateGroupComponent } from './components/create-group/create-group.component';
 import { ChatForDisplay } from './model/chat-for-display.model';
 
@@ -29,6 +29,7 @@ export class ChatsPage implements OnInit {
 
   async ngOnInit() {
     this.chats$ = this.chat.loadChats().pipe(
+      tap((x) => console.log(x)),
       map((x) =>
         x.map(
           (x) =>

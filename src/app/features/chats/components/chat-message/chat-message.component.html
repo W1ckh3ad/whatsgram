@@ -1,4 +1,4 @@
-<ion-item *ngIf="message" class="chat-message" [id]="message.id">
+<div *ngIf="message" class="chat-message" [id]="message.id">
   <div
     [ngClass]="{
       own: receiverId === message.receiverId
@@ -16,4 +16,4 @@
       {{ message.createdAt | time }}
     </div>
   </div>
-</ion-item>
+</div>
