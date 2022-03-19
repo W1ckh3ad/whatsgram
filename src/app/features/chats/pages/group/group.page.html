@@ -18,17 +18,11 @@
 
   <ion-content>
     <ion-list class="message-container" *ngIf="message$">
-      <app-chat-message
-        *ngFor="let message of message$ | async"
-        [message]="message"
-        [userId]="userId"
-        [id]="message.id"
-      ></app-chat-message>
+
       <!-- <ion-item class="unread">
             {{unreadMessageRefs.length}} ungelesene Nachrichten
           </ion-item> -->
     </ion-list>
   </ion-content>
 
-  <app-chat-footer [chat]="chat"></app-chat-footer>
 </ng-container>

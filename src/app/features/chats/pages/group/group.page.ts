@@ -2,25 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
-import { Message } from '@models/message.model';
 import { AuthService } from '@services/auth/auth.service';
 import { ChatService } from '@services/chat/chat.service';
-import { DocumentReference } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-single-chat',
-  templateUrl: './single-chat.page.html',
-  styleUrls: ['./single-chat.page.scss'],
+  selector: 'app-group',
+  templateUrl: './group.page.html',
+  styleUrls: ['./group.page.scss'],
 })
-export class SingleChatPage implements OnInit {
-  message$: Observable<(Message & DocumentBase)[]>;
-  unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
-  readMessage: { createdAt: number; id: string } = null;
-  timeout: any;
+export class GroupPage implements OnInit {
+  chat$: Observable<Chat & DocumentBase> = null
   userId: string = null;
-
-  chat$: Observable<Chat & DocumentBase> = null;
 
   constructor(
     private activeRoute: ActivatedRoute,
@@ -31,7 +24,6 @@ export class SingleChatPage implements OnInit {
   async ngOnInit() {
     const chatId = this.activeRoute.snapshot.paramMap.get('id');
     this.chat$ = this.chatService.loadChat$(chatId);
-    this.message$ = this.chatService.loadMessages$(chatId);
     this.userId = this.authService.user.uid;
   }
 }
