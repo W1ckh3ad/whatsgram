@@ -1,7 +1,8 @@
 <div *ngIf="message" class="chat-message" [id]="message.id">
   <div
     [ngClass]="{
-      own: receiverId === message.receiverId
+      own: chat.id !== message.senderId,
+      other: chat.id === message.senderId
     }"
   >
     <div class="name" *ngIf="message.groupId">

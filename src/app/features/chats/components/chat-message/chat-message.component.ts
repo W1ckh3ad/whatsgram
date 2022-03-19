@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { Message } from '@models/message.model';
 
@@ -9,7 +10,7 @@ import { Message } from '@models/message.model';
 })
 export class ChatMessageComponent implements OnInit {
   @Input() message: Message & DocumentBase = null;
-  @Input() receiverId: string;
+  @Input() chat: Chat & DocumentBase;
 
   constructor() {}
 

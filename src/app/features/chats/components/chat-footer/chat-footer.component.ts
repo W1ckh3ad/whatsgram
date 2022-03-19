@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Chat } from '@models/chat.model';
+import { DocumentBase } from '@models/document-base.model';
 import { ChatService } from '@services/chat/chat.service';
 
 @Component({
@@ -8,9 +10,8 @@ import { ChatService } from '@services/chat/chat.service';
 })
 export class ChatFooterComponent implements OnInit {
   @Input() message: string = '';
-  @Input() receiverId: string = '';
-  @Input() groupId: string = null;
-  constructor(private chat: ChatService) {}
+  @Input() chat: Chat & DocumentBase;
+  constructor(private chatService: ChatService) {}
 
   ngOnInit() {}
 
@@ -18,12 +19,11 @@ export class ChatFooterComponent implements OnInit {
     if (this.message === '') {
       return;
     }
-    this.chat
-      .handleSendMessage({
-        receiverId: this.receiverId,
-        text: this.message,
-        groupId: this.groupId,
-      })
+    this.chatService
+      .handleSendMessage(
+        this.chat,
+        this.message
+      )
       .then(() => {
         this.message = '';
       })

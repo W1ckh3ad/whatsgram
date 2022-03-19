@@ -3,10 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { Message } from '@models/message.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
 // import { AccountService } from '@services/account/account.service';
 import { ChatService } from '@services/chat/chat.service';
-import { UserService } from '@services/user/user.service';
 import { DocumentReference } from 'firebase/firestore';
 import { map, Observable, switchMap } from 'rxjs';
 
@@ -20,7 +18,6 @@ export class SingleChatPage implements OnInit {
   chatId$: Observable<string> = null;
   message$: Observable<(Message & DocumentBase)[]>;
   unreadMessageRefs$: Observable<DocumentReference<Message>[]>;
-  receiver$: Observable<WhatsgramUser>;
   readMessage: { createdAt: number; id: string } = null;
   timeout: any;
 
@@ -28,9 +25,7 @@ export class SingleChatPage implements OnInit {
 
   constructor(
     private activeRoute: ActivatedRoute,
-    // private account: AccountService,
     private chatService: ChatService,
-    private user: UserService
   ) {}
 
   async ngOnInit() {
@@ -39,9 +34,6 @@ export class SingleChatPage implements OnInit {
     this.chatId$ = this.activeRoute.paramMap.pipe(map((x) => x.get('id')));
     this.message$ = this.activeRoute.paramMap.pipe(
       switchMap((x) => this.chatService.loadMessages$(x.get('id')))
-    );
-    this.receiver$ = this.activeRoute.paramMap.pipe(
-      switchMap((x) => this.user.load$(x.get('id')))
     );
   }
 

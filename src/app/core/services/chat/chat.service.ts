@@ -38,7 +38,9 @@ export class ChatService {
   }
 
   loadChat$(chatId: string) {
-    return this.db.docWithMetaData$<Chat>(getChatDocPath(this.senderId, chatId));
+    return this.db.docWithMetaData$<Chat>(
+      getChatDocPath(this.senderId, chatId)
+    );
   }
 
   loadChats$() {
@@ -50,23 +52,29 @@ export class ChatService {
   }
 
   loadMessages$(id: string) {
-    return this.db.collection$<Message>(getMessageColPath(this.senderId, id));
+    return this.db.collectionQuery$<Message>(
+      getMessageColPath(this.senderId, id),
+      orderBy('updatedAt')
+    );
   }
 
-  async handleSendMessage(
-    messagePayload: Omit<Message, 'senderId'>,
-    receiverPublicKey?: string
-  ) {
-    const message = { ...messagePayload, senderId: this.senderId } as Message;
+  async handleSendMessage(chat: Chat & DocumentBase, text: string) {
+    const message = {
+      text,
+      receiverId: chat.id,
+      groupId: chat.isGroupChat ? chat.id : null,
+
+      senderId: this.senderId,
+    } as Message;
     const refString = getChatDocPath(
       this.senderId,
-      messagePayload.groupId ?? messagePayload.receiverId
+      message.groupId ?? message.receiverId
     );
     const chatRef = this.db.doc<Chat>(refString);
 
     const receiverMessagePath = await this.handleGenerationForReceiver(
       message,
-      receiverPublicKey
+      chat.info.publicKey
     );
 
     const ownMessage = await this.createMessageForSender(

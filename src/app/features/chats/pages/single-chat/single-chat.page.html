@@ -1,34 +1,34 @@
-<ion-header>
-  <ion-toolbar *ngIf="receiver$ | async as receiver">
-    <div
-      class="full-width flex align-items-center justify-content-space-between"
-      style="padding: 0 4px"
-    >
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/chats"></ion-back-button>
-      </ion-buttons>
-      <ion-avatar style="width: 40px; height: 40px">
-        <img [src]="receiver | photoUrl:receiver.email" />
-      </ion-avatar>
-      <ion-title>{{receiver.displayName}}</ion-title>
-    </div>
-  </ion-toolbar>
-</ion-header>
+<ng-container *ngIf="chat$ |async as chat">
+  <ion-header>
+    <ion-toolbar>
+      <div
+        class="full-width flex align-items-center justify-content-space-between"
+        style="padding: 0 4px"
+      >
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="/chats"></ion-back-button>
+        </ion-buttons>
+        <ion-avatar style="width: 40px; height: 40px">
+          <img [src]="chat.info | photoUrl:chat.info.alt" />
+        </ion-avatar>
+        <ion-title>{{chat.info.displayName}}</ion-title>
+      </div>
+    </ion-toolbar>
+  </ion-header>
 
-<ion-content>
-  <ion-list class="message-container">
-    <app-chat-message
-      *ngFor="let message of message$ | async"
-      [message]="message"
-      [receiverId]="receiverId"
-      [id]="message.id"
-    ></app-chat-message>
-    <!-- <ion-item class="unread">
-          {{unreadMessageRefs.length}} ungelesene Nachrichten
-        </ion-item> -->
-  </ion-list>
-</ion-content>
+  <ion-content>
+    <ion-list class="message-container">
+      <app-chat-message
+        *ngFor="let message of message$ | async"
+        [message]="message"
+        [chat]="chat"
+        [id]="message.id"
+      ></app-chat-message>
+      <!-- <ion-item class="unread">
+            {{unreadMessageRefs.length}} ungelesene Nachrichten
+          </ion-item> -->
+    </ion-list>
+  </ion-content>
 
-<app-chat-footer
-  [receiverId]="receiverId"
-></app-chat-footer>
+  <app-chat-footer [chat]="chat"></app-chat-footer>
+</ng-container>
