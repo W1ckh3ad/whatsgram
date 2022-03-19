@@ -37,7 +37,11 @@ export class ChatService {
     account.uid$.subscribe((x) => (this.senderId = x));
   }
 
-  loadChats() {
+  loadChat$(chatId: string) {
+    return this.db.docWithMetaData$<Chat>(getChatDocPath(this.senderId, chatId));
+  }
+
+  loadChats$() {
     return this.db.collectionQuery$<Chat>(
       getChatsColPath(this.senderId),
       orderBy('updatedAt'),
@@ -45,7 +49,7 @@ export class ChatService {
     );
   }
 
-  loadMessages(id: string) {
+  loadMessages$(id: string) {
     return this.db.collection$<Message>(getMessageColPath(this.senderId, id));
   }
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ChatService } from '@services/chat/chat.service';
 import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
 import { CreateGroupComponent } from './components/create-group/create-group.component';
 import { ChatForDisplay } from './model/chat-for-display.model';
 
@@ -27,7 +27,15 @@ export class ChatsPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.chats$ = this.chat.loadChats();
+    this.chats$ = this.chat.loadChats$().pipe(
+      combineLatestWith(this.search$),
+      map(([chats, search]) =>
+        chats.filter(
+          (y) =>
+            y.info.displayName.toLowerCase().includes(search)
+        )
+      )
+    );
 
     this.chats$.subscribe((x) => console.log(x));
   }

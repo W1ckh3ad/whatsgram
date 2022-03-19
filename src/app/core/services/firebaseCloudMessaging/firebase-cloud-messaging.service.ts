@@ -20,7 +20,7 @@ import { environment } from 'src/environments/environment.prod';
 export class FirebaseCloudMessagingService {
   currentMessage$ = new BehaviorSubject<MessagePayload>(null);
   sub: Unsubscribe;
-  private tokenField = null;
+  private tokenField: string = null;
   constructor(
     public messaging: Messaging,
     public db: FirestoreService,
