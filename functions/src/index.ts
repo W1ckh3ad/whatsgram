@@ -9,3 +9,4 @@
 // });
 
 export * from "./create-group";
+export * from "./send-message";

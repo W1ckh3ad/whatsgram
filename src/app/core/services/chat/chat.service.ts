@@ -149,7 +149,7 @@ export class ChatService {
       };
       const callable = httpsCallable<SendMessageParameterType, string>(
         this.fns,
-        'createGroup'
+        'sendMessage'
       );
       return (
         await callable({
