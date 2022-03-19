@@ -37,8 +37,8 @@ export class AccountService implements OnDestroy {
   privateData$: Observable<PrivateData> = null;
   devices$: Observable<(Device & DocumentBase)[]> = null;
   private sub: Subscription;
-  constructor(private auth: AuthService, private db: FirestoreService) {
-    this.auth.user$
+  constructor(private authService: AuthService, private db: FirestoreService) {
+    this.authService.user$
       .pipe(
         map((x) => (x ? x.uid : null))
       )

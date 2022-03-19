@@ -7,6 +7,7 @@ import { Message } from '@models/message.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
+import { GroupService } from '@services/group/group.service';
 import { UserService } from '@services/user/user.service';
 import { encryptMessage, importPublicKey } from '@utils/crypto.utils';
 import {
@@ -28,23 +29,24 @@ type SendMessageParameterType = {
 export class ChatService {
   private senderId: string;
   constructor(
-    private db: FirestoreService,
-    private cryptoKeys: CryptoKeysService,
+    private dbService: FirestoreService,
+    private cryptoKeysService: CryptoKeysService,
     private fns: Functions,
-    private account: AccountService,
-    private userService: UserService
+    private accountService: AccountService,
+    private userService: UserService,
+    private groupServier: GroupService,
   ) {
-    account.uid$.subscribe((x) => (this.senderId = x));
+    accountService.uid$.subscribe((x) => (this.senderId = x));
   }
 
   loadChat$(chatId: string) {
-    return this.db.docWithMetaData$<Chat>(
+    return this.dbService.docWithMetaData$<Chat>(
       getChatDocPath(this.senderId, chatId)
     );
   }
 
   loadChats$() {
-    return this.db.collectionQuery$<Chat>(
+    return this.dbService.collectionQuery$<Chat>(
       getChatsColPath(this.senderId),
       orderBy('updatedAt'),
       limit(50)
@@ -52,7 +54,7 @@ export class ChatService {
   }
 
   loadMessages$(id: string) {
-    return this.db.collectionQuery$<Message>(
+    return this.dbService.collectionQuery$<Message>(
       getMessageColPath(this.senderId, id),
       orderBy('updatedAt')
     );
@@ -70,7 +72,7 @@ export class ChatService {
       this.senderId,
       message.groupId ?? message.receiverId
     );
-    const chatRef = this.db.doc<Chat>(refString);
+    const chatRef = this.dbService.doc<Chat>(refString);
 
     const receiverMessagePath = await this.handleGenerationForReceiver(
       message,
@@ -85,7 +87,7 @@ export class ChatService {
     const data = {
       lastReadMessage: ownMessage.id,
     };
-    return this.db.setUpdate(chatRef, data as any, { merge: true });
+    return this.dbService.setUpdate(chatRef, data as any, { merge: true });
   }
 
   /**
@@ -103,11 +105,11 @@ export class ChatService {
     chatRef?: DocumentReference<Chat>
   ): Promise<DocumentReference<Message>> {
     try {
-      if (!(await this.db.exists(chatRef)) && !message.groupId) {
+      if (!(await this.dbService.exists(chatRef)) && !message.groupId) {
         const { displayName, publicKey, photoURL, email } =
           await this.userService.load(message.receiverId);
 
-        await this.db.addWithDocumentReference(chatRef, {
+        await this.dbService.addWithDocumentReference(chatRef, {
           info: {
             displayName,
             photoURL,
@@ -122,17 +124,17 @@ export class ChatService {
         receiverMessagePath,
         text: await encryptMessage(
           message.text,
-          await this.cryptoKeys.getPublicKey()
+          await this.cryptoKeysService.getPublicKey()
         ),
       };
 
-      const messageRef = await this.db.add<Message>(
+      const messageRef = await this.dbService.add<Message>(
         getMessageColPath(this.senderId, message.groupId ?? message.receiverId),
         messageObject
       );
 
-      const messageRefData = await this.db.docSnapWithMetaData(messageRef);
-      await this.db.setUpdate<DocumentReference<Chat & DocumentBase>>(
+      const messageRefData = await this.dbService.docSnapWithMetaData(messageRef);
+      await this.dbService.setUpdate<DocumentReference<Chat & DocumentBase>>(
         chatRef.path,
         {
           lastMessage: { ...messageRefData },
@@ -178,7 +180,7 @@ export class ChatService {
       return (
         await callable({
           messageData,
-          sender: await this.account.loadSnapUser(),
+          sender: await this.accountService.loadSnapUser(),
         })
       ).data;
     } catch (error) {
@@ -212,6 +214,7 @@ export class ChatService {
     message: Message
   ): Promise<string[]> {
     try {
+      debugger;
       const group: {
         members: DocumentReference<WhatsgramUser & DocumentBase>[];
         admins: DocumentReference<WhatsgramUser & DocumentBase>[];
@@ -219,7 +222,7 @@ export class ChatService {
       alert('Group Service missing');
       const promises: Promise<string>[] = [];
       for (const member of [...group.members, ...group.admins]) {
-        const data = await this.db.docSnap<WhatsgramUser & DocumentBase>(
+        const data = await this.dbService.docSnap<WhatsgramUser & DocumentBase>(
           member
         );
         promises.push(

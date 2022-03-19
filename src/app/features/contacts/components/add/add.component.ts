@@ -16,13 +16,13 @@ export class AddComponent implements OnInit {
 
   constructor(
     public modalController: ModalController,
-    private user: UserService
+    private userService: UserService
   ) {}
 
   async ngOnInit() {}
 
   async onSubmit() {
-    this.users$ = this.user.find(this.search).pipe(tap((x) => console.log(x)));
+    this.users$ = this.userService.find(this.search).pipe(tap((x) => console.log(x)));
   }
 
   async dismissModal() {

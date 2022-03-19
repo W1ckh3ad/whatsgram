@@ -15,9 +15,9 @@ export class SignUpPage implements OnInit {
   errorMessage = '';
 
   constructor(
-    private auth: AuthService,
-    private account: AccountService,
-    private routeHandler: RouteHandlerServiceService
+    private authService: AuthService,
+    private accountService: AccountService,
+    private routeHandlerService: RouteHandlerServiceService
   ) {}
 
   async onSubmit() {
@@ -25,12 +25,12 @@ export class SignUpPage implements OnInit {
       return (this.errorMessage =
         'Passwort & Passwortbestätigung stimmen nicht über ein');
     }
-    const user = await this.auth.emailSignup(
+    const user = await this.authService.emailSignup(
       this.model.email,
       this.model.password
     );
-    const action = await this.account.createIfDoesntExistsAndGiveAction(user);
-    return this.routeHandler.handleAuthAction(action);
+    const action = await this.accountService.createIfDoesntExistsAndGiveAction(user);
+    return this.routeHandlerService.handleAuthAction(action);
   }
 
   ngOnInit() {}

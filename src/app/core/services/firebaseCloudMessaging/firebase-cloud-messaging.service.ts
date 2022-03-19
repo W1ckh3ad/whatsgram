@@ -23,12 +23,12 @@ export class FirebaseCloudMessagingService {
   private tokenField: string = null;
   constructor(
     public messaging: Messaging,
-    public db: FirestoreService,
-    private account: AccountService,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    public dbService: FirestoreService,
+    private accountService: AccountService,
+    private alertController: AlertController,
+    private toastController: ToastController
   ) {
-    this.account.uid$.subscribe(async (x) => {
+    this.accountService.uid$.subscribe(async (x) => {
       x ? await this.getToken() : null;
       console.log('FirebaseCloudMessagingService', x);
       if (x) {
@@ -53,7 +53,7 @@ export class FirebaseCloudMessagingService {
       });
       this.tokenField = token;
       if (await this.saveTokenToFirestore(token)) {
-        const toast = await this.toastCtrl.create({
+        const toast = await this.toastController.create({
           message: 'Successfully registered your device',
           duration: 2000,
         });
@@ -61,7 +61,7 @@ export class FirebaseCloudMessagingService {
       }
       return;
     } catch (error) {
-      const alert = await this.alertCtrl.create({
+      const alert = await this.alertController.create({
         header: 'Error',
         message: error,
         buttons: ['OK'],
@@ -76,14 +76,14 @@ export class FirebaseCloudMessagingService {
       await deleteToken(this.messaging);
       await this.deleteTokenFromFirestore();
       this.tokenField = null;
-      const toast = await this.toastCtrl.create({
+      const toast = await this.toastController.create({
         message: 'Successfully removed your device from messaging',
         duration: 2000,
       });
       await toast.present();
     } catch (error) {
       console.error('delete token error', error);
-      const alert = await this.alertCtrl.create({
+      const alert = await this.alertController.create({
         header: 'Error',
         message: error,
         buttons: ['OK'],
@@ -102,23 +102,23 @@ export class FirebaseCloudMessagingService {
 
   private async saveTokenToFirestore(token) {
     if (!token) return false;
-    const doc = getDeviceDocPath(this.account.uid$.value, token);
-    if (await this.db.exists(doc)) {
+    const doc = getDeviceDocPath(this.accountService.uid$.value, token);
+    if (await this.dbService.exists(doc)) {
       return false;
     }
     const data = {
       token,
       userAgent: navigator.userAgent,
     };
-    await this.db.addWithDocumentReference(doc, data);
+    await this.dbService.addWithDocumentReference(doc, data);
     return true;
   }
 
   private async deleteTokenFromFirestore() {
     try {
       if (!this.tokenField) return;
-      return await this.db.remove(
-        getDeviceDocPath(this.account.uid$.value, this.tokenField)
+      return await this.dbService.remove(
+        getDeviceDocPath(this.accountService.uid$.value, this.tokenField)
       );
     } catch (error) {
       return;
@@ -126,7 +126,7 @@ export class FirebaseCloudMessagingService {
   }
 
   async displayReceivedMessage(payload: MessagePayload) {
-    const toast = await this.toastCtrl.create({
+    const toast = await this.toastController.create({
       header: payload.notification.title,
       icon: payload.notification.image,
       message: payload.notification.body,

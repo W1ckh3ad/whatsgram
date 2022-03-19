@@ -57,7 +57,7 @@ export class CreateGroupComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private account: AccountService,
+    private accountService: AccountService,
     private alertCtrl: AlertController,
     private groupService: GroupService
   ) {}
@@ -71,7 +71,7 @@ export class CreateGroupComponent implements OnInit {
   }
   ngOnInit() {
     this.setupForm();
-    this.contacts$ = this.account.contacts$.pipe(
+    this.contacts$ = this.accountService.contacts$.pipe(
       combineLatestWith(this.search$),
       map(([contacts, search]) =>
         contacts.filter(
@@ -163,7 +163,7 @@ export class CreateGroupComponent implements OnInit {
       })),
     ];
 
-    await this.groupService.create(this.group, await this.account.loadSnapUser());
+    await this.groupService.create(this.group, await this.accountService.loadSnapUser());
     this.dismissModal();
   }
 

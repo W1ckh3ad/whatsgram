@@ -27,7 +27,7 @@ export class ScrollHideDirective {
   constructor(
     private element: ElementRef,
     private renderer: Renderer2,
-    private domCtrl: DomController
+    private domController: DomController
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -71,7 +71,7 @@ export class ScrollHideDirective {
 
   private adjustElementOnScroll(ev) {
     if (ev) {
-      this.domCtrl.write(async () => {
+      this.domController.write(async () => {
         const el = await this.scrollContent.getScrollElement();
         let scrollTop: number = el.scrollTop > 0 ? el.scrollTop : 0;
         let scrolldiff: number = scrollTop - this.lastScrollPosition;

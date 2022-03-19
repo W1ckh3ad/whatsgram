@@ -14,16 +14,16 @@ export class SignInPage implements OnInit {
   model = new SignIn('', '');
   errorMessage = '';
   constructor(
-    private auth: AuthService,
-    private account: AccountService,
-    private routeHandler: RouteHandlerServiceService
+    private authService: AuthService,
+    private accountService: AccountService,
+    private routeHandlerService: RouteHandlerServiceService
   ) {}
 
   ngOnInit() {}
 
   async login() {
     await this.handleLogin(
-      await this.auth.signInWithEmailAndPassword(
+      await this.authService.signInWithEmailAndPassword(
         this.model.email,
         this.model.password
       )
@@ -31,23 +31,23 @@ export class SignInPage implements OnInit {
   }
 
   async googleLogin() {
-    await this.handleLogin(await this.auth.googleLogin());
+    await this.handleLogin(await this.authService.googleLogin());
   }
 
   async gitHubLogin() {
-    await this.handleLogin(await this.auth.gitHubLogin());
+    await this.handleLogin(await this.authService.gitHubLogin());
   }
 
   async twitterLogin() {
-    await this.handleLogin(await this.auth.twitterLogin());
+    await this.handleLogin(await this.authService.twitterLogin());
   }
 
   private async handleLogin(data: [User, Error]) {
     const res = await data;
     const [user, error] = res;
     if (user) {
-      const action = await this.account.createIfDoesntExistsAndGiveAction(user);
-      return this.routeHandler.handleAuthAction(action);
+      const action = await this.accountService.createIfDoesntExistsAndGiveAction(user);
+      return this.routeHandlerService.handleAuthAction(action);
     } else if (error) {
       this.errorMessage = error.message;
     }

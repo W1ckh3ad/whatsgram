@@ -22,12 +22,12 @@ export class ChatsPage implements OnInit {
   private search$ = new BehaviorSubject('');
 
   constructor(
-    private chat: ChatService,
+    private chatService: ChatService,
     private modalController: ModalController
   ) {}
 
   async ngOnInit() {
-    this.chats$ = this.chat.loadChats$().pipe(
+    this.chats$ = this.chatService.loadChats$().pipe(
       combineLatestWith(this.search$),
       map(([chats, search]) =>
         chats.filter(

@@ -13,7 +13,7 @@ export class NavComponent implements OnInit, OnDestroy {
   showNav: boolean = true;
   private routeSub: Subscription;
   private authSub: Subscription;
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.addAuthEventlistener();
@@ -26,12 +26,12 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   private addAuthEventlistener() {
-    const user = this.auth.user;
+    const user = this.authService.user;
     this.isLoggedIn = !!user;
     if (this.isLoggedIn) {
       this.isVerified = user.emailVerified;
     }
-    this.authSub = this.auth.user$.subscribe((cred) => {
+    this.authSub = this.authService.user$.subscribe((cred) => {
       this.isLoggedIn = !!cred;
       if (this.isLoggedIn) {
         this.isVerified = cred.emailVerified;

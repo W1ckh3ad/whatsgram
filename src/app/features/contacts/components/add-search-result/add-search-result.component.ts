@@ -13,8 +13,8 @@ export class AddSearchResultComponent implements OnInit {
   @Input() includes = false;
   added = false;
   constructor(
-    private account: AccountService,
-    private toast: ToastController
+    private accountService: AccountService,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {}
@@ -25,7 +25,7 @@ export class AddSearchResultComponent implements OnInit {
     }
     this.added = true;
     try {
-      return await this.account.add(this.user);
+      return await this.accountService.add(this.user);
     } catch (error) {
       this.added = false;
       this.handleError(error);
@@ -33,7 +33,7 @@ export class AddSearchResultComponent implements OnInit {
   }
 
   async handleError(e) {
-    const toast = await this.toast.create({
+    const toast = await this.toastController.create({
       animated: true,
       message: e.message,
       duration: 2000,

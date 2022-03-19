@@ -24,14 +24,14 @@ export class ContactsPage implements OnInit {
   };
 
   constructor(
-    private account: AccountService,
+    private accountService: AccountService,
     public modalController: ModalController,
-    public db: FirestoreService,
-    public user: UserService
+    public dbService: FirestoreService,
+    public userService: UserService
   ) {}
 
   ngOnInit() {
-    this.contacts$ = this.account.contacts$.pipe(
+    this.contacts$ = this.accountService.contacts$.pipe(
       combineLatestWith(this.search$),
       map(([contacts, search]) =>
         contacts.filter(

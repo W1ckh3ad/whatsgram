@@ -16,22 +16,22 @@ export class SettingsPage implements OnInit {
   user$: Observable<WhatsgramUser>;
   isDarkMode: boolean;
   constructor(
-    private auth: AuthService,
-    private account: AccountService,
+    private authService: AuthService,
+    private accountService: AccountService,
     private router: Router,
-    private fcm: FirebaseCloudMessagingService
+    private fcmService: FirebaseCloudMessagingService
   ) {
-    console.log(fcm);
+    console.log(fcmService);
   }
 
   async ngOnInit() {
     const themeStorage = await Storage.get({ key: 'theme' });
-    this.user$ = this.account.user$;
+    this.user$ = this.accountService.user$;
     this.isDarkMode = themeStorage.value === 'dark';
   }
 
   async signOut() {
-    await this.auth.signOut();
+    await this.authService.signOut();
     this.router.navigateByUrl('/sign-in');
   }
 
@@ -48,9 +48,9 @@ export class SettingsPage implements OnInit {
   }
 
   async getToken() {
-    return await this.fcm.getToken();
+    return await this.fcmService.getToken();
   }
   async deleteToken() {
-    return await this.fcm.deleteToken();
+    return await this.fcmService.deleteToken();
   }
 }
