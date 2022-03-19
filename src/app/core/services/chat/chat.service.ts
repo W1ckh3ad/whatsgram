@@ -34,7 +34,7 @@ export class ChatService {
     private fns: Functions,
     private accountService: AccountService,
     private userService: UserService,
-    private groupServier: GroupService,
+    private groupService: GroupService
   ) {
     accountService.uid$.subscribe((x) => (this.senderId = x));
   }
@@ -72,7 +72,7 @@ export class ChatService {
       this.senderId,
       message.groupId ?? message.receiverId
     );
-    const chatRef = this.dbService.doc<Chat>(refString);
+    const chatRef = this.dbService.docRef<Chat>(refString);
 
     const receiverMessagePath = await this.handleGenerationForReceiver(
       message,
@@ -133,7 +133,9 @@ export class ChatService {
         messageObject
       );
 
-      const messageRefData = await this.dbService.docSnapWithMetaData(messageRef);
+      const messageRefData = await this.dbService.docSnapWithMetaData(
+        messageRef
+      );
       await this.dbService.setUpdate<DocumentReference<Chat & DocumentBase>>(
         chatRef.path,
         {
@@ -214,17 +216,11 @@ export class ChatService {
     message: Message
   ): Promise<string[]> {
     try {
-      debugger;
-      const group: {
-        members: DocumentReference<WhatsgramUser & DocumentBase>[];
-        admins: DocumentReference<WhatsgramUser & DocumentBase>[];
-      } = { members: [], admins: [] };
-      alert('Group Service missing');
+      const members = await this.groupService.loadMembers(message.groupId);
       const promises: Promise<string>[] = [];
-      for (const member of [...group.members, ...group.admins]) {
-        const data = await this.dbService.docSnap<WhatsgramUser & DocumentBase>(
-          member
-        );
+      for (const member of members) {
+        const data = member.data();
+        if (data.id === this.senderId) continue;
         promises.push(
           this.createMessageForSingleReceiver(
             { ...message, receiverId: data.id },

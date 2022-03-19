@@ -9,8 +9,6 @@ export class DocPipe implements PipeTransform {
   constructor(private db: FirestoreService) {}
 
   transform(value: any): Observable<any> {
-    if (!value || !value.path) {
-    }
     return this.db.doc$(value.path);
   }
 }

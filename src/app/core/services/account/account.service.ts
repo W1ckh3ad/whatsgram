@@ -130,12 +130,12 @@ export class AccountService implements OnDestroy {
     if (user.id === this.uid) {
       throw new Error("You can't add yourself as contact");
     }
-    const doc = this.db.doc(getContactDocPath(this.uid, user.id));
+    const doc = this.db.docRef(getContactDocPath(this.uid, user.id));
     return this.db.addWithDocumentReference(doc, user);
   }
 
   async deleteContact(userToRemoveId: string) {
-    const doc = this.db.doc(getContactDocPath(this.uid, userToRemoveId));
+    const doc = this.db.docRef(getContactDocPath(this.uid, userToRemoveId));
     return this.db.remove(doc);
   }
 

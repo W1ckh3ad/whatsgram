@@ -56,11 +56,16 @@ export const sendMessage = functions.https.onCall(
         } as Message & DocumentBase;
         const message = await messageCol.add(messageBody);
 
-        chatDocDataBody.updatedAt = ts;
         messageBody.id = message.id;
-        chatDocDataBody.lastMessage = messageBody;
-
-        chatRef.update(chatDocDataBody);
+        chatRef.set(
+            {
+              updatedAt: ts,
+              lastMessage: messageBody,
+            },
+            {
+              merge: true,
+            }
+        );
 
         const notification: admin.messaging.MessagingPayload = {
           notification: {

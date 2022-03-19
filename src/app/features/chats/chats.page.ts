@@ -30,14 +30,9 @@ export class ChatsPage implements OnInit {
     this.chats$ = this.chatService.loadChats$().pipe(
       combineLatestWith(this.search$),
       map(([chats, search]) =>
-        chats.filter(
-          (y) =>
-            y.info.displayName.toLowerCase().includes(search)
-        )
+        chats.filter((y) => y.info.displayName.toLowerCase().includes(search))
       )
     );
-
-    this.chats$.subscribe((x) => console.log(x));
   }
 
   async onSearch(event) {

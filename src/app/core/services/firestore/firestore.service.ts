@@ -17,6 +17,7 @@ import {
   SetOptions,
   Timestamp,
   updateDoc,
+  getDocs,
 } from '@angular/fire/firestore';
 import { Device } from '@models/device.model';
 import { DocumentBase } from '@models/document-base.model';
@@ -44,37 +45,37 @@ type DocumentPredicate<T> = string | DocumentReference<T>;
 export class FirestoreService {
   constructor(private fs: Firestore) {}
   private readonly options = { idField: 'id' };
-  doc<T>(ref: DocumentPredicate<T>): DocumentReference<T> {
+  docRef<T>(ref: DocumentPredicate<T>): DocumentReference<T> {
     return typeof ref === 'string'
       ? (doc(this.fs, ref) as DocumentReference<T>)
       : ref;
   }
 
-  collection<T>(ref: CollectionPredicate<T>): CollectionReference<T> {
+  collectionRef<T>(ref: CollectionPredicate<T>): CollectionReference<T> {
     return typeof ref === 'string'
       ? (collection(this.fs, ref) as CollectionReference<T>)
       : ref;
   }
 
-  collectionQuery<T>(ref: string, ...queryConstriant: QueryConstraint[]) {
-    return query<T>(this.collection<T>(ref), ...queryConstriant);
+  collectionQueryRef<T>(ref: string, ...queryConstriant: QueryConstraint[]) {
+    return query<T>(this.collectionRef<T>(ref), ...queryConstriant);
   }
 
   // query
 
   doc$<T>(ref: DocumentPredicate<T>): Observable<T> {
-    return docData(this.doc(ref));
+    return docData(this.docRef(ref));
   }
 
   docWithMetaData$<T>(
     ref: DocumentPredicate<T & DocumentBase>
   ): Observable<T & DocumentBase> {
-    return docData(this.doc(ref), this.options);
+    return docData(this.docRef(ref), this.options);
   }
 
   async docSnap<T>(ref: DocumentPredicate<T>): Promise<T> {
     try {
-      const doc = await getDoc(this.doc(ref));
+      const doc = await getDoc(this.docRef(ref));
       return doc.data() as T;
     } catch (error) {
       console.error('docSnap error', error, ref);
@@ -86,7 +87,7 @@ export class FirestoreService {
     ref: DocumentPredicate<T>
   ): Promise<T & DocumentBase> {
     try {
-      const doc = await getDoc(this.doc(ref));
+      const doc = await getDoc(this.docRef(ref));
       return { ...doc.data(), id: doc.id } as T & DocumentBase;
     } catch (error) {
       console.error('docSnapWithMetaData error', error, ref);
@@ -98,7 +99,7 @@ export class FirestoreService {
     ref: CollectionPredicate<T>
   ): Observable<(T & DocumentBase)[]> {
     return collectionData<T & DocumentBase>(
-      this.collection<T & DocumentBase>(ref),
+      this.collectionRef<T & DocumentBase>(ref),
       this.options
     );
   }
@@ -108,9 +109,13 @@ export class FirestoreService {
     ...queryContraints: QueryConstraint[]
   ): Observable<(T & DocumentBase)[]> {
     return collectionData<T & DocumentBase>(
-      this.collectionQuery<T & DocumentBase>(ref, ...queryContraints),
+      this.collectionQueryRef<T & DocumentBase>(ref, ...queryContraints),
       this.options
     );
+  }
+
+  collection<T>(ref: CollectionPredicate<T>) {
+    return getDocs<T & DocumentBase>(this.collectionRef<T & DocumentBase>(ref));
   }
 
   get timestamp() {
@@ -119,7 +124,7 @@ export class FirestoreService {
 
   async exists<T>(ref: DocumentPredicate<T>) {
     try {
-      const doc = await getDoc(this.doc(ref));
+      const doc = await getDoc(this.docRef(ref));
       return doc.exists();
     } catch (error) {
       console.error('exists error', error, ref);
@@ -134,7 +139,7 @@ export class FirestoreService {
     data: T
   ): Promise<DocumentReference<T>> {
     const ts = this.timestamp;
-    return addDoc(this.collection(collection), {
+    return addDoc(this.collectionRef(collection), {
       ...data,
       updatedAt: ts,
       createdAt: ts,
@@ -146,7 +151,11 @@ export class FirestoreService {
     data: T
   ): Promise<void> {
     const ts = this.timestamp;
-    return setDoc(this.doc<T>(ref), { ...data, updatedAt: ts, createdAt: ts });
+    return setDoc(this.docRef<T>(ref), {
+      ...data,
+      updatedAt: ts,
+      createdAt: ts,
+    });
   }
 
   async setUpdate<T>(
@@ -155,26 +164,26 @@ export class FirestoreService {
     options?: SetOptions
   ): Promise<void> {
     const ts = this.timestamp;
-    return setDoc(this.doc<T>(ref), { ...data, updatedAt: ts }, options);
+    return setDoc(this.docRef<T>(ref), { ...data, updatedAt: ts }, options);
   }
 
   async update<T>(ref: DocumentPredicate<T>, data: T): Promise<void> {
     const ts = this.timestamp;
-    return updateDoc(this.doc<T>(ref), { ...data, updatedAt: ts } as any);
+    return updateDoc(this.docRef<T>(ref), { ...data, updatedAt: ts } as any);
   }
 
   async remove<T>(ref: DocumentPredicate<T>) {
-    return deleteDoc(this.doc(ref));
+    return deleteDoc(this.docRef(ref));
   }
 
   getUserDoc(uid: string) {
-    return this.doc<WhatsgramUser & DocumentBase>(getUserDocPath(uid));
+    return this.docRef<WhatsgramUser & DocumentBase>(getUserDocPath(uid));
   }
   getPrivateDataDoc(uid: string) {
-    return this.doc<PrivateData & DocumentBase>(getPrivateDataDocPath(uid));
+    return this.docRef<PrivateData & DocumentBase>(getPrivateDataDocPath(uid));
   }
   getMessageDoc(userId: string, groupdOrChatID: string, messageId: string) {
-    return this.doc<Message>(
+    return this.docRef<Message>(
       getMessageDocPath(userId, groupdOrChatID, messageId)
     );
   }
@@ -184,14 +193,16 @@ export class FirestoreService {
   }
 
   getUsersCol() {
-    return this.collection<WhatsgramUser>(getUsersColPath());
+    return this.collectionRef<WhatsgramUser>(getUsersColPath());
   }
 
   getMessageCol(userId: string, groupdOrChatID: string) {
-    return this.collection<Message>(getMessageColPath(userId, groupdOrChatID));
+    return this.collectionRef<Message>(
+      getMessageColPath(userId, groupdOrChatID)
+    );
   }
 
   getDevicesCol(userId: string) {
-    return this.collection<Device & DocumentBase>(getDevicesColPath(userId));
+    return this.collectionRef<Device & DocumentBase>(getDevicesColPath(userId));
   }
 }
