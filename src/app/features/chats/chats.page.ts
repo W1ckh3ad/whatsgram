@@ -28,6 +28,8 @@ export class ChatsPage implements OnInit {
 
   async ngOnInit() {
     this.chats$ = this.chat.loadChats();
+
+    this.chats$.subscribe((x) => console.log(x));
   }
 
   async onSearch(event) {

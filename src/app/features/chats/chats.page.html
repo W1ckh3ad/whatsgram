@@ -30,9 +30,9 @@
       </ion-avatar>
       <div class="ion-margin-start">
         <h2 style="margin: 0 0 8px">{{chat.info.displayName}}</h2>
-        <p style="margin: 0">
-          {{chat.lastMessage.text | decrypt | async}} {{
-          chat.lastMessage.createdAt | time }}
+        <p style="margin: 0" *ngIf="" chats.lastMessage>
+          {{chat.lastMessage.text | decrypt | async}}
+          <span class="time"> {{ chat.lastMessage.createdAt | time }} </span>
         </p>
       </div>
       <ion-note *ngIf="chat.unread" slot="end"

@@ -53,7 +53,6 @@ export class ChatService {
     messagePayload: Omit<Message, 'senderId'>,
     receiverPublicKey?: string
   ) {
-    debugger;
     const message = { ...messagePayload, senderId: this.senderId } as Message;
     const refString = getChatDocPath(
       this.senderId,
@@ -74,7 +73,7 @@ export class ChatService {
     const data = {
       lastReadMessage: ownMessage.id,
     };
-    return this.db.update(chatRef, data as any);
+    return this.db.setUpdate(chatRef, data as any, { merge: true });
   }
 
   /**
@@ -106,17 +105,30 @@ export class ChatService {
         });
       }
 
-      return this.db.add<Message>(
+      const messageObject = {
+        ...message,
+        receiverMessagePath,
+        text: await encryptMessage(
+          message.text,
+          await this.cryptoKeys.getPublicKey()
+        ),
+      };
+
+      const messageRef = await this.db.add<Message>(
         getMessageColPath(this.senderId, message.groupId ?? message.receiverId),
-        {
-          ...message,
-          receiverMessagePath,
-          text: await encryptMessage(
-            message.text,
-            await this.cryptoKeys.getPublicKey()
-          ),
-        }
+        messageObject
       );
+
+      const messageRefData = await this.db.docSnapWithMetaData(messageRef);
+      await this.db.setUpdate<DocumentReference<Chat & DocumentBase>>(
+        chatRef.path,
+        {
+          lastMessage: { ...messageRefData },
+        },
+        { merge: true }
+      );
+
+      return messageRef;
     } catch (error) {
       console.error('createMessageForSender error', error);
       throw error;

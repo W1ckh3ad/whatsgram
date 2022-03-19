@@ -9,6 +9,7 @@ import {
   getChatDocPath,
   getDevicesColPath,
 } from "../utils/db.utils";
+import {DocumentBase} from "src/models/document-base.model";
 
 admin.initializeApp();
 
@@ -31,13 +32,16 @@ export const createGroup = functions.https.onCall(
         description,
         displayName,
       });
-      const chatData: Chat = {
+      const ts = admin.firestore.Timestamp.now();
+      const chatData: Chat & Omit<DocumentBase, "id"> = {
         info: {
           displayName,
           photoURL,
           alt: groupDocRef.id,
         },
         isGroupChat: true,
+        updatedAt: ts,
+        createdAt: ts,
       };
       {
         promises.push(

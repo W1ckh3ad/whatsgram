@@ -29,5 +29,6 @@ module.exports = {
     "import/no-unresolved": 0,
     "require-jsdoc": 1,
     "valid-jsdoc": 1,
+    "max-len": 1,
   },
 };

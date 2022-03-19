@@ -14,7 +14,7 @@ import {
   getContactsColPath,
   getDevicesColPath,
   getPrivateDataDocPath,
-  getUserDocPath,
+  getUserDocPath
 } from '@utils/db.utils';
 import {
   BehaviorSubject,
@@ -23,8 +23,7 @@ import {
   of,
   shareReplay,
   Subscription,
-  switchMap,
-  tap,
+  switchMap
 } from 'rxjs';
 import { FirestoreService } from '../firestore/firestore.service';
 
@@ -41,8 +40,7 @@ export class AccountService implements OnDestroy {
   constructor(private auth: AuthService, private db: FirestoreService) {
     this.auth.user$
       .pipe(
-        map((x) => (x ? x.uid : null)),
-        tap((x) => console.log(x))
+        map((x) => (x ? x.uid : null))
       )
       .subscribe((x) => (x !== this.uid$.value ? this.uid$.next(x) : null));
 

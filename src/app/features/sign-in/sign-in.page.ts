@@ -44,7 +44,6 @@ export class SignInPage implements OnInit {
 
   private async handleLogin(data: [User, Error]) {
     const res = await data;
-    console.log(data);
     const [user, error] = res;
     if (user) {
       const action = await this.account.createIfDoesntExistsAndGiveAction(user);
