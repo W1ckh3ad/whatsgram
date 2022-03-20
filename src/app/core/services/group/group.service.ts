@@ -49,10 +49,10 @@ export class GroupService {
       const callable = httpsCallable<
         { members: WhatsgramUser[]; groupId: string },
         string
-      >(this.fns, 'addMembers');
+      >(this.fns, 'addGroupMember');
       return await callable({ members, groupId });
     } catch (error) {
-      console.error('addMembers to group error', error);
+      console.error('addGroupMember error', error);
       throw error;
     }
   }

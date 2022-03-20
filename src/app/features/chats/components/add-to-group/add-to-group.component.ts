@@ -53,7 +53,6 @@ export class AddToGroupComponent implements OnInit {
   }
 
   async onSubmit() {
-    debugger;
     await this.groupService.addMembers(this.addedMembers, this.groupId);
     this.dismissModal();
   }
