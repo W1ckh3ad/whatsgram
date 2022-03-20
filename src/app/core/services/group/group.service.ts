@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { GroupCreate } from '@models/group-create.model';
-import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { Functions, httpsCallable } from '@angular/fire/functions';
+import { GroupCreate } from '@models/group-create.model';
+import { GroupMember } from '@models/group-member';
+import { Group } from '@models/group.model';
+import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { FirestoreService } from '@services/firestore/firestore.service';
 import { getGroupDocPath, getGroupMembersCol } from '@utils/db.utils';
-import { Group } from '@models/group.model';
-import { GroupMember } from '@models/group-member';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +40,19 @@ export class GroupService {
       return await callable({ model, creator });
     } catch (error) {
       console.error('create group error', error);
+      throw error;
+    }
+  }
+
+  async addMembers(members: WhatsgramUser[], groupId: string) {
+    try {
+      const callable = httpsCallable<
+        { members: WhatsgramUser[]; groupId: string },
+        string
+      >(this.fns, 'addMembers');
+      return await callable({ members, groupId });
+    } catch (error) {
+      console.error('addMembers to group error', error);
       throw error;
     }
   }

@@ -1,15 +1,13 @@
-import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as functions from "firebase-functions";
+import {DocumentBase} from "src/models/document-base.model";
+import {Chat} from "../models/chat.model";
 import {GroupCreate} from "../models/group-create.model";
 import {WhatsgramUser} from "../models/whatsgram.user.model";
-import {Chat} from "../models/chat.model";
 import {
-  getGroupsColPath,
-  getGroupMemberDoc,
   getChatDocPath,
-  getDevicesColPath,
+  getDevicesColPath, getGroupMemberDoc, getGroupsColPath,
 } from "../utils/db.utils";
-import {DocumentBase} from "src/models/document-base.model";
 
 admin.initializeApp();
 
@@ -53,6 +51,8 @@ export const createGroup = functions.https.onCall(
               description: creator.description ?? null,
               photoURL: creator.photoURL ?? null,
               isAdmin: true,
+              updatedAt: ts,
+              createdAt: ts,
             })
         );
 
@@ -78,6 +78,8 @@ export const createGroup = functions.https.onCall(
               publicKey: member.publicKey,
               email: member.email,
               isAdmin: false,
+              updatedAt: ts,
+              createdAt: ts,
             })
         );
         promises.push(

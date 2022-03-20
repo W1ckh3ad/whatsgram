@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { isAdmin } from '@firebase/util';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, ModalController } from '@ionic/angular';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { GroupMember } from '@models/group-member';
@@ -14,6 +14,7 @@ import { GroupService } from '@services/group/group.service';
 import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
 import { getGroupMemberDoc } from '@utils/db.utils';
 import { BehaviorSubject, combineLatestWith, map, Observable, tap } from 'rxjs';
+import { AddToGroupComponent } from '../../components/add-to-group/add-to-group.component';
 
 @Component({
   selector: 'app-group',
@@ -26,7 +27,7 @@ export class GroupPage implements OnInit {
   members$: Observable<(GroupMember & DocumentBase)[]> = null;
   groupId: string = null;
   isAdmin: boolean = false;
-
+  membersLength = 0;
 
   search$ = new BehaviorSubject('');
   contacts$: Observable<SortedContactsPart[]> = null;
@@ -37,6 +38,7 @@ export class GroupPage implements OnInit {
     private authService: AuthService,
     private groupService: GroupService,
     private actionSheetController: ActionSheetController,
+    private modalController: ModalController,
     private dbService: FirestoreService,
     private accountService: AccountService
   ) {}
@@ -44,15 +46,14 @@ export class GroupPage implements OnInit {
   async ngOnInit() {
     this.groupId = this.activeRoute.snapshot.paramMap.get('id');
     this.chat$ = this.chatService.loadChat$(this.groupId);
-    this.members$ = this.groupService
-      .loadMembers$(this.groupId)
-      .pipe(
-        tap(
-          (x) =>
-            (this.isAdmin =
-              x.findIndex((y) => y.id === this.userId && y.isAdmin) > -1)
-        )
-      );
+    this.members$ = this.groupService.loadMembers$(this.groupId).pipe(
+      tap((x) => {
+        this.membersLength = x.length;
+        this.isAdmin =
+          x.findIndex((y) => y.id === this.userId && y.isAdmin) > -1;
+      }),
+      map((x) => x.sort((a, b) => a.displayName.localeCompare(b.displayName)))
+    );
     this.userId = this.authService.user.uid;
     this.contacts$ = this.accountService.contacts$.pipe(
       combineLatestWith(this.search$),
@@ -67,7 +68,19 @@ export class GroupPage implements OnInit {
     );
   }
 
-  async add() {}
+  async add() {
+    const modal = await this.modalController.create({
+      component: AddToGroupComponent,
+      initialBreakpoint: 0.6,
+      breakpoints: [0.4, 0.6, 0.9],
+      componentProps: {
+        groupId: this.groupId,
+        membersLength: this.membersLength,
+      },
+    });
+
+    await modal.present();
+  }
 
   async clickMember(member: GroupMember & DocumentBase) {
     if (member.id === this.authService.user.uid || !this.isAdmin) return;

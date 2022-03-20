@@ -58,7 +58,7 @@ export class CreateGroupComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private accountService: AccountService,
-    private alertCtrl: AlertController,
+    private alertController: AlertController,
     private groupService: GroupService
   ) {}
 
@@ -149,7 +149,7 @@ export class CreateGroupComponent implements OnInit {
 
   async onSubmit() {
     if (this.group.displayName === '') {
-      const alert = await this.alertCtrl.create({
+      const alert = await this.alertController.create({
         header: 'Validation error',
         subHeader: 'Group name must be defined',
       });

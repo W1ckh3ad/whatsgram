@@ -16,6 +16,7 @@
 //     const differentProperties: string[] = [];
 //     const changes: { [s: string]: [string, string] } = {};
 
+//     const userKeys = ["email","displayName", "photoURL", "phone"]
 //     const chatInfoKeys = ["email","displayName", "photoURL"]
 //     newKeys.forEach((x) =>
 //       !oldKeys.includes(x) ? differentProperties.push(x) : null
