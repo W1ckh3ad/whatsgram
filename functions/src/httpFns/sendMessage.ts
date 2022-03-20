@@ -1,12 +1,15 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import {DocumentBase} from "src/models/document-base.model";
+import {Group} from "src/models/group.model";
 import {Message} from "src/models/message.model";
 import {WhatsgramUser} from "src/models/whatsgram.user.model";
+import {getPhotoUrl} from "../utils/photoUtils";
 import {Chat} from "../models/chat.model";
 import {
   getChatDocPath,
   getDevicesColPath,
+  getGroupDocPath,
   getMessageColPath,
 } from "../utils/db.utils";
 
@@ -26,7 +29,14 @@ export const sendMessage = functions
         const db = admin.firestore();
         const fcm = admin.messaging();
         const chatRef = db.doc(getChatDocPath(receiverId, groupId ?? senderId));
-
+        let group: (Group & DocumentBase) | undefined;
+        if (groupId) {
+          const doc = await db.doc(getGroupDocPath(groupId)).get();
+          group = {
+            ...doc.data(),
+            id: doc.id,
+          } as Group & DocumentBase;
+        }
         const chatDocData = await chatRef.get();
         let ts = admin.firestore.Timestamp.now();
 
@@ -74,11 +84,14 @@ export const sendMessage = functions
           notification: {
             title: `'${sender.displayName}'`,
             body: text,
-            icon: sender.photoURL,
+            icon:
+            groupId && group ?
+              getPhotoUrl(group?.photoURL, group.id) :
+              getPhotoUrl(sender.photoURL, sender.email),
           },
           data: {
-            type: "notification"
-          }
+            type: "chatMessage",
+          },
         };
 
         const devices = await db.collection(getDevicesColPath(receiverId)).get();

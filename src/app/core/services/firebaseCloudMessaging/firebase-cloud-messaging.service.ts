@@ -11,6 +11,7 @@ import { AlertController, ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
 import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
+import { decryptMessage } from '@utils/crypto.utils';
 import { getDeviceDocPath } from '@utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
@@ -132,10 +133,17 @@ export class FirebaseCloudMessagingService {
   }
 
   async displayReceivedMessage(payload: MessagePayload) {
+    const message =
+      payload.data.type === 'chatMessage'
+        ? await decryptMessage(
+            payload.notification.body,
+            await this.cryptoKeysService.getPrivateKey()
+          )
+        : payload.notification.body;
     const toast = await this.toastController.create({
       header: payload.notification.title,
       icon: payload.notification.image,
-      message: payload.notification.body,
+      message,
       duration: 2000,
       position: 'top',
     });
