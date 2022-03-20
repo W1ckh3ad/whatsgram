@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetController,
@@ -15,9 +14,10 @@ import { AuthService } from '@services/auth/auth.service';
 import { ChatService } from '@services/chat/chat.service';
 import { GroupService } from '@services/group/group.service';
 import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
-import { collectionGroup, getDocs, query, where } from 'firebase/firestore';
 import { BehaviorSubject, combineLatestWith, map, Observable, tap } from 'rxjs';
 import { AddToGroupComponent } from '../../components/add-to-group/add-to-group.component';
+import { EditDescriptionComponent } from '../../components/edit-description/edit-description.component';
+import { EditDisplayNameComponent } from '../../components/edit-display-name/edit-display-name.component';
 
 @Component({
   selector: 'app-group',
@@ -44,7 +44,6 @@ export class GroupPage implements OnInit {
     private alertController: AlertController,
     private modalController: ModalController,
     private accountService: AccountService,
-    private db: Firestore,
     private router: Router
   ) {}
 
@@ -71,9 +70,6 @@ export class GroupPage implements OnInit {
       ),
       map(sortContactsIntoLetterSegments)
     );
-    getDocs(
-      query(collectionGroup(this.db, 'chats'), where('id', '==', this.groupId))
-    ).then((x) => console.log(x.docs));
   }
 
   async add() {
@@ -153,5 +149,33 @@ export class GroupPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  async changeDisplayName(displayName: string) {
+    const modal = await this.modalController.create({
+      component: EditDisplayNameComponent,
+      initialBreakpoint: 0.6,
+      breakpoints: [0.4, 0.6, 0.9],
+      componentProps: {
+        displayName,
+        groupId: this.groupId,
+      },
+    });
+
+    await modal.present();
+  }
+
+  async changeDescription(description?: string) {
+    const modal = await this.modalController.create({
+      component: EditDescriptionComponent,
+      initialBreakpoint: 0.6,
+      breakpoints: [0.4, 0.6, 0.9],
+      componentProps: {
+        description,
+        groupId: this.groupId,
+      },
+    });
+
+    await modal.present();
   }
 }

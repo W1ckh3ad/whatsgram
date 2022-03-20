@@ -1,16 +1,15 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
-import { ChatsPageRoutingModule } from './chats-routing.module';
-
-import { ChatsPage } from './chats.page';
 import { SharedModule } from '@shared/shared.module';
-import { CreateGroupComponent } from './components/create-group/create-group.component';
 import { SwiperModule } from 'swiper/angular';
-import { AddToGroupComponent } from './components/add-to-group/add-to-group.component';
+import { ChatsPageRoutingModule } from './chats-routing.module';
+import { ChatsPage } from './chats.page';
+import { CreateGroupComponent } from './components/create-group/create-group.component';
+
+
+
 
 @NgModule({
   imports: [
@@ -30,6 +29,6 @@ import { AddToGroupComponent } from './components/add-to-group/add-to-group.comp
     CommonModule,
     SwiperModule,
   ],
-  declarations: [ChatsPage, CreateGroupComponent, AddToGroupComponent],
+  declarations: [ChatsPage, CreateGroupComponent],
 })
 export class ChatsPageModule {}

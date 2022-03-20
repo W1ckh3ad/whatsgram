@@ -29,16 +29,19 @@ export const createGroup = functions
       const batch = db.batch();
       const fcm = admin.messaging();
       const groupColRef = db.collection(getGroupsColPath());
+      const ts = admin.firestore.Timestamp.now();
       const groupDocRef = await groupColRef.add({
         photoURL,
         description,
         displayName,
+        updatedAt: ts,
+        createdAt: ts,
       });
-      const ts = admin.firestore.Timestamp.now();
       const chatData: Chat & DocumentBase = {
         info: {
           displayName,
           photoURL,
+          description,
           alt: groupDocRef.id,
         },
         isGroupChat: true,

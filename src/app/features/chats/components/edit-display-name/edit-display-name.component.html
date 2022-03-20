@@ -1,0 +1,25 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismissModal()">Abbrechen</ion-button>
+    </ion-buttons>
+    <ion-title>Edit displayName</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onSubmit()"> Fertig </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-list style="gap: 1rem; background-color: var(--ion-background-color)">
+    <ion-item>
+      <ion-label>displayName</ion-label>
+      <ion-input
+        type="text"
+        inputmode="text"
+        [(ngModel)]="displayName"
+        name="displayName"
+      >
+      </ion-input>
+    </ion-item>
+  </ion-list>
+</ion-content>

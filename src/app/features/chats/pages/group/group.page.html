@@ -30,33 +30,41 @@
           alt="chat.info-profile-picture"
         />
       </ion-avatar>
-      <p>{{chat.info.displayName }}</p>
     </div>
-    <ion-list *ngIf="members$ | async as members">
-      <ion-list-header>
-        <ion-label>Gruppenmitglieder ({{members.length}})</ion-label>
-      </ion-list-header>
-      <ion-item *ngFor="let member of members" (click)="clickMember(member)">
-        <ion-avatar style="margin-right: 2rem">
-          <img
-            [src]="member | photoUrl:member.email"
-            alt="Member Profile Picture"
-          />
-        </ion-avatar>
-        <ion-label style="display: flex; justify-content: space-between">
-          {{member.displayName}}
-          <span *ngIf="member.isAdmin" style="color: var(--ion-color-medium)"
-            >Admin</span
-          >
-        </ion-label>
+    <ion-list>
+      <ion-item (click)="changeDisplayName(chat.info.displayName)">
+        <ion-label>{{chat.info.displayName}}</ion-label>
       </ion-item>
-      <ion-item (click)="add()" color="primary">
-        <ion-label> Hinzufügen </ion-label>
+      <ion-item (click)="changeDescription(chat.info.description)">
+        <ion-label>{{chat.info.description}}</ion-label>
       </ion-item>
-      <ion-item-divider></ion-item-divider>
-      <ion-item color="danger" (click)="remove()">
-        <ion-label> Gruppe löschen </ion-label>
-      </ion-item>
+      <ng-container *ngIf="members$ | async as members">
+        <ion-item-divider></ion-item-divider>
+        <ion-list-header>
+          <ion-label>Gruppenmitglieder ({{members.length}})</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let member of members" (click)="clickMember(member)">
+          <ion-avatar style="margin-right: 2rem">
+            <img
+              [src]="member | photoUrl:member.email"
+              alt="Member Profile Picture"
+            />
+          </ion-avatar>
+          <ion-label style="display: flex; justify-content: space-between">
+            {{member.displayName}}
+            <span *ngIf="member.isAdmin" style="color: var(--ion-color-medium)"
+              >Admin</span
+            >
+          </ion-label>
+        </ion-item>
+        <ion-item (click)="add()" color="primary">
+          <ion-label> Hinzufügen </ion-label>
+        </ion-item>
+        <ion-item-divider></ion-item-divider>
+        <ion-item color="danger" (click)="remove()">
+          <ion-label> Gruppe löschen </ion-label>
+        </ion-item></ng-container
+      >
     </ion-list>
   </ion-content>
 </ng-container>

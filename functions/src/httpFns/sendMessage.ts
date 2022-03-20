@@ -35,6 +35,7 @@ export const sendMessage = functions
             displayName: sender.displayName,
             photoURL: sender.photoURL,
             publicKey: sender.publicKey,
+            description: sender.description,
             alt: sender.email,
           },
           isGroupChat: !!groupId,

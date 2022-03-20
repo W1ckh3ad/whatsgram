@@ -108,7 +108,7 @@ export class ChatService {
     try {
       const batch = writeBatch(this.dbService.firestore);
       if (!(await this.dbService.exists(chatRef)) && !message.groupId) {
-        const { displayName, publicKey, photoURL, email } =
+        const { displayName, publicKey, photoURL, email, description } =
           await this.userService.load(message.receiverId);
 
         batch.set(chatRef, {
@@ -117,6 +117,7 @@ export class ChatService {
             photoURL,
             publicKey,
             alt: email,
+            description,
           },
           id: message.groupId ?? this.senderId,
         });

@@ -75,16 +75,31 @@ export class GroupService {
 
   async removeGroup(groupId: string) {
     try {
-      const callable = httpsCallable<
-        { groupId: string },
-        string
-      >(this.fns, 'removeGroup', {
-        
-      });
+      const callable = httpsCallable<{ groupId: string }, string>(
+        this.fns,
+        'removeGroup',
+        {}
+      );
       return await callable({ groupId });
     } catch (error) {
       console.error('removeGroup error', error);
       throw error;
     }
+  }
+
+  async changeDisplayName(groupId: string, displayName: string) {
+    return this.dbService.setUpdate(
+      getGroupDocPath(groupId),
+      { displayName },
+      { merge: true }
+    );
+  }
+
+  async changeDescription(groupId: string, description?: string) {
+    return this.dbService.setUpdate(
+      getGroupDocPath(groupId),
+      { description: description ?? null },
+      { merge: true }
+    );
   }
 }
