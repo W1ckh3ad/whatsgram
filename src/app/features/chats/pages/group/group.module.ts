@@ -6,6 +6,7 @@ import { SharedModule } from '@shared/shared.module';
 import { AddToGroupComponent } from '../../components/add-to-group/add-to-group.component';
 import { EditDescriptionComponent } from '../../components/edit-description/edit-description.component';
 import { EditDisplayNameComponent } from '../../components/edit-display-name/edit-display-name.component';
+import { EditPhotoUrlComponent } from '../../components/edit-photo-url/edit-photo-url.component';
 import { GroupPageRoutingModule } from './group-routing.module';
 import { GroupPage } from './group.page';
 
@@ -22,6 +23,7 @@ import { GroupPage } from './group.page';
     AddToGroupComponent,
     EditDescriptionComponent,
     EditDisplayNameComponent,
+    EditPhotoUrlComponent,
   ],
   exports: [SharedModule, FormsModule, IonicModule, CommonModule],
 })

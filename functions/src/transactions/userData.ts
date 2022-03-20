@@ -1,60 +1,58 @@
-// import * as admin from 'firebase-admin';
-// import * as functions from 'firebase-functions';
-// import { Chat } from 'src/models/chat.model';
+import * as admin from "firebase-admin";
+import * as functions from "firebase-functions";
 
-// export const userDataTransaction = functions.firestore
-//   .document('users/{userId}')
-//   .onWrite(async (change, context) => {
-//     const userId = context.params.userId;
-//     const newData = change.after.data();
-//     const oldData = change.after.data();
-//     if (!newData || !oldData) return;
+export const userDataTransaction = functions.firestore
+    .document("users/{userId}")
+    .onWrite(async (change, context) => {
+      const userId = context.params.userId;
+      const newData = change.after.data();
+      const oldData = change.after.data();
+      if (!newData || !oldData) return;
 
-//     const filterKeys = ['updatedAt', 'createdAt', 'id'];
-//     const newKeys = Object.keys(newData);
-//     const oldKeys = Object.keys(oldData);
-//     const differentProperties: string[] = [];
-//     const changes: { [s: string]: [string, string] } = {};
+      const importantKeys = [
+        "displayName",
+        "phoneNumber",
+        "photoURL",
+        "description",
+      ];
+      const chatKeys = ["displayName", "phoneNumber", "photoURL"];
+      const changes: { [s: string]: [string, string] } = {};
 
-//     const userKeys = ["email","displayName", "photoURL", "phone"]
-//     const chatInfoKeys = ["email","displayName", "photoURL"]
-//     newKeys.forEach((x) =>
-//       !oldKeys.includes(x) ? differentProperties.push(x) : null
-//     );
-//     oldKeys.forEach((x) =>
-//       !newKeys.includes(x) && !differentProperties.includes(x)
-//         ? differentProperties.push(x)
-//         : null
-//     );
+      for (const key of importantKeys) {
+        if (newData[key] == oldData[key]) continue;
+        changes[key] = newData[key] ?? null;
+      }
 
-//     for (const key of newKeys) {
-//       if (
-//         differentProperties.includes(key) ||
-//         newData[key] == oldData[key] ||
-//         filterKeys.includes(key)
-//       )
-//         continue;
-//       changes[key] = [oldData[key] + '', newData[key] + ''];
-//     }
+      const db = admin.firestore();
+      const batch = db.batch();
+      await Promise.all(
+          [
+            async () => {
+              if (!chatKeys.some((x) => !!changes[x])) return;
+              const chatDocsSnap = await db
+                  .collectionGroup("members")
+                  .where("id", "==", userId)
+                  .get();
+              const {phoneNumber, ...update} = changes;
+              for (const doc of chatDocsSnap.docs) {
+                batch.set(doc.ref, update, {merge: true});
+              }
+            },
+            async () => {
+              if (Object.keys(changes).length === 0) return;
+              const querySnaps = await Promise.all([
+                db.collectionGroup("members").where("id", "==", userId).get(),
+                db.collectionGroup("contacts").where("id", "==", userId).get(),
+              ]);
+              for (const querySnap of querySnaps) {
+                for (const doc of querySnap.docs) {
+                  batch.set(doc.ref, changes, {merge: true});
+                }
+              }
+            },
+          ].map((x) => x())
+      );
 
-//     for (const key of differentProperties) {
-//       if (filterKeys.includes(key)) continue;
-//       changes[key] = [oldData[key] + '', newData[key] + ''];
-//     }
-
-//     const db = admin.firestore();
-//     const batch = db.batch();
-//     const [chatDocSnap, memberDocSnap, contactsDocSnap] = await Promise.all([
-//       db.collectionGroup('chats').where('id', '==', userId).get(),
-//       db.collectionGroup('members').where('id', '==', userId).get(),
-//       db.collectionGroup('contacts').where('id', '==', userId).get(),
-//     ]);
-//     const chatDocInfo: any = { info: {} };
-//     if (newData.email) chatDocInfo.info.email = newData.info;
-//     chatDocSnap.forEach((x) => {
-//       db.doc(x.ref.path).set({ info: {} }, { merge: true });
-//     });
-
-//     batch.commit();
-//   });
+      batch.commit();
+    });
 export {};

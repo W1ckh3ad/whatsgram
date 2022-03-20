@@ -102,4 +102,12 @@ export class GroupService {
       { merge: true }
     );
   }
+
+  async changePhotoURL(groupId: string, photoURL?: string) {
+    return this.dbService.setUpdate(
+      getGroupDocPath(groupId),
+      { photoURL: photoURL ?? null },
+      { merge: true }
+    );
+  }
 }

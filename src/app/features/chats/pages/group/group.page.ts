@@ -18,6 +18,7 @@ import { BehaviorSubject, combineLatestWith, map, Observable, tap } from 'rxjs';
 import { AddToGroupComponent } from '../../components/add-to-group/add-to-group.component';
 import { EditDescriptionComponent } from '../../components/edit-description/edit-description.component';
 import { EditDisplayNameComponent } from '../../components/edit-display-name/edit-display-name.component';
+import { EditPhotoUrlComponent } from '../../components/edit-photo-url/edit-photo-url.component';
 
 @Component({
   selector: 'app-group',
@@ -172,6 +173,19 @@ export class GroupPage implements OnInit {
       breakpoints: [0.4, 0.6, 0.9],
       componentProps: {
         description,
+        groupId: this.groupId,
+      },
+    });
+
+    await modal.present();
+  }
+  async changePhotoURL(photoURL?: string) {
+    const modal = await this.modalController.create({
+      component: EditPhotoUrlComponent,
+      initialBreakpoint: 0.6,
+      breakpoints: [0.4, 0.6, 0.9],
+      componentProps: {
+        photoURL,
         groupId: this.groupId,
       },
     });
