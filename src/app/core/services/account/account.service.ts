@@ -37,7 +37,7 @@ export class AccountService implements OnDestroy {
   privateData$: Observable<PrivateData> = null;
   devices$: Observable<(Device & DocumentBase)[]> = null;
   private sub: Subscription;
-  constructor(private authService: AuthService, private db: FirestoreService) {
+  constructor(private authService: AuthService, private dbService: FirestoreService) {
     this.authService.user$
       .pipe(
         map((x) => (x ? x.uid : null))
@@ -46,7 +46,7 @@ export class AccountService implements OnDestroy {
 
     this.contacts$ = this.uid$.pipe(
       switchMap((x) =>
-        this.db.collection$<WhatsgramUser & DocumentBase>(getContactsColPath(x))
+        this.dbService.collection$<WhatsgramUser & DocumentBase>(getContactsColPath(x))
       ),
       shareReplay(1)
     );
@@ -54,7 +54,7 @@ export class AccountService implements OnDestroy {
     this.devices$ = this.uid$.pipe(
       switchMap((x) =>
         x
-          ? this.db.collection$<Device & DocumentBase>(getDevicesColPath(x))
+          ? this.dbService.collection$<Device & DocumentBase>(getDevicesColPath(x))
           : of([] as (Device & DocumentBase)[])
       )
     );
@@ -63,7 +63,7 @@ export class AccountService implements OnDestroy {
       .pipe(
         switchMap((x) =>
           x !== null
-            ? this.db.docWithMetaData$<WhatsgramUser>(getUserDocPath(x))
+            ? this.dbService.docWithMetaData$<WhatsgramUser>(getUserDocPath(x))
             : of(null)
         )
       )
@@ -71,7 +71,7 @@ export class AccountService implements OnDestroy {
 
     this.privateData$ = this.uid$.pipe(
       switchMap((x) =>
-        this.db.docWithMetaData$<PrivateData>(getPrivateDataDocPath(x))
+        this.dbService.docWithMetaData$<PrivateData>(getPrivateDataDocPath(x))
       ),
       shareReplay(1)
     );
@@ -84,25 +84,25 @@ export class AccountService implements OnDestroy {
   get userRef(): DocumentReference<WhatsgramUser & DocumentBase> {
     const id = this.uid$.value;
     if (!id) throw new Error('User Id is null');
-    return this.db.getUserDoc(id);
+    return this.dbService.getUserDoc(id);
   }
 
   get privateDataRef(): DocumentReference<PrivateData> {
     const id = this.uid$.value;
     if (!id) throw new Error('User Id is null');
-    return this.db.getPrivateDataDoc(id);
+    return this.dbService.getPrivateDataDoc(id);
   }
 
   get user$() {
-    return this.db.doc$(this.userRef);
+    return this.dbService.doc$(this.userRef);
   }
 
   async loadSnapUser() {
-    return this.db.docSnapWithMetaData(this.userRef);
+    return this.dbService.docSnapWithMetaData(this.userRef);
   }
 
   async loadSnapPrivate(): Promise<PrivateData> {
-    return this.db.docSnap(this.privateDataRef);
+    return this.dbService.docSnap(this.privateDataRef);
   }
 
   async updateProfile({
@@ -111,7 +111,7 @@ export class AccountService implements OnDestroy {
     phoneNumber,
     photoURL,
   }: UserEdit) {
-    return this.db.setUpdate(
+    return this.dbService.setUpdate(
       this.userRef,
       { displayName, description, phoneNumber, photoURL },
       { merge: true }
@@ -119,24 +119,24 @@ export class AccountService implements OnDestroy {
   }
 
   async exists() {
-    return this.db.exists(this.userRef);
+    return this.dbService.exists(this.userRef);
   }
 
   async hasContact(userId: string) {
-    return await this.db.exists(getContactDocPath(this.uid, userId));
+    return await this.dbService.exists(getContactDocPath(this.uid, userId));
   }
 
   async add(user: WhatsgramUser) {
     if (user.id === this.uid) {
       throw new Error("You can't add yourself as contact");
     }
-    const doc = this.db.docRef(getContactDocPath(this.uid, user.id));
-    return this.db.addWithDocumentReference(doc, user);
+    const doc = this.dbService.docRef(getContactDocPath(this.uid, user.id));
+    return this.dbService.addWithDocumentReference(doc, user);
   }
 
   async deleteContact(userToRemoveId: string) {
-    const doc = this.db.docRef(getContactDocPath(this.uid, userToRemoveId));
-    return this.db.remove(doc);
+    const doc = this.dbService.docRef(getContactDocPath(this.uid, userToRemoveId));
+    return this.dbService.remove(doc);
   }
 
   async createIfDoesntExistsAndGiveAction(
@@ -181,10 +181,10 @@ export class AccountService implements OnDestroy {
       id: uid,
     };
     return Promise.all([
-      this.db.addWithDocumentReference(this.privateDataRef, {
+      this.dbService.addWithDocumentReference(this.privateDataRef, {
         privateKey,
       }),
-      this.db.addWithDocumentReference(this.userRef, data),
+      this.dbService.addWithDocumentReference(this.userRef, data),
     ]);
   }
 

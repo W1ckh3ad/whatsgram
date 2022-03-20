@@ -81,6 +81,7 @@ import { AppComponent } from './app.component';
       if (environment.emulator) {
         connectFunctionsEmulator(functions, 'localhost', 5001);
       }
+      functions.region = 'europe-west3';
       return functions;
     }),
     ServiceWorkerModule.register('ngsw-worker.js', {

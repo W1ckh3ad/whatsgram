@@ -46,6 +46,10 @@ export class CryptoKeysService {
     }
   }
 
+  receivePrivateKey(key: string) {
+    return key;
+  }
+
   private async loadKeys() {
     try {
       const [{ publicKey }, { privateKey }] = await Promise.all([

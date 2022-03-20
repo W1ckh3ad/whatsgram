@@ -1,47 +1,50 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import {WhatsgramUser} from "../models/whatsgram.user.model";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import { WhatsgramUser } from '../models/whatsgram.user.model';
 import {
   getDevicesColPath,
-  getGroupDocPath, getGroupMemberDoc,
-} from "../utils/db.utils";
+  getGroupDocPath,
+  getGroupMemberDoc,
+} from '../utils/db.utils';
 
-export const addGroupMember = functions.https.onCall(
+export const addGroupMember = functions
+  .region('europe-west3')
+  .https.onCall(
     async (
-        {members, groupId}: { members: WhatsgramUser[]; groupId: string },
-        context
+      { members, groupId }: { members: WhatsgramUser[]; groupId: string },
+      context
     ) => {
       if (!context.auth?.uid) {
-        throw new Error("User isnt authenticated");
+        throw new Error('User isnt authenticated');
       }
       const senderId = context.auth.uid;
       const db = admin.firestore();
       const fcm = admin.messaging();
-      const batch = db.batch();
 
       const user = (
         await db.doc(getGroupMemberDoc(groupId, senderId)).get()
       ).data();
       if (!user || !user.isAdmin) {
-        batch.commit();
-        throw new Error("User isnt authorized");
+        throw new Error('User isnt authorized');
       }
 
       const groupData = (await db.doc(getGroupDocPath(groupId)).get()).data();
       if (!groupData) {
-        batch.commit();
-        throw new Error("Group doesnt exists");
+        throw new Error('Group doesnt exists');
       }
-
 
       const message: admin.messaging.MessagingPayload = {
         notification: {
           title: `'${groupData.displayName}'`,
-          body: "You were added to a new group",
+          body: 'You were added to a new group',
           icon: groupData.photoURL,
+        },
+        data: {
+          type: 'notification',
         },
       };
       const ts = admin.firestore.Timestamp.now();
+      const batch = db.batch();
 
       for (const member of members) {
         const doc = db.doc(getGroupMemberDoc(groupId, member.id));
@@ -72,6 +75,6 @@ export const addGroupMember = functions.https.onCall(
       }
 
       batch.commit();
-      return "Hello World";
+      return 'Hello World';
     }
-);
+  );

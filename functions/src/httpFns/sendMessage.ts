@@ -15,8 +15,9 @@ type SendMessageType = {
   sender: WhatsgramUser;
 };
 
-export const sendMessage = functions.https.onCall(
-    async ({messageData, sender}: SendMessageType, context) => {
+export const sendMessage = functions
+    .region("europe-west3")
+    .https.onCall(async ({messageData, sender}: SendMessageType, context) => {
       try {
         if (!context.auth?.uid) {
           throw new Error("User isnt authenticated");
@@ -74,6 +75,9 @@ export const sendMessage = functions.https.onCall(
             body: text,
             icon: sender.photoURL,
           },
+          data: {
+            type: "notification"
+          }
         };
 
         const devices = await db.collection(getDevicesColPath(receiverId)).get();
@@ -91,5 +95,4 @@ export const sendMessage = functions.https.onCall(
         console.error(error);
         return "";
       }
-    }
-);
+    });

@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { isAdmin } from '@firebase/util';
-import { ActionSheetController, ModalController } from '@ionic/angular';
+import { Firestore } from '@angular/fire/firestore';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  ActionSheetController,
+  AlertController,
+  ModalController
+} from '@ionic/angular';
 import { Chat } from '@models/chat.model';
 import { DocumentBase } from '@models/document-base.model';
 import { GroupMember } from '@models/group-member';
@@ -9,10 +13,9 @@ import { SortedContactsPart } from '@models/sortedContacts.model';
 import { AccountService } from '@services/account/account.service';
 import { AuthService } from '@services/auth/auth.service';
 import { ChatService } from '@services/chat/chat.service';
-import { FirestoreService } from '@services/firestore/firestore.service';
 import { GroupService } from '@services/group/group.service';
 import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
-import { getGroupMemberDoc } from '@utils/db.utils';
+import { collectionGroup, getDocs, query, where } from 'firebase/firestore';
 import { BehaviorSubject, combineLatestWith, map, Observable, tap } from 'rxjs';
 import { AddToGroupComponent } from '../../components/add-to-group/add-to-group.component';
 
@@ -38,9 +41,11 @@ export class GroupPage implements OnInit {
     private authService: AuthService,
     private groupService: GroupService,
     private actionSheetController: ActionSheetController,
+    private alertController: AlertController,
     private modalController: ModalController,
-    private dbService: FirestoreService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private db: Firestore,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -66,6 +71,9 @@ export class GroupPage implements OnInit {
       ),
       map(sortContactsIntoLetterSegments)
     );
+    getDocs(
+      query(collectionGroup(this.db, 'chats'), where('id', '==', this.groupId))
+    ).then((x) => console.log(x.docs));
   }
 
   async add() {
@@ -91,10 +99,10 @@ export class GroupPage implements OnInit {
         {
           text: member.isAdmin ? 'Adminstatus entfernen' : 'Zum Admin ernennen',
           handler: () => {
-            this.dbService.setUpdate(
-              getGroupMemberDoc(this.groupId, member.id),
-              { isAdmin: !isAdmin },
-              { merge: true }
+            this.groupService.toggleAdmin(
+              member.isAdmin,
+              this.groupId,
+              member.id
             );
           },
         },
@@ -103,7 +111,7 @@ export class GroupPage implements OnInit {
           role: 'destructive',
           cssClass: 'red',
           handler: () => {
-            this.dbService.remove(getGroupMemberDoc(this.groupId, member.id));
+            this.groupService.removeMember(this.groupId, member.id);
           },
         },
         {
@@ -117,5 +125,33 @@ export class GroupPage implements OnInit {
     });
 
     await actionSheet.present();
+  }
+
+  async remove() {
+    if (!this.isAdmin) return;
+    let alert = await this.alertController.create({
+      header: 'Gruppe löschen',
+
+      buttons: [
+        {
+          text: 'Löschen bestätigen',
+          role: 'destructive',
+          cssClass: 'red',
+          handler: async () => {
+            await this.groupService.removeGroup(this.groupId);
+            this.router.navigateByUrl('/chats');
+          },
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
 }

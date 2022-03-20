@@ -15,6 +15,7 @@ import {
   getChatsColPath,
   getMessageColPath,
 } from '@utils/db.utils';
+import { writeBatch } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { FirestoreService } from '../firestore/firestore.service';
 
@@ -48,7 +49,7 @@ export class ChatService {
   loadChats$() {
     return this.dbService.collectionQuery$<Chat>(
       getChatsColPath(this.senderId),
-      orderBy('updatedAt'),
+      orderBy('updatedAt', 'desc'),
       limit(50)
     );
   }
@@ -72,7 +73,7 @@ export class ChatService {
       this.senderId,
       message.groupId ?? message.receiverId
     );
-    const chatRef = this.dbService.docRef<Chat>(refString);
+    const chatRef = this.dbService.docRef<Chat & { id: string }>(refString);
 
     const receiverMessagePath = await this.handleGenerationForReceiver(
       message,
@@ -102,20 +103,22 @@ export class ChatService {
   private async createMessageForSender(
     message: Message,
     receiverMessagePath: string | string[],
-    chatRef?: DocumentReference<Chat>
+    chatRef?: DocumentReference<Chat & { id: string }>
   ): Promise<DocumentReference<Message>> {
     try {
+      const batch = writeBatch(this.dbService.firestore);
       if (!(await this.dbService.exists(chatRef)) && !message.groupId) {
         const { displayName, publicKey, photoURL, email } =
           await this.userService.load(message.receiverId);
 
-        await this.dbService.addWithDocumentReference(chatRef, {
+        batch.set(chatRef, {
           info: {
             displayName,
             photoURL,
             publicKey,
             alt: email,
           },
+          id: message.groupId ?? this.senderId,
         });
       }
 
@@ -136,14 +139,14 @@ export class ChatService {
       const messageRefData = await this.dbService.docSnapWithMetaData(
         messageRef
       );
-      await this.dbService.setUpdate<DocumentReference<Chat & DocumentBase>>(
-        chatRef.path,
+      batch.set<DocumentReference<Chat & DocumentBase>>(
+        this.dbService.docRef(chatRef.path),
         {
           lastMessage: { ...messageRefData },
-        },
+        } as any,
         { merge: true }
       );
-
+      await batch.commit();
       return messageRef;
     } catch (error) {
       console.error('createMessageForSender error', error);

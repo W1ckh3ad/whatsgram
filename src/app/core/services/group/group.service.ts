@@ -5,7 +5,11 @@ import { GroupMember } from '@models/group-member';
 import { Group } from '@models/group.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { FirestoreService } from '@services/firestore/firestore.service';
-import { getGroupDocPath, getGroupMembersCol } from '@utils/db.utils';
+import {
+  getGroupDocPath,
+  getGroupMemberDoc,
+  getGroupMembersCol,
+} from '@utils/db.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +57,33 @@ export class GroupService {
       return await callable({ members, groupId });
     } catch (error) {
       console.error('addGroupMember error', error);
+      throw error;
+    }
+  }
+
+  toggleAdmin(isAdmin: boolean, groupId: string, memberId: string) {
+    this.dbService.setUpdate(
+      getGroupMemberDoc(groupId, memberId),
+      { isAdmin: !isAdmin },
+      { merge: true }
+    );
+  }
+
+  removeMember(groupId: string, memberId: string) {
+    this.dbService.remove(getGroupMemberDoc(groupId, memberId));
+  }
+
+  async removeGroup(groupId: string) {
+    try {
+      const callable = httpsCallable<
+        { groupId: string },
+        string
+      >(this.fns, 'removeGroup', {
+        
+      });
+      return await callable({ groupId });
+    } catch (error) {
+      console.error('removeGroup error', error);
       throw error;
     }
   }

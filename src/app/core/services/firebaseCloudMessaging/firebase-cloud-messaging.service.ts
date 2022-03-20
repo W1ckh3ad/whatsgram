@@ -9,6 +9,7 @@ import {
 } from '@angular/fire/messaging';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
+import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
 import { getDeviceDocPath } from '@utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
@@ -26,7 +27,8 @@ export class FirebaseCloudMessagingService {
     public dbService: FirestoreService,
     private accountService: AccountService,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private cryptoKeysService: CryptoKeysService
   ) {
     this.accountService.uid$.subscribe(async (x) => {
       x ? await this.getToken() : null;
@@ -94,14 +96,18 @@ export class FirebaseCloudMessagingService {
 
   receiveMessage() {
     return onMessage(this.messaging, async (payload) => {
+      if (payload.data.type === 'privateKey') {
+        this.cryptoKeysService.receivePrivateKey(payload.data.key);
+      }
       await this.displayReceivedMessage(payload);
       console.log('Message Received', payload);
       this.currentMessage$.next(payload);
     });
   }
 
-  private async saveTokenToFirestore(token) {
+  private async saveTokenToFirestore(token: string, isMainDevice?: boolean) {
     if (!token) return false;
+    isMainDevice;
     const doc = getDeviceDocPath(this.accountService.uid$.value, token);
     if (await this.dbService.exists(doc)) {
       return false;

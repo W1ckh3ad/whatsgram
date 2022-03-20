@@ -45,6 +45,9 @@ type DocumentPredicate<T> = string | DocumentReference<T>;
 export class FirestoreService {
   constructor(private fs: Firestore) {}
   private readonly options = { idField: 'id' };
+  get firestore() {
+    return this.fs;
+  }
   docRef<T>(ref: DocumentPredicate<T>): DocumentReference<T> {
     return typeof ref === 'string'
       ? (doc(this.fs, ref) as DocumentReference<T>)

@@ -2,11 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SortedContactsPart } from '@models/sortedContacts.model';
 import { AccountService } from '@services/account/account.service';
-import { FirestoreService } from '@services/firestore/firestore.service';
-import { UserService } from '@services/user/user.service';
 import { ScrollHideConfig } from '@shared/directives/scrollHide/scroll-hide.directive';
-import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
 import { sortContactsIntoLetterSegments } from '@utils/contacts.utils';
+import { BehaviorSubject, combineLatestWith, map, Observable } from 'rxjs';
 import { AddComponent } from './components/add/add.component';
 
 @Component({
@@ -25,9 +23,7 @@ export class ContactsPage implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    public modalController: ModalController,
-    public dbService: FirestoreService,
-    public userService: UserService
+    private modalController: ModalController,
   ) {}
 
   ngOnInit() {
