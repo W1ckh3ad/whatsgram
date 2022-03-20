@@ -1,12 +1,13 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
-export const groupDataTransaction = functions.firestore
-    .document("groups/{groupId}")
+export const groupDataTransaction = functions
+    .region("europe-west3")
+    .firestore.document("groups/{groupId}")
     .onWrite(async (change, context) => {
       const groupId = context.params.groupId;
       const newData = change.after.data();
-      const oldData = change.after.data();
+      const oldData = change.before.data();
       if (!newData || !oldData) return;
 
       const importantKeys = ["description", "displayName", "photoURL"];

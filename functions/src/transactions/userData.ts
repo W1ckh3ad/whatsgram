@@ -1,12 +1,13 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
-export const userDataTransaction = functions.firestore
-    .document("users/{userId}")
+export const userDataTransaction = functions
+    .region("europe-west3")
+    .firestore.document("users/{userId}")
     .onWrite(async (change, context) => {
       const userId = context.params.userId;
       const newData = change.after.data();
-      const oldData = change.after.data();
+      const oldData = change.before.data();
       if (!newData || !oldData) return;
 
       const importantKeys = [
@@ -25,33 +26,29 @@ export const userDataTransaction = functions.firestore
 
       const db = admin.firestore();
       const batch = db.batch();
-      await Promise.all(
-          [
-            async () => {
-              if (!chatKeys.some((x) => !!changes[x])) return;
-              const chatDocsSnap = await db
-                  .collectionGroup("members")
-                  .where("id", "==", userId)
-                  .get();
-              const {phoneNumber, ...update} = changes;
-              for (const doc of chatDocsSnap.docs) {
-                batch.set(doc.ref, update, {merge: true});
-              }
-            },
-            async () => {
-              if (Object.keys(changes).length === 0) return;
-              const querySnaps = await Promise.all([
-                db.collectionGroup("members").where("id", "==", userId).get(),
-                db.collectionGroup("contacts").where("id", "==", userId).get(),
-              ]);
-              for (const querySnap of querySnaps) {
-                for (const doc of querySnap.docs) {
-                  batch.set(doc.ref, changes, {merge: true});
-                }
-              }
-            },
-          ].map((x) => x())
-      );
+      if (!chatKeys.some((x) => !!changes[x])) {
+        console.log("userdata group members contacts");
+        const chatDocsSnap = await db
+            .collectionGroup("members")
+            .where("id", "==", userId)
+            .get();
+        const {phoneNumber, ...update} = changes;
+        for (const doc of chatDocsSnap.docs) {
+          batch.set(doc.ref, update, {merge: true});
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        const querySnaps = await Promise.all([
+          db.collectionGroup("members").where("id", "==", userId).get(),
+          db.collectionGroup("contacts").where("id", "==", userId).get(),
+        ]);
+        console.log("userdata group members contacts");
+        for (const querySnap of querySnaps) {
+          for (const doc of querySnap.docs) {
+            batch.set(doc.ref, changes, {merge: true});
+          }
+        }
+      }
 
       batch.commit();
     });
