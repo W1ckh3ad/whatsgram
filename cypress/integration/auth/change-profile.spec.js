@@ -79,3 +79,6 @@ describe("change user settings", () => {
     cy.contains('Einstellungen')
   });  
     cy.contains('button', 'Sign Out').click()
+
+
+})
