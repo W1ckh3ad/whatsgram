@@ -92,7 +92,7 @@ describe("signin", () => {
   });
 
     /// normal login
-    cy.get('input[name="Password"]').type('jannik.decker@edu.fhdw.de')
+    cy.get('input[name="email"]').type('jannik.decker@edu.fhdw.de')
       .should('have.value', 'jannik.decker@edu.fhdw.de')
     
     cy.get('input[name="Password"]').type('123456')
