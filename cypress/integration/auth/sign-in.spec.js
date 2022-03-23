@@ -13,23 +13,22 @@ describe("signin", () => {
     cy.visit('http://localhost:8100/sign-in')
   });
 
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Login')
   });
 
     /// normal login
-    cy.get('input[name="Password"]').type('jannik.decker@edu.fhdw.de')
+    cy.get('input[name="email"]').type('jannik.decker@edu.fhdw.de')
       .should('have.value', 'jannik.decker@edu.fhdw.de')
     
     cy.get('input[name="Password"]').type('123456')
-      .should('have.value', '123456') ///Passwort verschlüsselt?
   
     cy.contains('button', 'Login').click()
   });
 
 
   ///Change Name
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Profil Bearbeiten')
   });  
 
@@ -39,7 +38,7 @@ describe("signin", () => {
     cy.contains('button', 'Speichern').click()
 
   ///Change Telephon Number
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Profil Bearbeiten')
   });  
 
@@ -51,7 +50,7 @@ describe("signin", () => {
 
 
 ///Change Profil Picture URL
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Profil Bearbeiten')
   });  
 
@@ -62,7 +61,7 @@ describe("signin", () => {
 
 
 ///Change Profil Description
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Profil Bearbeiten')
   });  
 
@@ -75,7 +74,7 @@ describe("signin", () => {
     cy.contains('button', 'Arrow Back').click()
 
  ///Sign Out
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Einstellungen')
   });  
     cy.contains('button', 'Sign Out').click()
@@ -88,7 +87,7 @@ describe("signin", () => {
     cy.visit('http://localhost:8100/sign-in')
   });
 
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Login')
   });
 
@@ -97,18 +96,17 @@ describe("signin", () => {
       .should('have.value', 'jannik.decker@edu.fhdw.de')
     
     cy.get('input[name="Password"]').type('123456')
-      .should('have.value', '123456') ///Passwort verschlüsselt?
   
     cy.contains('button', 'Login').click()
   });
 
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Profil Bearbeiten')
   });  
 
     cy.contains('tab-button-contacts').click()
 
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Contacts')
   });  
    
@@ -126,7 +124,7 @@ describe("signin", () => {
 
   cy.contains('tab-button-chats').click()
 
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Your Chats')
   });  
 
@@ -135,24 +133,26 @@ describe("signin", () => {
     cy.contains('button', 'add').click() //man könnte add auch weglassen, der plus Button ist der erste Button
 
 ///Step 1
-  if ('has a title', () => {
+  it ('has a title', () => {
     cy.contains('Create Group')
   });  
       ///Gruppenname
-    cy.get('input[name="ion-input-2"]').type('Test Gruppe')
+    cy.contains('input', 'Group Name').type('Test Gruppe')
       .should('have.value', 'Test Gruppe')
+
       /// Gruppenbild URL
-    cy.get('input[name="ion-input-3"]').type('https://th.bing.com/th/id/R.1c88c61f3481d30aec5d390fd0b51d1f?rik=KmquqDLyP%2fHPTw&pid=ImgRaw&r=0')
+    cy.contains('input', 'Group Picture URL').type('https://th.bing.com/th/id/R.1c88c61f3481d30aec5d390fd0b51d1f?rik=KmquqDLyP%2fHPTw&pid=ImgRaw&r=0')
       .should('have.value', 'https://th.bing.com/th/id/R.1c88c61f3481d30aec5d390fd0b51d1f?rik=KmquqDLyP%2fHPTw&pid=ImgRaw&r=0')
+
     /// Description
-    cy.get('input[name="ion-textarea-1"]').type('Das hier ist unsere Testgruppe')
+    cy.contains('input', 'Description').type('Das hier ist unsere Testgruppe')
       .should('have.value', 'Das hier ist unsere Testgruppe')
     
     cy.contains('button', ' Next ').click()
 
 ///Step 2
 ///Nutzer auswählen und Checkliste anklicken
-   if ('has a title', () => {
+   it ('has a title', () => {
     cy.contains('Create Group')
   }); 
     cy.get('[type="checkbox"]').first().check() 
@@ -161,19 +161,61 @@ describe("signin", () => {
 /// Step 3
     cy.contains('button', 'Create Group').click()
 
-/// Gruppenmitglieder hinzufügen, Offline Nachrichten?, Admin ändern, aus Gruppe austreten oder Gruppe löschen,  Kontakte selber benachrichtigen, Login with other services, dark modus?
+  
+/// Add Group Members
+  it ('has a title', () => {
+    cy.contains('Your Chats')
+  });  
+
+    cy.contains('Test Gruppe').click()
+ 
+///Group Settings                                 hier muss noch was gemacht werden
+    cy.contains('Test Gruppe').click()
+
+    cy.contains('Hinzufügen').click() 
+
+    cy.get('[type="checkbox"]').first().check()  /// hier wegen User aufpassen!
+    cy.contains('button', ' Fertig ').click()
+ 
+/// Change Admin
+    cy.contains(' W1ckh3ad ').click() 
+    cy.contains('Zum Admin ernennen').click() 
+
+/// Delete Admin
+    cy.contains(' W1ckh3ad ').click()
+    cy.contains('Adminstatus entfernen').click() 
+
+///Back to Group Chat
+    cy.contains('button', 'Arrow Back').click()
+
+///Write a Message
+    //cy.get('input[name="message"]').type('Das ist eine Testnachricht')
+    //  .should('have.value', 'Das ist eine Testnachricht')
+    cy.contains('input','message').type('Das ist eine Testnachricht')
+      .should('have.value', 'Das ist eine Testnachricht')
+
+///Send the Message
+    cy.contains('button', 'Send').click()
+
+///Remove Member
+    cy.contains(' W1ckh3ad ').click() 
+    cy.contains('Aus Gruppe entfernen').click() 
+
+///Delete the Group
+    cy.contains('Test Gruppe').click()
+    cy.contains(' Gruppe löschen ').click()
+    cy.contains('Löschen bestätigen').click()
+
+
+
+
+/// Offline Nachrichten?, Kontakte selber benachrichtigen, 
 /// errors erzeugen und Fehler abfangen?
     
 
 
   
   
-
- 
-
-
-
-///login with ...
 
 
 
