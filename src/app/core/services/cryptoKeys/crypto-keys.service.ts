@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { AccountService } from '@services/account/account.service';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { importKeys } from '@utils/crypto.utils';
+import { Storage } from '@capacitor/storage';
 
 type KeyStorage = {
   privateKey: CryptoKey;
   publicKey: CryptoKey;
 };
+
+const privateKeyStorgageKey = 'dsadsadasdsa';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +17,12 @@ type KeyStorage = {
 export class CryptoKeysService {
   private keyStorage$ = new BehaviorSubject<KeyStorage>(null);
   constructor(private account: AccountService) {
-    combineLatest([this.account.user$, this.account.privateData$])
+    combineLatest([this.account.user$, this.loadPrivateKey()])
       .pipe(
-        map(([user, privateData]) =>
-          user && privateData ? [privateData.privateKey, user.publicKey] : null
+        map(([user, privateKeyRes]) =>
+          user && privateKeyRes.value
+            ? [privateKeyRes.value, user.publicKey]
+            : null
         ),
         switchMap(async (x) => (x ? await importKeys(x[0], x[1]) : null))
       )
@@ -52,11 +57,11 @@ export class CryptoKeysService {
 
   private async loadKeys() {
     try {
-      const [{ publicKey }, { privateKey }] = await Promise.all([
+      const [{ publicKey }, { value }] = await Promise.all([
         this.account.loadSnapUser(),
-        this.account.loadSnapPrivate(),
+        this.loadPrivateKey(),
       ]);
-      const res = await importKeys(privateKey, publicKey);
+      const res = await importKeys(value, publicKey);
       return {
         privateKey: res.privateKey,
         publicKey: res.publicKey,
@@ -65,5 +70,18 @@ export class CryptoKeysService {
       console.error('loadKeys error', error);
       throw error;
     }
+  }
+
+  public async savePrivateKey(key: string) {
+    await Storage.set({
+      key: privateKeyStorgageKey,
+      value: key,
+    });
+  }
+
+  private async loadPrivateKey() {
+    return await Storage.get({
+      key: privateKeyStorgageKey,
+    });
   }
 }

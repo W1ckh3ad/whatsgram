@@ -23,14 +23,12 @@ import { Device } from '@models/device.model';
 import { DocumentBase } from '@models/document-base.model';
 import { Group } from '@models/group.model';
 import { Message } from '@models/message.model';
-import { PrivateData } from '@models/private-data.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import {
   getDevicesColPath,
   getGroupDocPath,
   getMessageColPath,
   getMessageDocPath,
-  getPrivateDataDocPath,
   getUserDocPath,
   getUsersColPath,
 } from '@utils/db.utils';
@@ -182,9 +180,7 @@ export class FirestoreService {
   getUserDoc(uid: string) {
     return this.docRef<WhatsgramUser & DocumentBase>(getUserDocPath(uid));
   }
-  getPrivateDataDoc(uid: string) {
-    return this.docRef<PrivateData & DocumentBase>(getPrivateDataDocPath(uid));
-  }
+
   getMessageDoc(userId: string, groupdOrChatID: string, messageId: string) {
     return this.docRef<Message>(
       getMessageDocPath(userId, groupdOrChatID, messageId)

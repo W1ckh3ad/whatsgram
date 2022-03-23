@@ -4,17 +4,16 @@ import { DocumentReference } from '@angular/fire/firestore';
 import { AuthAction } from '@models/auth-action.type';
 import { Device } from '@models/device.model';
 import { DocumentBase } from '@models/document-base.model';
-import { PrivateData } from '@models/private-data.model';
 import { UserEdit } from '@models/user-edit.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
+import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { exportKeys, generateKeys } from '@utils/crypto.utils';
 import {
   getContactDocPath,
   getContactsColPath,
   getDevicesColPath,
-  getPrivateDataDocPath,
-  getUserDocPath
+  getUserDocPath,
 } from '@utils/db.utils';
 import {
   BehaviorSubject,
@@ -23,7 +22,7 @@ import {
   of,
   shareReplay,
   Subscription,
-  switchMap
+  switchMap,
 } from 'rxjs';
 import { FirestoreService } from '../firestore/firestore.service';
 
@@ -34,19 +33,22 @@ export class AccountService implements OnDestroy {
   uid$ = new BehaviorSubject<string>(null);
   contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
   userStore$ = new BehaviorSubject<WhatsgramUser>(null);
-  privateData$: Observable<PrivateData> = null;
   devices$: Observable<(Device & DocumentBase)[]> = null;
   private sub: Subscription;
-  constructor(private authService: AuthService, private dbService: FirestoreService) {
+  constructor(
+    private authService: AuthService,
+    private dbService: FirestoreService,
+    private cryptoKeysService: CryptoKeysService
+  ) {
     this.authService.user$
-      .pipe(
-        map((x) => (x ? x.uid : null))
-      )
+      .pipe(map((x) => (x ? x.uid : null)))
       .subscribe((x) => (x !== this.uid$.value ? this.uid$.next(x) : null));
 
     this.contacts$ = this.uid$.pipe(
       switchMap((x) =>
-        this.dbService.collection$<WhatsgramUser & DocumentBase>(getContactsColPath(x))
+        this.dbService.collection$<WhatsgramUser & DocumentBase>(
+          getContactsColPath(x)
+        )
       ),
       shareReplay(1)
     );
@@ -54,7 +56,9 @@ export class AccountService implements OnDestroy {
     this.devices$ = this.uid$.pipe(
       switchMap((x) =>
         x
-          ? this.dbService.collection$<Device & DocumentBase>(getDevicesColPath(x))
+          ? this.dbService.collection$<Device & DocumentBase>(
+              getDevicesColPath(x)
+            )
           : of([] as (Device & DocumentBase)[])
       )
     );
@@ -68,13 +72,6 @@ export class AccountService implements OnDestroy {
         )
       )
       .subscribe((x) => this.userStore$.next(x));
-
-    this.privateData$ = this.uid$.pipe(
-      switchMap((x) =>
-        this.dbService.docWithMetaData$<PrivateData>(getPrivateDataDocPath(x))
-      ),
-      shareReplay(1)
-    );
   }
 
   ngOnDestroy(): void {
@@ -87,22 +84,12 @@ export class AccountService implements OnDestroy {
     return this.dbService.getUserDoc(id);
   }
 
-  get privateDataRef(): DocumentReference<PrivateData> {
-    const id = this.uid$.value;
-    if (!id) throw new Error('User Id is null');
-    return this.dbService.getPrivateDataDoc(id);
-  }
-
   get user$() {
     return this.dbService.doc$(this.userRef);
   }
 
   async loadSnapUser() {
     return this.dbService.docSnapWithMetaData(this.userRef);
-  }
-
-  async loadSnapPrivate(): Promise<PrivateData> {
-    return this.dbService.docSnap(this.privateDataRef);
   }
 
   async updateProfile({
@@ -135,13 +122,13 @@ export class AccountService implements OnDestroy {
   }
 
   async deleteContact(userToRemoveId: string) {
-    const doc = this.dbService.docRef(getContactDocPath(this.uid, userToRemoveId));
+    const doc = this.dbService.docRef(
+      getContactDocPath(this.uid, userToRemoveId)
+    );
     return this.dbService.remove(doc);
   }
 
-  async createIfDoesntExistsAndGiveAction(
-    user: User
-  ): Promise<AuthAction> {
+  async createIfDoesntExistsAndGiveAction(user: User): Promise<AuthAction> {
     const { emailVerified } = user;
     if (this.uid$.value === null) {
       this.uid$.next(user.uid);
@@ -181,9 +168,7 @@ export class AccountService implements OnDestroy {
       id: uid,
     };
     return Promise.all([
-      this.dbService.addWithDocumentReference(this.privateDataRef, {
-        privateKey,
-      }),
+      this.cryptoKeysService.savePrivateKey(privateKey),
       this.dbService.addWithDocumentReference(this.userRef, data),
     ]);
   }

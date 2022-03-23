@@ -5,7 +5,6 @@ import {
   groups,
   members,
   messages,
-  privateData,
   users,
 } from "../constants/collection-names";
 
@@ -24,15 +23,6 @@ export function getUsersColPath(): string {
  */
 export function getUserDocPath(id: string): string {
   return `${getUsersColPath()}/${id}`;
-}
-
-/**
- * Getting user private data doc path.
- * @param {string} id The user id.
- * @return {string} The users private data doc.
- */
-export function getPrivateDataDocPath(id: string): string {
-  return `${getUserDocPath(id)}/${privateData}/${id}`;
 }
 
 /**

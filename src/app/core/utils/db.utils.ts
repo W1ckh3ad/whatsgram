@@ -5,7 +5,6 @@ import {
   groups,
   members,
   messages,
-  privateData,
   users,
 } from '../constants/collection-names';
 
@@ -16,11 +15,6 @@ export function getUsersColPath() {
 export function getUserDocPath(id: string) {
   return `${getUsersColPath()}/${id}`;
 }
-
-export function getPrivateDataDocPath(id: string) {
-  return `${getUserDocPath(id)}/${privateData}/${id}`;
-}
-
 export function getContactsColPath(id: string) {
   return `${getUserDocPath(id)}/${contacts}`;
 }
