@@ -55,7 +55,9 @@ export const sendPrivateKey = functions
               key: keys.join("|"),
             },
           };
-          fcm.sendToDevice(receiverDeviceId, message);
+          console.log("send message to", receiverDeviceId, message);
+          await fcm.sendToDevice(receiverDeviceId, message);
+          console.log("message send");
           return "Success";
         }
     );

@@ -52,7 +52,7 @@ const routes: Routes = [
       import('./features/settings/settings.module').then(
         (m) => m.SettingsPageModule
       ),
-    canActivate: [AuthGuard, VerifiedGuard, ValidKeyGuard],
+    canActivate: [AuthGuard, VerifiedGuard],
   },
   {
     path: 'chats',

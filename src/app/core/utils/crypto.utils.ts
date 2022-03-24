@@ -8,7 +8,7 @@ export async function encryptMessage(
 ) {
   try {
     const buffer = stringToBuffer(messageString);
-    console.log(buffer);
+    console.log(buffer, messageString, publicKey);
     const encrypted = await window.crypto.subtle.encrypt(
       {
         name: algName,
@@ -31,6 +31,7 @@ export async function decryptMessage(
   privateKey: CryptoKey
 ) {
   try {
+    console.log(messageHex, privateKey);
     let decrypted = await window.crypto.subtle.decrypt(
       {
         name: algName,
