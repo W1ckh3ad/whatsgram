@@ -21,7 +21,6 @@ export class SettingsPage implements OnInit {
     private router: Router,
     private fcmService: FirebaseCloudMessagingService
   ) {
-    console.log(fcmService);
   }
 
   async ngOnInit() {

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '@guards/auth/auth.guard';
+import { ValidKeyGuard } from '@guards/validKey/valid-key.guard';
 import { VerifiedGuard } from '@guards/verified/verified.guard';
 const routes: Routes = [
   {
@@ -51,13 +52,13 @@ const routes: Routes = [
       import('./features/settings/settings.module').then(
         (m) => m.SettingsPageModule
       ),
-    canActivate: [AuthGuard, VerifiedGuard],
+    canActivate: [AuthGuard, VerifiedGuard, ValidKeyGuard],
   },
   {
     path: 'chats',
     loadChildren: () =>
       import('./features/chats/chats.module').then((m) => m.ChatsPageModule),
-    canActivate: [AuthGuard, VerifiedGuard],
+    canActivate: [AuthGuard, VerifiedGuard, ValidKeyGuard],
   },
   {
     path: 'contacts',
@@ -65,9 +66,16 @@ const routes: Routes = [
       import('./features/contacts/contacts.module').then(
         (m) => m.ContactsPageModule
       ),
+    canActivate: [AuthGuard, VerifiedGuard, ValidKeyGuard],
+  },
+  {
+    path: 'register-device',
+    loadChildren: () =>
+      import('./features/register-device/register-device.module').then(
+        (m) => m.RegisterDevicePageModule
+      ),
     canActivate: [AuthGuard, VerifiedGuard],
   },
-
   {
     path: '**',
     loadChildren: () =>

@@ -25,6 +25,8 @@ export class RouteHandlerServiceService {
         }
         return this.router.navigateByUrl('/chats');
       }
+      case 'no-pk':
+        return this.router.navigateByUrl('/register-device');
     }
   }
 }

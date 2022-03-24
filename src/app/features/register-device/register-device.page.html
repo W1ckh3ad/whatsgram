@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Your device isn't connected</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <qrcode [qrdata]="url" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+
+  <ion-item>
+    <ion-label>URL</ion-label>
+    {{url}}
+  </ion-item>
+</ion-content>

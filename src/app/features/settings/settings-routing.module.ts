@@ -19,6 +19,10 @@ const routes: Routes = [
     path: 'info',
     loadChildren: () => import('./pages/info/info.module').then( m => m.InfoPageModule)
   },
+  {
+    path: 'register-new-device',
+    loadChildren: () => import('./pages/register-new-device/register-new-device.module').then( m => m.RegisterNewDevicePageModule)
+  },
 
 ];
 

@@ -7,14 +7,19 @@ export async function encryptMessage(
   publicKey: CryptoKey
 ) {
   try {
+    const buffer = stringToBuffer(messageString);
+    console.log(buffer);
     const encrypted = await window.crypto.subtle.encrypt(
       {
         name: algName,
       },
       publicKey,
-      stringToBuffer(messageString)
+      buffer
     );
-    return bufferToHex(encrypted);
+    console.log(encrypted);
+    const hex = bufferToHex(encrypted);
+    console.log(hex);
+    return hex;
   } catch (error) {
     console.error('EncryptMessage error', error);
     throw error;
@@ -62,17 +67,32 @@ export function generateKeys() {
 export async function exportKeys(pair: CryptoKeyPair) {
   try {
     const [privateKey, publicKey] = await Promise.all([
-      window.crypto.subtle.exportKey('pkcs8', pair.privateKey),
-      window.crypto.subtle.exportKey('spki', pair.publicKey),
+      exportPrivateKey(pair.privateKey),
+      exportPublicKey(pair.publicKey),
     ]);
     return {
-      privateKey: bufferToHex(privateKey),
-      publicKey: bufferToHex(publicKey),
+      privateKey,
+      publicKey,
     };
   } catch (error) {
     console.error('Exporting Keys error', error);
     throw error;
   }
+}
+
+export async function exportPublicKey(publicKey: CryptoKey) {
+  const publicKeyBuffer = await window.crypto.subtle.exportKey(
+    'spki',
+    publicKey
+  );
+  return bufferToHex(publicKeyBuffer);
+}
+export async function exportPrivateKey(privateKey: CryptoKey) {
+  const privateKeyBuffer = await window.crypto.subtle.exportKey(
+    'pkcs8',
+    privateKey
+  );
+  return bufferToHex(privateKeyBuffer);
 }
 
 export async function importKeys(privateKey: string, publicKey: string) {

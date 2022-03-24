@@ -6,14 +6,17 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { AuthService } from '@services/auth/auth.service';
+import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+export class ValidKeyGuard implements CanActivate {
+  constructor(
+    private cryptoKeyStorage: CryptoKeysService,
+    private router: Router
+  ) {}
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -22,11 +25,12 @@ export class AuthGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    if (!this.authService.user) {
-      this.router.navigateByUrl(
-        '/sign-in?returnUrl=' + encodeURIComponent(state.url)
-      );
-    }
-    return true;
+    return this.cryptoKeyStorage
+      .getPrivateKey()
+      .then((x) => {
+        if (!x) this.router.navigateByUrl('register-device');
+        return true;
+      })
+      .catch((x) => true);
   }
 }
