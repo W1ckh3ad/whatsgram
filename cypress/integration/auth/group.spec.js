@@ -11,25 +11,50 @@ describe("change user settings", () => {
 
   beforeEach(() => {
     cy.visit('http://localhost:8100/sign-in')
-  });
 
-  it ('has a title', () => {
-    cy.contains('Login')
-  });
+    ///Login
+    cy.get('input[name="email"]').clear()
 
-    /// normal login
     cy.get('input[name="email"]').type('jannik.decker@edu.fhdw.de')
       .should('have.value', 'jannik.decker@edu.fhdw.de')
-    
+          
+    cy.get('input[name="Password"]').clear()
+        
     cy.get('input[name="Password"]').type('123456')
-  
-    cy.contains('button', 'Login').click()
+        
+    cy.get('ion-button[type="submit"]').click()    
+
   });
 
-    cy.contains('tab-button-chats').click()
+  afterEach(() => {
+    cy.get('[id="tab-button-settings"]').click()
 
-  it ('has a title', () => {
-    cy.contains('Your Chats')
+    cy.contains('Sign Out').click()
+
+  });
+
+  it('should create a group', () => {
+    cy.get('[id="tab-button-chats"]').click()
+
+    // plus anklicken
+
+    cy.get('input[name^=ion-input]').first().clear()
+
+    cy.get('input[name^=ion-input]').first().type('Gruppe.Testname')
+      .should('have.value', 'Gruppe.Testname')
+
+    cy.get('input[name^=ion-input]').next().clear()
+
+    cy.get('input[name^=ion-input]').next().type('test')
+      .should('have.value', 'test')
+
+    cy.get('textarea[name^=ion-textarea]').clear()
+
+    cy.get('textarea[name=^=ion-textarea]').type('Das ist eine Testbeschreibung')
+      .should('have.value', 'Das ist eine Testbeschreibung')
+
+
+
   });  
 
 
