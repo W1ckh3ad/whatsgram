@@ -1,14 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import { DocumentReference } from '@angular/fire/firestore';
-import { AuthAction } from '@models/auth-action.type';
 import { Device } from '@models/device.model';
 import { DocumentBase } from '@models/document-base.model';
 import { UserEdit } from '@models/user-edit.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AuthService } from '@services/auth/auth.service';
-import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
-import { exportKeys, generateKeys } from '@utils/crypto.utils';
+import { importPublicKey } from '@utils/crypto.utils';
 import {
   getContactDocPath,
   getContactsColPath,
@@ -34,11 +32,11 @@ export class AccountService implements OnDestroy {
   contacts$: Observable<(DocumentBase & WhatsgramUser)[]> = null;
   userStore$ = new BehaviorSubject<WhatsgramUser>(null);
   devices$: Observable<(Device & DocumentBase)[]> = null;
+  private keyStorage$ = new BehaviorSubject<CryptoKey>(null);
   private sub: Subscription;
   constructor(
     private authService: AuthService,
-    private dbService: FirestoreService,
-    private cryptoKeysService: CryptoKeysService
+    private dbService: FirestoreService
   ) {
     this.authService.user$
       .pipe(map((x) => (x ? x.uid : null)))
@@ -71,11 +69,21 @@ export class AccountService implements OnDestroy {
             : of(null)
         )
       )
-      .subscribe((x) => this.userStore$.next(x));
+      .subscribe(async (x) => {
+        this.userStore$.next(x);
+        if (x.publicKey) {
+          console.log(x.publicKey);
+          this.keyStorage$.next(await importPublicKey(x.publicKey));
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  get publicKey() {
+    return this.keyStorage$.value;
   }
 
   get userRef(): DocumentReference<WhatsgramUser & DocumentBase> {
@@ -128,37 +136,10 @@ export class AccountService implements OnDestroy {
     return this.dbService.remove(doc);
   }
 
-  async createIfDoesntExistsAndGiveAction(user: User): Promise<AuthAction> {
-    const { emailVerified } = user;
-    if (this.uid$.value === null) {
-      this.uid$.next(user.uid);
-    }
-    if (!(await this.exists())) {
-      if (emailVerified) {
-        this.create(user);
-        return 'set-up-profile';
-      }
-      return 'verify-email';
-    }
-    return 'go';
-  }
-
-  // public async readMessagesForPrivateChat(
-  //   messageId: string,
-  //   receiverId: string
-  // ) {
-  // const refString = getChatDocPath(this.uid, receiverId);
-  //   const chatRef = this.db.doc<Chat>(refString);
-  //   return this.db.setUpdate(chatRef, { lastReadMessage: messageId } as any, {
-  //     merge: true,
-  //   });
-  // }
-
-  private async create({ displayName, email, photoURL, uid }: User) {
+  async create({ displayName, email, photoURL, uid }: User, publicKey: string) {
     if (this.uid$.value !== uid) {
       this.uid$.next(uid);
     }
-    const { privateKey, publicKey } = await exportKeys(await generateKeys());
 
     const data: any = {
       displayName: displayName ?? uid,
@@ -168,7 +149,7 @@ export class AccountService implements OnDestroy {
       id: uid,
     };
     return Promise.all([
-      this.cryptoKeysService.savePrivateKey(privateKey),
+      ,
       this.dbService.addWithDocumentReference(this.userRef, data),
     ]);
   }

@@ -6,14 +6,13 @@ import { DocumentBase } from '@models/document-base.model';
 import { Message } from '@models/message.model';
 import { WhatsgramUser } from '@models/whatsgram.user.model';
 import { AccountService } from '@services/account/account.service';
-import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { GroupService } from '@services/group/group.service';
 import { UserService } from '@services/user/user.service';
 import { encryptMessage, importPublicKey } from '@utils/crypto.utils';
 import {
   getChatDocPath,
   getChatsColPath,
-  getMessageColPath,
+  getMessageColPath
 } from '@utils/db.utils';
 import { writeBatch } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
@@ -31,7 +30,6 @@ export class ChatService {
   private senderId: string;
   constructor(
     private dbService: FirestoreService,
-    private cryptoKeysService: CryptoKeysService,
     private fns: Functions,
     private accountService: AccountService,
     private userService: UserService,
@@ -126,10 +124,7 @@ export class ChatService {
       const messageObject = {
         ...message,
         receiverMessagePath,
-        text: await encryptMessage(
-          message.text,
-          await this.cryptoKeysService.getPublicKey()
-        ),
+        text: await encryptMessage(message.text, this.accountService.publicKey),
       };
 
       const messageRef = await this.dbService.add<Message>(

@@ -5,12 +5,12 @@ import {
   MessagePayload,
   Messaging,
   onMessage,
-  Unsubscribe,
+  Unsubscribe
 } from '@angular/fire/messaging';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AccountService } from '@services/account/account.service';
-import { CryptoKeysService } from '@services/cryptoKeys/crypto-keys.service';
 import { FirestoreService } from '@services/firestore/firestore.service';
+import { PrivateKeyService } from '@services/privateKey/private-key.service';
 import { decryptMessage } from '@utils/crypto.utils';
 import { getDeviceDocPath } from '@utils/db.utils';
 import { BehaviorSubject } from 'rxjs';
@@ -29,7 +29,7 @@ export class FirebaseCloudMessagingService {
     private accountService: AccountService,
     private alertController: AlertController,
     private toastController: ToastController,
-    private cryptoKeysService: CryptoKeysService
+    private privateKeyService: PrivateKeyService
   ) {
     this.accountService.uid$.subscribe(async (x) => {
       x ? await this.getToken() : null;
@@ -49,13 +49,13 @@ export class FirebaseCloudMessagingService {
     return this.tokenField;
   }
 
-  async getToken() {
+  async getToken(isMainDevice: boolean = false) {
     try {
       const token = await getToken(this.messaging, {
         vapidKey: environment.vapidKey,
       });
       this.tokenField = token;
-      if (await this.saveTokenToFirestore(token)) {
+      if (await this.saveTokenToFirestore(token, isMainDevice)) {
         const toast = await this.toastController.create({
           message: 'Successfully registered your device',
           duration: 2000,
@@ -98,7 +98,7 @@ export class FirebaseCloudMessagingService {
   receiveMessage() {
     return onMessage(this.messaging, async (payload) => {
       if (payload.data.type === 'privateKey') {
-        this.cryptoKeysService.receivePrivateKey(payload.data.key);
+        await this.privateKeyService.savePrivateKey(payload.data.key);
       }
       await this.displayReceivedMessage(payload);
       console.log('Message Received', payload);
@@ -106,7 +106,10 @@ export class FirebaseCloudMessagingService {
     });
   }
 
-  private async saveTokenToFirestore(token: string, isMainDevice?: boolean) {
+  private async saveTokenToFirestore(
+    token: string,
+    isMainDevice: boolean = false
+  ) {
     if (!token) return false;
     isMainDevice;
     const doc = getDeviceDocPath(this.accountService.uid$.value, token);
@@ -137,7 +140,7 @@ export class FirebaseCloudMessagingService {
       payload.data.type === 'chatMessage'
         ? await decryptMessage(
             payload.notification.body,
-            await this.cryptoKeysService.getPrivateKey()
+            await this.privateKeyService.getKey()
           )
         : payload.notification.body;
     const toast = await this.toastController.create({
