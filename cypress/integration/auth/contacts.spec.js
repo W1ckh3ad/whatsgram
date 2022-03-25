@@ -11,47 +11,39 @@ describe("signin", () => {
 
   beforeEach(() => {
     cy.visit('http://localhost:8100/sign-in')
-  });
 
-  it ('has a title', () => {
-    cy.contains('Login')
-  });
+    ///Login
+    cy.get('input[name="email"]').clear()
 
-    /// normal login
     cy.get('input[name="email"]').type('jannik.decker@edu.fhdw.de')
       .should('have.value', 'jannik.decker@edu.fhdw.de')
-    
+          
+    cy.get('input[name="Password"]').clear()
+        
     cy.get('input[name="Password"]').type('123456')
-  
-    cy.contains('button', 'Login').click()
+        
+    cy.get('ion-button[type="submit"]').click()    
+
   });
 
-    ///Change to Contacts
-    cy.contains('tab-button-contacts').click()
+  afterEach(() => {
+    cy.get('[id="tab-button-settings"]').click()
 
-  it ('has a title', () => {
-    cy.contains('Contacts')
-  });  
-   
-    cy.contains('button', 'add').click() //man könnte add auch weglassen, der plus Button ist der erste Button
+    cy.contains('Sign Out').click()
+
+  });
+
+    ///Add Contacts
+  it ('should add contact', () => {  
+    cy.get('[id="tab-button-contacts"]').click()
+
+    cy.first().click() // ansprechen unklar
 
     cy.get('input[name="saerch"]').type('c.gdynia@live.de')
       .should('have.value', 'c.gdynia@live.de')
     
-    cy.contains('button', 'Search').click()
-    cy.contains('button', 'Add').click()
-
-    /// Sign Out 
-/// Back To Settings
-    cy.contains('button', 'Arrow Back').click()
-
- ///Sign Out
-    cy.contains('settings').click()
-  it ('has a title', () => {
-    cy.contains('Einstellungen')
+    cy.get('ion-button[type="submit"]').click()    
+    cy.contains('button', 'Add').click()  //ansprechen unklar
+  
   });  
-    cy.contains('button', 'Sign Out').click()
-
-
-
 })
