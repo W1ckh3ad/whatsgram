@@ -71,7 +71,7 @@ export class GroupPage implements OnInit {
   async add() {
     const modal = await this.modalController.create({
       component: AddToGroupComponent,
-      initialBreakpoint: 0.6,
+      initialBreakpoint: 0.9,
       breakpoints: [0.4, 0.6, 0.9],
       componentProps: {
         groupId: this.groupId,

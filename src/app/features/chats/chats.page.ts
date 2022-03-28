@@ -42,7 +42,7 @@ export class ChatsPage implements OnInit {
   async openCreateGroupChat() {
     const modal = await this.modalController.create({
       component: CreateGroupComponent,
-      initialBreakpoint: 0.6,
+      initialBreakpoint: 1,
       breakpoints: [0, 0.2, 0.6, 1],
     });
     return await modal.present();
